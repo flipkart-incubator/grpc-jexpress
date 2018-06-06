@@ -1,0 +1,16 @@
+apply plugin: 'java-library'
+
+dependencies {
+	implementation project(':core')
+	implementation project(':guice')
+    api libraries.slf4j_api
+    api libraries.log4j_api
+    implementation libraries.log4j
+    
+	implementation libraries.guice
+    implementation libraries.commons_configuration
+    implementation libraries.yammer_metrics
+	implementation libraries.grpc_netty
+	implementation libraries.grpc_protobuf
+    
+}

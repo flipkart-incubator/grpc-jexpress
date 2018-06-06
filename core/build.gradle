@@ -1,0 +1,10 @@
+apply plugin: 'java-library'
+
+dependencies {
+    api libraries.slf4j_api
+    api libraries.log4j_api
+    implementation libraries.log4j
+    implementation libraries.commons_configuration
+    implementation libraries.yammer_metrics
+    implementation 'org.yaml:snakeyaml:1.15'
+}

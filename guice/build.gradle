@@ -1,0 +1,15 @@
+apply plugin: 'java-library'
+
+dependencies {
+
+	implementation project(':core')
+    implementation libraries.commons_configuration
+    implementation libraries.guice
+    implementation 'org.eclipse.jetty:jetty-server:9.4.10.RC1'
+    implementation 'org.eclipse.jetty:jetty-servlet:9.4.10.RC1'
+    implementation 'org.eclipse.jetty:jetty-webapp:9.4.10.RC1'
+    
+	implementation libraries.grpc_netty
+	implementation libraries.grpc_protobuf
+    
+}

@@ -1,0 +1,2 @@
+GJEX:
+  grpc.module.names:["com.flipkart.gjex.hw.HelloWorld"]
