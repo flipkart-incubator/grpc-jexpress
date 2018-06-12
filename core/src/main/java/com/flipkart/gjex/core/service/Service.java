@@ -16,6 +16,13 @@
 
 package com.flipkart.gjex.core.service;
 
+/**
+ * <code>Service</code> defines an interface for Service-like components that have explicit Start and Stop lifecycles.
+ * These methods can be invoked suitably by the container. Examples of implementation include JDBC Datasource, Http Connection pool etc.
+ *
+ * @author regunath.balasubramanian
+ */
+
 public interface Service {
 	
 	/**
