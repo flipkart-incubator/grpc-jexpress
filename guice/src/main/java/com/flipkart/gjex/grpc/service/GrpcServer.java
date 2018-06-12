@@ -15,6 +15,8 @@
  */
 package com.flipkart.gjex.grpc.service;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -24,8 +26,15 @@ import org.slf4j.LoggerFactory;
 
 import com.flipkart.gjex.core.service.Service;
 
+import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+
+/**
+ * <code>GrpcServer</code> is a {@link Service} implementation that manages the GJEX Grpc Server instance lifecycle
+ * 
+ * @author regunath.balasubramanian
+ */
 
 @Singleton
 public class GrpcServer implements Service {
@@ -33,19 +42,23 @@ public class GrpcServer implements Service {
 	/** Logger for this class*/
 	private static final Logger LOGGER = LoggerFactory.getLogger(GrpcServer.class);
 
+	/** Default port number if none is specified*/
 	private int port = 50051;
-	private ServerBuilder grpcServerBuilder;
+	
+	/** The core Grpc Server instance and its builder*/
+	private ServerBuilder<?> grpcServerBuilder;
 	private Server grpcServer;
 	
 	@Inject
 	public GrpcServer(@Named("Grpc.server.port") int port) {
 		this.port = port;
-		this.grpcServerBuilder = ServerBuilder.forPort(port);
+		this.grpcServerBuilder = ServerBuilder.forPort(this.port);
 	}
 	
 	@Override
 	public void start() throws Exception {
 		this.grpcServer = this.grpcServerBuilder.build().start();
+		LOGGER.info("GJEX GrpcServer started.");
 		this.grpcServer.awaitTermination();
 	}
 
@@ -54,6 +67,11 @@ public class GrpcServer implements Service {
 	    if (this.grpcServer != null) {
 	    		this.grpcServer.shutdown();
 	    }
+		LOGGER.info("GJEX GrpcServer stopped.");
+	}
+	
+	public void registerServices(List<BindableService> services) {
+		services.forEach(service -> this.grpcServerBuilder.addService(service));
 	}
 
 }

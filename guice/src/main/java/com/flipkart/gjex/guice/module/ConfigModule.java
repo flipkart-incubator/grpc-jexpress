@@ -30,10 +30,19 @@ import com.google.inject.AbstractModule;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.name.Names;
 
+/**
+ * <code>ConfigModule</code> is a Guice module for loading application configuration attributes 
+ * 
+ * @author regunath.balasubramanian
+ */
 public class ConfigModule extends AbstractModule {
 
+	/** Yaml configurations loaded by this module*/
     private final YamlConfiguration[] yamlConfigurations;
 
+    /**
+     * Constructor to load the GJEX application startup configuration from System property or classpath
+     */
     public ConfigModule() {
         try {
             URL configUrl = null;
@@ -49,6 +58,10 @@ public class ConfigModule extends AbstractModule {
         }
     }
 
+    /**
+     * Constructor to load configuration information from files that match the specified file name
+     * @param configFileName the configuration file name
+     */
     public ConfigModule(String configFileName) {
     		List<YamlConfiguration> yamlConfigurationsList = new LinkedList<YamlConfiguration>();
         try {

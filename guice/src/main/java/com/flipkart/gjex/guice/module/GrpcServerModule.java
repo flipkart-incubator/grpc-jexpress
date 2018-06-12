@@ -16,7 +16,15 @@
 
 package com.flipkart.gjex.guice.module;
 
+import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.google.inject.AbstractModule;
+
+/**
+ * <code>GrpcServerModule</code> is a Guice {@link AbstractModule} implementation used for wiring Grpc Server and Services.
+ * 
+ * @author regunath.balasubramanian
+ *
+ */
 
 public class GrpcServerModule extends AbstractModule {
 
@@ -24,5 +32,6 @@ public class GrpcServerModule extends AbstractModule {
 	
 	@Override
     protected void configure() {		
+		bind(GrpcServer.class);
 	}
 }

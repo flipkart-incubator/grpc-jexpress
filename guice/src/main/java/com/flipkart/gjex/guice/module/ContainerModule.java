@@ -35,7 +35,6 @@ import com.google.inject.Provides;
  * <code>ContainerModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX container components.
  * 
  * @author regunath.balasubramanian
- *
  */
 public class ContainerModule extends AbstractModule {
 
