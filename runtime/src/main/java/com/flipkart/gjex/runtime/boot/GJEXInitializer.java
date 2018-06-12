@@ -18,6 +18,7 @@ package com.flipkart.gjex.runtime.boot;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,6 +31,7 @@ import com.flipkart.gjex.Constants;
 import com.flipkart.gjex.core.config.FileLocator;
 import com.flipkart.gjex.core.config.YamlConfiguration;
 import com.flipkart.gjex.core.service.Service;
+import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Binding;
@@ -38,6 +40,8 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.yammer.metrics.guice.InstrumentationModule;
+
+import io.grpc.BindableService;
 
 /**
  * <code>GJEXInitializer</code> initializes the grpc-jexpress (GJEX) runtime using the various Guice modules
@@ -49,6 +53,19 @@ public class GJEXInitializer {
 	/** Logger for this class */
     private static final Logger logger = LoggerFactory.getLogger(GJEXInitializer.class);
 	
+	/** The GJEX startup display contents*/
+	private static final MessageFormat STARTUP_DISPLAY = new MessageFormat(
+            "\n*************************************************************************\n" +	
+					" #####        # ####### #     #  \n" +
+					"#     #       # #        #   #   \n" +
+					"#             # #         # #    " + "    Startup Time : {0}" + " ms\n" +
+					"#  ####       # #####      #     " + "    Host Name: {1} \n " +
+					"#     # #     # #         # #    \n" +
+					"#     # #     # #        #   #   \n" +
+					" #####   #####  ####### #     #  \n" +           		
+             "*************************************************************************"
+    );
+    
 	/** The machine name where this GJEX instance is running */
 	private String hostName;
 	
@@ -66,11 +83,34 @@ public class GJEXInitializer {
 	    	}        
     }
 	
+    /**
+     * Startup entry method 
+     */
+    public static void main(String[] args) throws Exception {
+    		final GJEXInitializer gjexInitializer = new GJEXInitializer();
+    		gjexInitializer.start();
+    		
+    }
+    
+    private void start() throws Exception {
+    		logger.info("** GJEX starting up... **");
+    		long start = System.currentTimeMillis();
+        //load GJEX runtime container
+    		loadGJEXRuntimeContainer();
+        final Object[] displayArgs = {
+				(System.currentTimeMillis() - start),
+				this.hostName,
+        };
+		logger.info(STARTUP_DISPLAY.format(displayArgs));
+        logger.info("** GJEX startup complete **");
+    }
+    
     private void loadGJEXRuntimeContainer() {
-    		// get System configs 
-    		final ConfigModule systemConfigModule = new ConfigModule();
-    		// locate and load all GRPC modules
 		List<AbstractModule> grpcModules = new LinkedList<AbstractModule>();
+		// add the Config and Metrics InstrumentationModule
+		grpcModules.add( new ConfigModule());
+		grpcModules.add(new InstrumentationModule());
+		// locate and load all GRPC modules
         try {
 	    		for (File grpcModuleConfig : FileLocator.findFiles(Constants.GRPC_MODULE_NAMES_CONFIG)) {
 	    			YamlConfiguration yamlConfiguration = new YamlConfiguration(grpcModuleConfig.toURI().toURL());
@@ -84,13 +124,13 @@ public class GJEXInitializer {
 	    	            }
 	    	        }
 	    		}
-	    		// add the Metrics InstrumentationModule
-	    		grpcModules.add(new InstrumentationModule());
         } catch (Exception e) {
         		logger.error("Error loading GJEX Runtime Container", e);
             throw new RuntimeException(e);
         }
 		Injector injector = Guice.createInjector(grpcModules);
+		// Add all Grpc Services to the Grpc Server
+		injector.getInstance(GrpcServer.class).registerServices(this.getInstances(injector, BindableService.class));
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
 		this.services = this.getInstances(injector, Service.class);
 		this.services.forEach(service -> {
