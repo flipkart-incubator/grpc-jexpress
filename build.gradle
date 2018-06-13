@@ -1,15 +1,23 @@
 apply plugin: 'java'
 
+
 allprojects {
     repositories {
-        jcenter() 
+    		mavenLocal()
+    		mavenCentral()
+        jcenter()         
     }
 }
 
-def grpcVersion = '1.10.0' // CURRENT_GRPC_VERSION
+def grpcVersion = '1.10.0' 
 
 subprojects {
-    version = '1.0'  
+	apply plugin: 'maven'
+	group = 'com.flipkart.grpc-jexpress'
+	version = '1.0'  
+	jar {
+    		manifest.attributes provider: 'gradle'
+    }    
 	ext {
 		libraries = [
 		    slf4j_api: "org.slf4j:slf4j-api:1.7.12",
