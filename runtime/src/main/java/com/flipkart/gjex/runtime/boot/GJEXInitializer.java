@@ -58,13 +58,9 @@ public class GJEXInitializer {
 	/** The GJEX startup display contents*/
 	private static final MessageFormat STARTUP_DISPLAY = new MessageFormat(
             "\n*************************************************************************\n" +	
-					" #####        # ####### #     #  \n" +
-					"#     #       # #        #   #   \n" +
-					"#             # #         # #    " + "    Startup Time : {0}" + " ms\n" +
-					"#  ####       # #####      #     " + "    Host Name: {1} \n " +
-					"#     # #     # #         # #    \n" +
-					"#     # #     # #        #   #   \n" +
-					" #####   #####  ####### #     #  \n" +           		
+					" ╔═╗ ╦╔═╗═╗ ╦  \n" +
+					" ║ ╦ ║║╣ ╔╩╦╝  " + "    Startup Time : {0}" + " ms\n" + 
+					" ╚═╝╚╝╚═╝╩ ╚═  " + "    Host Name: {1} \n " +
              "*************************************************************************"
     );
     
