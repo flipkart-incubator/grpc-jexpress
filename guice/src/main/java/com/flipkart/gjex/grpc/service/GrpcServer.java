@@ -60,7 +60,9 @@ public class GrpcServer implements Service {
 	@Override
 	public void start() throws Exception {
 		this.grpcServer = this.grpcServerBuilder.build().start();
-		LOGGER.info("GJEX GrpcServer started.");
+		LOGGER.info("GJEX GrpcServer started.Hosting these services : ****** Start *****");
+		this.grpcServer.getServices().forEach(serviceDefinition -> LOGGER.info(serviceDefinition.getServiceDescriptor().getName()));
+		LOGGER.info("GJEX GrpcServer started.Hosting these services : ****** End *****");
 		// Not waiting for termination as this blocks main thread preventing any subsequent startup, like the Jetty Dashboard server 
 		//this.grpcServer.awaitTermination();
 	}
