@@ -16,22 +16,26 @@
 
 package com.flipkart.gjex.guice.module;
 
+import com.flipkart.gjex.core.service.Service;
+import com.flipkart.gjex.grpc.service.DashboardServer;
 import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 
 /**
- * <code>GrpcServerModule</code> is a Guice {@link AbstractModule} implementation used for wiring Grpc Server and Services.
+ * <code>ServerModule</code> is a Guice {@link AbstractModule} implementation used for configuring the Grpc Server and Dashboard server.
  * 
  * @author regunath.balasubramanian
  *
  */
 
-public class GrpcServerModule extends AbstractModule {
+public class ServerModule extends AbstractModule {
 
-	public GrpcServerModule() {}
+	public ServerModule() {}
 	
 	@Override
     protected void configure() {		
-		bind(GrpcServer.class);
+		bind(Service.class).annotatedWith(Names.named("GrpcServer")).to(GrpcServer.class);
+		bind(Service.class).annotatedWith(Names.named("DashboardJettyServer")).to(DashboardServer.class);
 	}
 }

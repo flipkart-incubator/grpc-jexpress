@@ -4,7 +4,16 @@ dependencies {
     api libraries.slf4j_api
     api libraries.log4j_api
     implementation libraries.log4j
+    implementation libraries.log4j_slf4j
     implementation libraries.commons_configuration
     implementation libraries.yammer_metrics
     implementation 'org.yaml:snakeyaml:1.15'
 }
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+artifacts {
+    archives sourcesJar
+}	

@@ -32,11 +32,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
 /**
- * <code>ContainerModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX container components.
+ * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashbaord components.
  * 
  * @author regunath.balasubramanian
  */
-public class ContainerModule extends AbstractModule {
+public class DashboardModule extends AbstractModule {
 
 	/**
 	 * Creates a Jetty {@link WebAppContext} for the GJEX dashboard

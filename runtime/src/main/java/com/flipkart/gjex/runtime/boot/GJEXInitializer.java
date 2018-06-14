@@ -33,6 +33,8 @@ import com.flipkart.gjex.core.config.YamlConfiguration;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.guice.module.ConfigModule;
+import com.flipkart.gjex.guice.module.DashboardModule;
+import com.flipkart.gjex.guice.module.ServerModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Binding;
 import com.google.inject.Guice;
@@ -92,7 +94,7 @@ public class GJEXInitializer {
     		
     }
     
-    private void start() throws Exception {
+    public void start() throws Exception {
     		logger.info("** GJEX starting up... **");
     		long start = System.currentTimeMillis();
         //load GJEX runtime container
@@ -105,11 +107,16 @@ public class GJEXInitializer {
         logger.info("** GJEX startup complete **");
     }
     
-    private void loadGJEXRuntimeContainer() {
+    @SuppressWarnings("unchecked")
+	private void loadGJEXRuntimeContainer() {
 		List<AbstractModule> grpcModules = new LinkedList<AbstractModule>();
 		// add the Config and Metrics InstrumentationModule
 		grpcModules.add( new ConfigModule());
 		grpcModules.add(new InstrumentationModule());
+		// add the Dashboard module
+		grpcModules.add(new DashboardModule());
+		// add the Grpc Server module
+		grpcModules.add(new ServerModule());
 		// locate and load all GRPC modules
         try {
 	    		for (File grpcModuleConfig : FileLocator.findFiles(Constants.GRPC_MODULE_NAMES_CONFIG)) {
@@ -118,7 +125,7 @@ public class GJEXInitializer {
 	    	        while (propertyKeys.hasNext()) {
 	    	            String propertyKey = propertyKeys.next();
 	    	            if (propertyKey.equalsIgnoreCase(Constants.GRPC_MODULE_NAMES)) {
-	    	            		for (String moduleName : (String[])yamlConfiguration.getProperty(propertyKey)) {
+	    	            		for (String moduleName : (List<String>)yamlConfiguration.getProperty(propertyKey)) {
 	    	            			grpcModules.add((AbstractModule)Class.forName(moduleName).newInstance());
 	    	            		}
 	    	            }

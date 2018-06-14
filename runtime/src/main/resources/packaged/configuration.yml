@@ -1,5 +1,5 @@
 Grpc:
-	server.port: 50051
+  server.port: 50052
 Dashboard:
   service.port: 9999
   service.acceptors: 5

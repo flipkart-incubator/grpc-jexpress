@@ -37,6 +37,7 @@ import io.grpc.ServerBuilder;
  */
 
 @Singleton
+@Named("GrpcServer")
 public class GrpcServer implements Service {
 
 	/** Logger for this class*/
@@ -51,6 +52,7 @@ public class GrpcServer implements Service {
 	
 	@Inject
 	public GrpcServer(@Named("Grpc.server.port") int port) {
+		LOGGER.info("Creating GrpcServer listening on port : " + port);
 		this.port = port;
 		this.grpcServerBuilder = ServerBuilder.forPort(this.port);
 	}
@@ -59,7 +61,8 @@ public class GrpcServer implements Service {
 	public void start() throws Exception {
 		this.grpcServer = this.grpcServerBuilder.build().start();
 		LOGGER.info("GJEX GrpcServer started.");
-		this.grpcServer.awaitTermination();
+		// Not waiting for termination as this blocks main thread preventing any subsequent startup, like the Jetty Dashboard server 
+		//this.grpcServer.awaitTermination();
 	}
 
 	@Override
