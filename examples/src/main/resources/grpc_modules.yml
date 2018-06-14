@@ -1,0 +1,3 @@
+GJEX:
+  grpc.module.names:
+    - "io.grpc.examples.guice.HelloWorldModule"

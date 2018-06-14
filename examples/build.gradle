@@ -1,0 +1,20 @@
+apply plugin: 'java-library'
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+    jcenter()         
+}
+
+dependencies {
+	implementation "com.flipkart.grpc-jexpress:runtime:1.0"    
+    implementation "io.grpc:examples:1.10.0" 
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+artifacts {
+    archives sourcesJar
+}	
