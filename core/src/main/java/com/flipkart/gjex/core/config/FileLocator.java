@@ -16,7 +16,10 @@
 package com.flipkart.gjex.core.config;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -140,11 +143,7 @@ public class FileLocator {
 	 * @return array of matching files. May be an empty array if no matching files are found
 	 */
     private static File[] findFiles(String fileName,String path, boolean isDirectory) {
-		// Create the root folder to search files from using projects root
-		// available in RuntimeVariables
-		
 		File projectRootFolder = null;
-		
 		if(path!=null) {
 			File pathFile = new File(path);
 			if (pathFile.isAbsolute() || pathFile.isDirectory()) { // use the path as-is if it is absolute or a directory by itself
@@ -158,11 +157,15 @@ public class FileLocator {
 		ArrayList<File> locatedFiles = new ArrayList<File>();
 		locateFiles(fileName, locatedFiles, projectRootFolder, false, isDirectory);
 		if (locatedFiles.size() == 0) {
-			// use the RuntimeVariables class loader to locate the resource
 			try {
 				Enumeration<URL> enumeration = FileLocator.class.getClassLoader().getResources(fileName);
 				while (enumeration.hasMoreElements()) {
-					locatedFiles.add(new File(enumeration.nextElement().getFile()));
+					URL resource = enumeration.nextElement();
+					if (resource.getFile().contains(".jar!") && !isDirectory) { // resource is a file inside a jar
+						locatedFiles.add(getTempFileFromResource(fileName, resource.openStream()));
+					} else {
+						locatedFiles.add(new File(resource.getFile()));
+					}
 				}
 			} catch (IOException e) {
 				// log the error and return an empty array
@@ -171,6 +174,28 @@ public class FileLocator {
 		}
 		return (File[])locatedFiles.toArray(new File[locatedFiles.size()]);
 	}
+    
+    /**
+     * Helper method to create a physical temporary file containing the contents read from the specified InputStream
+     * @param fileName the File name prefix for the temporary file
+     * @param input the InputStream to read contents from 
+     * @return temporary File
+     * @throws IOException
+     */
+    private static File getTempFileFromResource(String fileName, InputStream input) throws IOException {
+    		File tempFile = File.createTempFile(fileName, null);
+    		OutputStream out = new FileOutputStream(tempFile);
+        int read;
+        byte[] bytes = new byte[1024];
+        while ((read = input.read(bytes)) != -1) {
+            out.write(bytes, 0, read);
+        }
+        out.flush();
+        out.close();
+        input.close();
+        tempFile.deleteOnExit();    	
+    		return tempFile;
+    }
 	
 	/**
 	 * Helper method to recursively look for files with the specified name

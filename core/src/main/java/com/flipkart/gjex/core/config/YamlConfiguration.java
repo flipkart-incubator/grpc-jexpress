@@ -16,6 +16,7 @@
 
 package com.flipkart.gjex.core.config;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -64,6 +65,10 @@ public class YamlConfiguration extends AbstractConfiguration {
         reader.close();
     }
 
+    public YamlConfiguration(BufferedReader reader) throws IOException {
+        load(reader);
+        reader.close();
+    }
     ////////////////////////////////////////////////////////////////////////////
     // Methods of base class AbstractConfiguration
 
