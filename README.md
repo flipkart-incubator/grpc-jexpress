@@ -1,11 +1,11 @@
 # grpc-jexpress
-Productivity extensions to grpc-java, called GJEX.
+Productivity extensions to grpc-java, called GJEX - for Grpc Java Express.
 
 Provides following features:
-* Transparent Grpc runtime startup alongwith Jetty for dashboard/administration
-* Guice integration to integrate Grpc service implementations with the Grpc runtime
+* Transparent gRPC runtime startup alongwith Jetty for dashboard/administration
+* Guice integration to integrate gRPC service implementations with the gRPC runtime
 * Metrics support - e.g. @Timed annotations to publish to JMX
-* YAML based configuration support for Grpc service implementations 
+* YAML based configuration support for gRPC service implementations 
 
 ## Building
 To build GJEX, clone this repository and run:
@@ -27,7 +27,7 @@ To run the hello world example with GJEX extensions, run:
 ```
 $ ./build/install/examples/bin/hello-world-server
 ```
-The Grpc Server, hosted Grpc services and the Jetty server status will be displayed in the console. By attaching an MBeans explorer like JConsole, one can inspect method-level execution metrics for the Grpc services.
+The gRPC Server, hosted gRPC services and the Jetty server status will be displayed in the console. By attaching an MBeans explorer like JConsole, one can inspect method-level execution metrics for the gRPC services.
 
 And in a different terminal window run:
 
