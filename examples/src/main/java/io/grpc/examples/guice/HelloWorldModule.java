@@ -32,7 +32,7 @@ public class HelloWorldModule extends AbstractModule {
 	public HelloWorldModule() {}
 	
 	@Override
-    protected void configure() {
+	protected void configure() {
 		install(new ConfigModule("hello_world_config.yml")); // load custom module specific configurations that are injectable in gRPC implementations. See @GreeterService source for example
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 	}
