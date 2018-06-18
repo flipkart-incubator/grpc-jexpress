@@ -3,9 +3,10 @@ Productivity extensions to grpc-java, called GJEX - for Grpc Java Express.
 
 Provides following features:
 * Transparent gRPC runtime startup alongwith Jetty for dashboard/administration
-* Guice integration to integrate gRPC service implementations with the gRPC runtime
+* Guice module support to integrate gRPC service implementations with the gRPC runtime
 * Metrics support - e.g. @Timed annotations to publish to JMX
-* YAML based configuration support for gRPC service implementations 
+* YAML based configuration support for gRPC service implementations
+* Component Lifecycle (Start(), Stop()) support via Service interface
 
 ## Building
 To build GJEX, clone this repository and run:
