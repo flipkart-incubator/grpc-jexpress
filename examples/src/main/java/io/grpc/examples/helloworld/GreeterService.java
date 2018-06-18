@@ -15,6 +15,7 @@
  */
 package io.grpc.examples.helloworld;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.yammer.metrics.annotation.Timed;
@@ -29,10 +30,18 @@ import io.grpc.stub.StreamObserver;
 @Named("GreeterService")
 public class GreeterService extends GreeterGrpc.GreeterImplBase {
 	
+	private String greeting;
+	
+	// demonstrate injecting custom properties from configuration
+	@Inject
+	public GreeterService(@Named("hw.greeting") String greeting) {
+		this.greeting = greeting;
+	}
+	
     @Override
     @Timed // the Timed annotation for publishing JMX metrics via MBean
     public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-      HelloReply reply = HelloReply.newBuilder().setMessage("Hello " + req.getName()).build();
+      HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
       responseObserver.onNext(reply);
       responseObserver.onCompleted();
     }

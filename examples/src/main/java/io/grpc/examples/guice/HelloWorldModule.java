@@ -15,6 +15,7 @@
  */
 package io.grpc.examples.guice;
 
+import com.flipkart.gjex.guice.module.ConfigModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
@@ -32,6 +33,7 @@ public class HelloWorldModule extends AbstractModule {
 	
 	@Override
     protected void configure() {
+		install(new ConfigModule("hello_world_config.yml")); // load custom module specific configurations that are injectable in gRPC implementations. See @GreeterService source for example
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 	}
 	

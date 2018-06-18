@@ -94,7 +94,8 @@ public class ConfigModule extends AbstractModule {
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void bindConfigProperties() {
     		for (YamlConfiguration yamlConfiguration: yamlConfigurations) {
-	        bind(YamlConfiguration.class).toInstance(yamlConfiguration);
+    			// we will not bind the entire YamlConfiguration but instead the individual properties that are injectable
+	        // bind(YamlConfiguration.class).toInstance(yamlConfiguration);
 	        Iterator<String> propertyKeys = yamlConfiguration.getKeys();
 	        while (propertyKeys.hasNext()) {
 	            String propertyKey = propertyKeys.next();
