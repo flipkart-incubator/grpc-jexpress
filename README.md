@@ -36,3 +36,5 @@ And in a different terminal window run:
 $ ./build/install/examples/bin/hello-world-client
 ```
 
+## Documentation
+Refer to the [wiki](https://github.com/flipkart-incubator/grpc-jexpress/wiki) for documentation. 
