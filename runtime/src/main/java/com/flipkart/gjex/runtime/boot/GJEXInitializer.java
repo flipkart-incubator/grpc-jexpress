@@ -24,12 +24,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.codahale.metrics.MetricRegistry;
 import com.flipkart.gjex.Constants;
 import com.flipkart.gjex.core.config.FileLocator;
 import com.flipkart.gjex.core.config.YamlConfiguration;
+import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.guice.module.ConfigModule;
@@ -41,7 +40,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import com.yammer.metrics.guice.InstrumentationModule;
+import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
 
 import io.grpc.BindableService;
 
@@ -50,10 +49,7 @@ import io.grpc.BindableService;
  *
  * @author regunath.balasubramanian
  */
-public class GJEXInitializer {
-
-	/** Logger for this class */
-    private static final Logger logger = LoggerFactory.getLogger(GJEXInitializer.class);
+public class GJEXInitializer implements Logging {
 	
 	/** The GJEX startup display contents*/
 	private static final MessageFormat STARTUP_DISPLAY = new MessageFormat(
@@ -91,7 +87,7 @@ public class GJEXInitializer {
     }
     
     public void start() throws Exception {
-    		logger.info("** GJEX starting up... **");
+    		info("** GJEX starting up... **");
     		long start = System.currentTimeMillis();
         //load GJEX runtime container
     		loadGJEXRuntimeContainer();
@@ -99,16 +95,16 @@ public class GJEXInitializer {
 				(System.currentTimeMillis() - start),
 				this.hostName,
         };
-		logger.info(STARTUP_DISPLAY.format(displayArgs));
-        logger.info("** GJEX startup complete **");
+		info(STARTUP_DISPLAY.format(displayArgs));
+        info("** GJEX startup complete **");
     }
     
     @SuppressWarnings("unchecked")
 	private void loadGJEXRuntimeContainer() {
 		List<AbstractModule> grpcModules = new LinkedList<AbstractModule>();
-		// add the Config and Metrics InstrumentationModule
+		// add the Config and Metrics MetricsInstrumentationModule
 		grpcModules.add( new ConfigModule());
-		grpcModules.add(new InstrumentationModule());
+		grpcModules.add(MetricsInstrumentationModule.builder().withMetricRegistry(new MetricRegistry()).build());
 		// add the Dashboard module
 		grpcModules.add(new DashboardModule());
 		// add the Grpc Server module
@@ -128,7 +124,7 @@ public class GJEXInitializer {
 	    	        }
 	    		}
         } catch (Exception e) {
-        		logger.error("Error loading GJEX Runtime Container", e);
+        		error("Error loading GJEX Runtime Container", e);
             throw new RuntimeException(e);
         }
 		Injector injector = Guice.createInjector(grpcModules);
@@ -140,7 +136,7 @@ public class GJEXInitializer {
 			try {
 				service.start();
 			} catch (Exception e) {
-				logger.error("Error starting a Service : " + service.getClass().getName(), e);
+				error("Error starting a Service : " + service.getClass().getName(), e);
                 throw new RuntimeException(e);
 			}
 		});

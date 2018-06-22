@@ -26,7 +26,7 @@ subprojects {
 		    log4j_slf4j: "org.apache.logging.log4j:log4j-slf4j-impl:2.5",
 		    commons_configuration: "commons-configuration:commons-configuration:1.10",
 		    guice: "com.google.inject:guice:4.2.0",
-		    yammer_metrics: "com.yammer.metrics:metrics-guice:2.2.0",		    
+		    yammer_metrics: "com.palominolabs.metrics:metrics-guice:4.0.0",		    
 			grpc_netty: "io.grpc:grpc-netty:${grpcVersion}",
 			grpc_protobuf: "io.grpc:grpc-protobuf:${grpcVersion}"
 		]

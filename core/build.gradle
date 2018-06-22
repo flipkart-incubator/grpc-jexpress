@@ -7,6 +7,8 @@ dependencies {
     implementation libraries.log4j_slf4j
     implementation libraries.commons_configuration
     implementation libraries.yammer_metrics
+    implementation 'io.dropwizard.metrics:metrics-jvm:4.0.2'
+    implementation 'io.dropwizard.metrics:metrics-jmx:4.0.2'
     implementation 'org.yaml:snakeyaml:1.15'
 }
 

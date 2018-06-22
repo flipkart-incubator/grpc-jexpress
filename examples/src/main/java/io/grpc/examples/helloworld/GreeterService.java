@@ -18,7 +18,7 @@ package io.grpc.examples.helloworld;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.yammer.metrics.annotation.Timed;
+import com.codahale.metrics.annotation.Timed;
 
 import io.grpc.stub.StreamObserver;
 

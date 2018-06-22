@@ -21,6 +21,8 @@ package com.flipkart.gjex;
  *  @author regunath.balasubramanian
  */
 public interface Constants {
+	
+	String LOGGING_ID = "loggingId";
 
 	String CONFIG_FILE_PROPERTY = "gjex.configurationFile";
 	
