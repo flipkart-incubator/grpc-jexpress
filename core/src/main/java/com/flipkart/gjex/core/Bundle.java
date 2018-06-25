@@ -16,6 +16,9 @@
 
 package com.flipkart.gjex.core;
 
+import java.util.List;
+
+import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 
@@ -37,4 +40,10 @@ public interface Bundle {
      * @param environment the application environment
      */
     void run(Environment environment);
+    
+    /**
+     * Returns Service instances loaded by this Bundle
+     * @return List containing Service instances
+     */
+    List<Service> getServices();
 }

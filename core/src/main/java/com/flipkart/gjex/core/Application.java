@@ -15,6 +15,10 @@
  */
 package com.flipkart.gjex.core;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.MessageFormat;
+
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
@@ -26,6 +30,31 @@ import com.flipkart.gjex.core.setup.Environment;
  *
  */
 public abstract class Application implements Logging {
+	
+	/** The GJEX startup display contents*/
+	private static final MessageFormat STARTUP_DISPLAY = new MessageFormat(
+            "\n*************************************************************************\n" +	
+					" ╔═╗ ╦╔═╗═╗ ╦  " + "    Application name : {0} \n" + 
+					" ║ ╦ ║║╣ ╔╩╦╝  " + "    Startup Time : {1}" + " ms\n" + 
+					" ╚═╝╚╝╚═╝╩ ╚═  " + "    Host Name: {2} \n " +
+             "*************************************************************************"
+    );
+    
+	/** The machine name where this GJEX instance is running */
+	private String hostName;
+	
+	/*
+	
+    /**
+     * Constructor for this class
+     */
+    public Application() {
+	    	try {
+	    		this.hostName = InetAddress.getLocalHost().getHostName();
+	    	} catch (UnknownHostException e) {
+	    		//ignore the exception, not critical information
+	    	}        
+    }
 	
 	/**
 	 * Gets the name of this GJEX application
@@ -57,7 +86,27 @@ public abstract class Application implements Logging {
 	 * @throws Exception in case of errors during run
 	 */
 	public final void run(String[] arguments) throws Exception {
+		info("** GJEX starting up... **");
+		long start = System.currentTimeMillis();
+		
 		final Bootstrap bootstrap = new Bootstrap(this);
+		/* Hook for applications to initialize their pre-start environment using bootstrap's properties */
+        initialize(bootstrap);
+        /* Create Environment */
+        Environment environment = new Environment(getName(),bootstrap.getMetricRegistry());      
+        /* Run bundles etc */
+        bootstrap.run(environment);
+        /* Run this Application */        
+        run(environment);        
+
+	    final Object[] displayArgs = {
+	    			this.getName(),
+				(System.currentTimeMillis() - start),
+				this.hostName,
+	    };
+		info(STARTUP_DISPLAY.format(displayArgs));
+	    info("** GJEX startup complete **");
+	    
 	}
 	
 }

@@ -16,6 +16,7 @@
 package com.flipkart.gjex.core.setup;
 
 import java.lang.management.ManagementFactory;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.codahale.metrics.MetricRegistry;
@@ -26,6 +27,8 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.flipkart.gjex.core.Application;
 import com.flipkart.gjex.core.Bundle;
+import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.service.Service;
 import com.google.common.collect.Lists;
 
 /**
@@ -34,12 +37,15 @@ import com.google.common.collect.Lists;
  * @author regu.b
  *
  */
-public class Bootstrap {
+public class Bootstrap implements Logging {
 
 	private final Application application;
 	private final MetricRegistry metricRegistry;
 	private final List<Bundle> bundles;
 	private ClassLoader classLoader;
+	
+	/** List of initialized Service instances*/
+	List<Service> services;
 	
 	public Bootstrap(Application application) {
 		this.application = application;
@@ -93,14 +99,42 @@ public class Bootstrap {
         return metricRegistry;
     }
     
-    /**
-     * Rns this Bootstrap's bundles in the specified Environment
+    public List<Service> getServices() {
+		return services;
+	}
+
+	/**
+     * Runs this Bootstrap's bundles in the specified Environment
      * @param environment the Application Environment
      * @throws Exception in case of errors during run
      */
     public void run(Environment environment) throws Exception {
+        this.services = new LinkedList<Service>();
         for (Bundle bundle : bundles) {
             bundle.run(environment);
+            services.addAll(bundle.getServices());
         }
+		this.services.forEach(service -> {
+			try {
+				service.start();
+			} catch (Exception e) {
+				error("Error starting a Service : " + service.getClass().getName(), e);
+                throw new RuntimeException(e);
+			}
+		});
+		this.registerServicesForShutdown();
     }
+    
+    private void registerServicesForShutdown() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+    	        // Use stderr here since the logger may have been reset by its JVM shutdown hook.
+    	        System.err.println("*** Shutting down gRPC server since JVM is shutting down");
+    	        services.forEach(Service::stop);
+    	        System.err.println("*** Server shut down");
+			}
+	    });    		
+    }
+    
 }
