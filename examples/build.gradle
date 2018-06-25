@@ -15,7 +15,7 @@ apply plugin: 'application'
 startScripts.enabled = false
 
 task helloWorldServer(type: CreateStartScripts) {
-  mainClassName = 'com.flipkart.gjex.runtime.boot.GJEXInitializer'
+  mainClassName = 'com.flipkart.gjex.examples.helloworld.HelloWorldApplication'
   applicationName = 'hello-world-server'
   outputDir = new File(project.buildDir, 'tmp')
   classpath = jar.outputs.files + project.configurations.runtime

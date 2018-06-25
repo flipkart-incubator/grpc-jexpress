@@ -109,6 +109,7 @@ public class Bootstrap implements Logging {
      * @throws Exception in case of errors during run
      */
     public void run(Environment environment) throws Exception {
+		// Identify all Service implementations, start them and register for Runtime shutdown hook
         this.services = new LinkedList<Service>();
         for (Bundle bundle : bundles) {
             bundle.run(environment);

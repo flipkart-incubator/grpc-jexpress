@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.grpc.examples.guice;
+package com.flipkart.gjex.examples.helloworld.guice;
 
+import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
 import io.grpc.BindableService;
-import io.grpc.examples.helloworld.GreeterService;
 
 /**
  * Guice module for wiring sample Service to GJEX runtime

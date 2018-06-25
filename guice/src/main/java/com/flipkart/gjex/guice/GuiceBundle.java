@@ -18,12 +18,12 @@ package com.flipkart.gjex.guice;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.codahale.metrics.MetricRegistry;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
+import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.flipkart.gjex.guice.module.DashboardModule;
 import com.flipkart.gjex.guice.module.ServerModule;
@@ -36,6 +36,8 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
+
+import io.grpc.BindableService;
 
 /**
  * A Guice GJEX Bundle implementation. Multiple Guice Modules may be added to this Bundle.
@@ -59,7 +61,7 @@ public class GuiceBundle implements Bundle, Logging {
 			return this;
 		}
 		public GuiceBundle build() {
-            return build();
+            return new GuiceBundle(this.modules);
         }
 	}
 	public static Builder newBuilder() {
@@ -76,7 +78,7 @@ public class GuiceBundle implements Bundle, Logging {
 	public void initialize(Bootstrap bootstrap) {
 		// add the Config and Metrics MetricsInstrumentationModule
 		this.modules.add( new ConfigModule());
-		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(new MetricRegistry()).build());
+		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
 		// add the Dashboard module
 		this.modules.add(new DashboardModule());
 		// add the Grpc Server module
@@ -86,15 +88,19 @@ public class GuiceBundle implements Bundle, Logging {
 
 	@Override
 	public void run(Environment environment) {
+		// Add all Grpc Services to the Grpc Server
+		this.baseInjector.getInstance(GrpcServer.class).registerServices(this.getInstances(this.baseInjector, BindableService.class));
+		// Lookup all Service implementations
 		this.services = this.getInstances(this.baseInjector, Service.class);
 	}	
 
 	@Override
 	public List<Service> getServices() {		
+        Preconditions.checkState(baseInjector != null,
+                "Service(s) are only available after GuiceBundle.run() is called");
 		return this.services;
 	} 
-	
-	
+		
 	public Injector getInjector() {
         Preconditions.checkState(baseInjector != null,
                 "Injector is only available after GuiceBundle.initialize() is called");

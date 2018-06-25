@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.grpc.examples.helloworld;
+package com.flipkart.gjex.examples.helloworld.service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.codahale.metrics.annotation.Timed;
 
+import io.grpc.examples.helloworld.GreeterGrpc;
+import io.grpc.examples.helloworld.HelloReply;
+import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.stub.StreamObserver;
 
 /**
