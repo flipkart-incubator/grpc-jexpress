@@ -21,14 +21,15 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
+import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
 
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 
 /**
  * <code>GrpcServer</code> is a {@link Service} implementation that manages the GJEX Grpc Server instance lifecycle
@@ -38,10 +39,7 @@ import io.grpc.ServerBuilder;
 
 @Singleton
 @Named("GrpcServer")
-public class GrpcServer implements Service {
-
-	/** Logger for this class*/
-	private static final Logger LOGGER = LoggerFactory.getLogger(GrpcServer.class);
+public class GrpcServer implements Service,Logging {
 
 	/** Default port number if none is specified*/
 	private int port = 50051;
@@ -50,21 +48,25 @@ public class GrpcServer implements Service {
 	private ServerBuilder<?> grpcServerBuilder;
 	private Server grpcServer;
 	
+	/** The Filter ServerInterceptor*/
+	private FilterInterceptor filterInterceptor;
+	
 	@Inject
-	public GrpcServer(@Named("Grpc.server.port") int port) {
-		LOGGER.info("Creating GrpcServer listening on port : " + port);
+	public GrpcServer(@Named("Grpc.server.port") int port, @Named("FilterInterceptor") FilterInterceptor filterInterceptor) {
+		info("Creating GrpcServer listening on port : " + port);
 		this.port = port;
 		this.grpcServerBuilder = ServerBuilder.forPort(this.port);
+		this.filterInterceptor = filterInterceptor;
 	}
 	
 	@Override
 	public void start() throws Exception {
 		this.grpcServer = this.grpcServerBuilder.build().start();
-		LOGGER.info("GJEX GrpcServer started.Hosting these services : ****** Start *****");
-		this.grpcServer.getServices().forEach(serviceDefinition -> LOGGER.info(serviceDefinition.getServiceDescriptor().getName()));
-		LOGGER.info("GJEX GrpcServer started.Hosting these services : ****** End *****");
+		info("GJEX GrpcServer started.Hosting these services : ****** Start *****");
+		this.grpcServer.getServices().forEach(serviceDefinition -> info(serviceDefinition.getServiceDescriptor().getName()));
+		info("GJEX GrpcServer started.Hosting these services : ****** End *****");
 		// Not waiting for termination as this blocks main thread preventing any subsequent startup, like the Jetty Dashboard server 
-		//this.grpcServer.awaitTermination();
+		// this.grpcServer.awaitTermination();
 	}
 
 	@Override
@@ -72,11 +74,15 @@ public class GrpcServer implements Service {
 	    if (this.grpcServer != null) {
 	    		this.grpcServer.shutdown();
 	    }
-		LOGGER.info("GJEX GrpcServer stopped.");
+		info("GJEX GrpcServer stopped.");
 	}
-	
+
+	public void registerFilters(@SuppressWarnings("rawtypes") List<Filter> filters) {
+		this.filterInterceptor.registerFilters(filters);
+	}
+
 	public void registerServices(List<BindableService> services) {
-		services.forEach(service -> this.grpcServerBuilder.addService(service));
+		services.forEach(service -> this.grpcServerBuilder.addService(ServerInterceptors.intercept (service, this.filterInterceptor)));
 	}
 
 }

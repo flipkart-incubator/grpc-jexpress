@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.flipkart.gjex.core.Bundle;
+import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
@@ -35,6 +36,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
+import com.google.protobuf.GeneratedMessageV3;
 import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
 
 import io.grpc.BindableService;
@@ -50,6 +52,7 @@ public class GuiceBundle implements Bundle, Logging {
 	private final List<Module> modules;
 	private Injector baseInjector;
 	private List<Service> services;
+	private List<Filter<GeneratedMessageV3,GeneratedMessageV3>> filters;
 	
 	public static class Builder {
 		private List<Module> modules = Lists.newArrayList();
@@ -90,6 +93,8 @@ public class GuiceBundle implements Bundle, Logging {
 	public void run(Environment environment) {
 		// Add all Grpc Services to the Grpc Server
 		this.baseInjector.getInstance(GrpcServer.class).registerServices(this.getInstances(this.baseInjector, BindableService.class));
+		// Add all Grpc Filters to the Grpc Server
+		this.baseInjector.getInstance(GrpcServer.class).registerFilters(this.getInstances(this.baseInjector, Filter.class));
 		// Lookup all Service implementations
 		this.services = this.getInstances(this.baseInjector, Service.class);
 	}	
@@ -100,7 +105,14 @@ public class GuiceBundle implements Bundle, Logging {
                 "Service(s) are only available after GuiceBundle.run() is called");
 		return this.services;
 	} 
-		
+
+	@Override
+	public List<Filter<GeneratedMessageV3,GeneratedMessageV3>> getFilters() {		
+        Preconditions.checkState(baseInjector != null,
+                "Filter(s) are only available after GuiceBundle.run() is called");
+		return this.filters;
+	} 
+	
 	public Injector getInjector() {
         Preconditions.checkState(baseInjector != null,
                 "Injector is only available after GuiceBundle.initialize() is called");
