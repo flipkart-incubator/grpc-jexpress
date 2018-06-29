@@ -17,6 +17,9 @@ package com.flipkart.gjex.core.filter;
 
 import com.google.protobuf.GeneratedMessageV3;
 
+import io.grpc.Metadata;
+import io.grpc.StatusRuntimeException;
+
 /**
  * A convenience implementation of the {@link Filter} interface for concrete subtypes. 
  * @author regu.b
@@ -29,5 +32,5 @@ public abstract class AbstractFilter<Req extends GeneratedMessageV3, Res extends
 	 */
 	public void init() {}
 	public void destroy() {}
-	public void doFilterRequest(Req request) {}	
+	public void doFilterRequest(Req request, Metadata requestFilters) throws StatusRuntimeException {}	
 }

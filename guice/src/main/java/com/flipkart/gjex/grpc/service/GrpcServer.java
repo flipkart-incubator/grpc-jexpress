@@ -77,8 +77,8 @@ public class GrpcServer implements Service,Logging {
 		info("GJEX GrpcServer stopped.");
 	}
 
-	public void registerFilters(@SuppressWarnings("rawtypes") List<Filter> filters) {
-		this.filterInterceptor.registerFilters(filters);
+	public void registerFilters(@SuppressWarnings("rawtypes") List<Filter> filters, List<BindableService> services) {
+		this.filterInterceptor.registerFilters(filters, services);
 	}
 
 	public void registerServices(List<BindableService> services) {

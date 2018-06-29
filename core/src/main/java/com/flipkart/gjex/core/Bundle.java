@@ -22,7 +22,6 @@ import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
-import com.google.protobuf.GeneratedMessageV3;
 
 /**
  * A reusable bundle of functionality, used to define blocks of application behavior.
@@ -53,5 +52,6 @@ public interface Bundle {
      * Returns Filter instances loaded by this Bundle
      * @return List containing Filter instances
      */
-    List<Filter<GeneratedMessageV3,GeneratedMessageV3>> getFilters();
+    @SuppressWarnings("rawtypes")
+	List<Filter> getFilters();
 }

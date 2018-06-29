@@ -17,6 +17,9 @@ package com.flipkart.gjex.core.filter;
 
 import com.google.protobuf.GeneratedMessageV3;
 
+import io.grpc.Metadata;
+import io.grpc.StatusRuntimeException;
+
 /**
  * A Filter interafce for processing Request, Request-Headers, Response and Response-Headers around gRPC method invocation
  *  
@@ -28,5 +31,5 @@ import com.google.protobuf.GeneratedMessageV3;
 public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> {
 	public void init();
 	public void destroy();
-	public void doFilterRequest(Req request);
+	public void doFilterRequest(Req request, Metadata requestHeaders) throws StatusRuntimeException;
 }

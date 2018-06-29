@@ -15,16 +15,26 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.util.Pair;
 import com.google.protobuf.GeneratedMessageV3;
 
+import io.grpc.BindableService;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
 import io.grpc.Metadata;
@@ -33,6 +43,7 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 
 /**
  * An implementation of the gRPC {@link ServerInterceptor} that allows custom {@link Filter} instances to be invoked around relevant methods to process Request, Request-Headers, Response and 
@@ -47,12 +58,26 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 	
 	/** List of Filter instances*/
 	@SuppressWarnings("rawtypes")
-	private List<Filter> filters = new LinkedList<Filter>();
+	private Map<Pair<?,Method>,List<Filter>> filtersMap = new HashMap<Pair<?,Method>, List<Filter>>();	
 	
-	public void registerFilters(@SuppressWarnings("rawtypes") List<Filter> filters) {
-		this.filters.addAll(filters);
+	@SuppressWarnings("rawtypes")
+	public void registerFilters(List<Filter> filters, List<BindableService> services) {
+		Map<Class<?>, Filter> classToInstanceMap = filters.stream()
+				.collect(Collectors.toMap(Object::getClass, Function.identity()));
+		services.forEach(service -> {
+			this.getAnnotatedMethods(service.getClass(),MethodFilters.class).forEach(pair -> {
+				List<Filter> filtersForMethod = new LinkedList<Filter>();
+				Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
+					if (!classToInstanceMap.containsKey(filterClass)) {
+						throw new RuntimeException("Filter instance not bound for Filter :" + filterClass.getName());
+					}
+					filtersForMethod.add(classToInstanceMap.get(filterClass));
+				});
+				filtersMap.put(pair,filtersForMethod);
+			});
+		});
 	}
-	
+		
 	@Override
 	public <ReqT , RespT > Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
 			ServerCallHandler<ReqT, RespT> next) {
@@ -73,7 +98,14 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 				@Override
 	        		public void onMessage(ReqT request) {
 	        			info("Method to be invoked : " + call.getMethodDescriptor().getFullMethodName());
-	        			filters.forEach(filter -> filter.doFilterRequest((GeneratedMessageV3)request));
+	        			new LinkedList<Filter>().forEach(filter -> { // TODO : get the relevant filters
+	        				try {
+	        					filter.doFilterRequest((GeneratedMessageV3)request, headers);
+	        				} catch (StatusRuntimeException se) {
+	        					call.close(se.getStatus(), se.getTrailers());
+	        					return;
+	        				}
+	        			});
 		        	    super.onMessage(request);
 	        		}
 	       };
@@ -87,10 +119,71 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		return listener;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<Pair<?,Method>> getAnnotatedMethods(Class<?> cls, Class<? extends Annotation> anno) {
+		List<Pair<?,Method>> methods = new LinkedList<Pair<?,Method>>();
+		for (Method m : cls.getDeclaredMethods()) {
+			if (m.getAnnotation(anno) != null) {
+				methods.add(new Pair(cls,m));
+			}
+		}
+		if (methods.isEmpty()) {
+			Class<?> superCls = cls.getSuperclass();
+			return (superCls != null) ? getAnnotatedMethods(superCls, anno) : null;
+		}
+		return methods;
+	}
+	
 	/*
-	call.close (Status.PERMISSION_DENIED
-            .withDescription ("Authorization failure!!!"), new Metadata());
-	return new ServerCall.Listener<ReqT>() {};
-	*/
+	private static class MethoAnnotationPair {
+		final Method method;
+		@SuppressWarnings("rawtypes")
+		final Class<? extends Filter>[] filterClasses;
+		@SuppressWarnings("rawtypes")
+		public MethoAnnotationPair(Method method, Class<? extends Filter>[] filterClasses) {
+			super();
+			this.method = method;
+			this.filterClasses = filterClasses;
+		}
+		public Method getMethod() {
+			return method;
+		}
+		
+		@SuppressWarnings("rawtypes")
+		public List<Class<? extends Filter>> getFilterClassList() {
+			return Arrays.asList(filterClasses);
+		}
+		
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public void registerFilters1(List<Filter> filters, List<BindableService> services) {
+		
+		Map<Method, List<Class<? extends Filter>>> methodToFilterClassMap = services.stream()
+				.map(service -> getAnnotatedMethods(service.getClass(),MethodFilters.class))
+				.flatMap(Collection::stream)
+				.map(pair -> new MethoAnnotationPair(pair.getValue(), pair.getValue().getAnnotation(MethodFilters.class).value()))
+				.collect(Collectors.toMap(MethoAnnotationPair::getMethod, MethoAnnotationPair::getFilterClassList));
 
+		Map<Class<?>, Filter> classToInstanceMap = filters.stream()
+				.collect(Collectors.toMap(Object::getClass, Function.identity()));
+
+		Predicate<Class> classInstanceFound =  classToInstanceMap::containsKey;
+		
+		Function<List<Class<? extends Filter>>, List<Filter>> classListToInstanceList = (classes) -> {
+			List<Class<? extends Filter>> invalidClass = classes.stream().filter(classInstanceFound.negate()).collect(Collectors.toList());
+			if(!invalidClass.isEmpty())
+				throw new RuntimeException("Instances not initialized for filter classed - "+ invalidClass);
+			return classes.stream().map(classToInstanceMap::get).collect(Collectors.toList());
+		};
+
+		this.filtersMap = methodToFilterClassMap.entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, entry -> classListToInstanceList.apply(entry.getValue())));
+		info(methodToFilterInstanceMap.toString());
+	
+	}
+	*/
+	
+	
+	
 }

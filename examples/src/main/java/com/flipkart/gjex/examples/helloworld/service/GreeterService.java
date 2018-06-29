@@ -40,7 +40,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 	// demonstrate injecting custom properties from configuration
 	@Inject
 	public GreeterService(@Named("hw.greeting") String greeting) {
-		this.greeting = greeting;
+		this.greeting = greeting;		
 	}
 
 	@Override

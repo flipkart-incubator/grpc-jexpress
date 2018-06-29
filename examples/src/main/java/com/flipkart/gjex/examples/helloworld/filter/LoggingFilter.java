@@ -21,6 +21,8 @@ import com.flipkart.gjex.core.filter.AbstractFilter;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 
+import io.grpc.Metadata;
+import io.grpc.StatusRuntimeException;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
 
@@ -33,7 +35,7 @@ import io.grpc.examples.helloworld.HelloRequest;
 public class LoggingFilter extends AbstractFilter<HelloRequest, HelloReply> implements Logging {
 
 	@Override
-	public void doFilterRequest(HelloRequest request) {
+	public void doFilterRequest(HelloRequest request, Metadata requestHeaders) throws StatusRuntimeException {
 		info("Logging from filter. Request payload is : " + request.getName());
 	}
 

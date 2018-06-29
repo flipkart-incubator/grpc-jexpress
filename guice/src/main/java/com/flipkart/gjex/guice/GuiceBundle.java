@@ -36,7 +36,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
-import com.google.protobuf.GeneratedMessageV3;
 import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
 
 import io.grpc.BindableService;
@@ -52,7 +51,8 @@ public class GuiceBundle implements Bundle, Logging {
 	private final List<Module> modules;
 	private Injector baseInjector;
 	private List<Service> services;
-	private List<Filter<GeneratedMessageV3,GeneratedMessageV3>> filters;
+	@SuppressWarnings("rawtypes")
+	private List<Filter> filters;
 	
 	public static class Builder {
 		private List<Module> modules = Lists.newArrayList();
@@ -92,9 +92,11 @@ public class GuiceBundle implements Bundle, Logging {
 	@Override
 	public void run(Environment environment) {
 		// Add all Grpc Services to the Grpc Server
-		this.baseInjector.getInstance(GrpcServer.class).registerServices(this.getInstances(this.baseInjector, BindableService.class));
+		List<BindableService> services = this.getInstances(this.baseInjector, BindableService.class);
+		this.baseInjector.getInstance(GrpcServer.class).registerServices(services);
 		// Add all Grpc Filters to the Grpc Server
-		this.baseInjector.getInstance(GrpcServer.class).registerFilters(this.getInstances(this.baseInjector, Filter.class));
+		this.filters = this.getInstances(this.baseInjector, Filter.class);
+		this.baseInjector.getInstance(GrpcServer.class).registerFilters(this.filters, services);
 		// Lookup all Service implementations
 		this.services = this.getInstances(this.baseInjector, Service.class);
 	}	
@@ -106,8 +108,9 @@ public class GuiceBundle implements Bundle, Logging {
 		return this.services;
 	} 
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public List<Filter<GeneratedMessageV3,GeneratedMessageV3>> getFilters() {		
+	public List<Filter> getFilters() {		
         Preconditions.checkState(baseInjector != null,
                 "Filter(s) are only available after GuiceBundle.run() is called");
 		return this.filters;
