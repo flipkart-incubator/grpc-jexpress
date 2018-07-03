@@ -58,7 +58,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 	
 	/** List of Filter instances*/
 	@SuppressWarnings("rawtypes")
-	private Map<Pair<?,Method>,List<Filter>> filtersMap = new HashMap<Pair<?,Method>, List<Filter>>();	
+	private Map<String,List<Filter>> filtersMap = new HashMap<String, List<Filter>>();	
 	
 	@SuppressWarnings("rawtypes")
 	public void registerFilters(List<Filter> filters, List<BindableService> services) {
@@ -69,11 +69,12 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 				List<Filter> filtersForMethod = new LinkedList<Filter>();
 				Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
 					if (!classToInstanceMap.containsKey(filterClass)) {
-						throw new RuntimeException("Filter instance not bound for Filter :" + filterClass.getName());
+						throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
 					}
 					filtersForMethod.add(classToInstanceMap.get(filterClass));
 				});
-				filtersMap.put(pair,filtersForMethod);
+				filtersMap.put((service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase(),
+						filtersForMethod);
 			});
 		});
 	}
@@ -94,11 +95,11 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 	        				super.sendHeaders(headers);
 	        			}
 	        		}, headers)) {
-	        		@SuppressWarnings("unchecked")
+	        		@SuppressWarnings({ "unchecked", "rawtypes" })
 				@Override
 	        		public void onMessage(ReqT request) {
-	        			info("Method to be invoked : " + call.getMethodDescriptor().getFullMethodName());
-	        			new LinkedList<Filter>().forEach(filter -> { // TODO : get the relevant filters
+	        			List<Filter> filters = filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
+	        			filters.forEach(filter -> { 
 	        				try {
 	        					filter.doFilterRequest((GeneratedMessageV3)request, headers);
 	        				} catch (StatusRuntimeException se) {
@@ -119,6 +120,13 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		return listener;
 	}
 
+	/**
+	 * Helper method to get annotated methods on a Class. Navigates up the superclass hierarchy to get the methods. This is required when used with DI mechanisms like Guice that
+	 * create a CGLIB proxy sub-type for instances and annotations are not copied to the sub-type.
+	 * Cannot use @Inherited annotation as a workaround because it applies only to Type/Class level annotations and not for Method-level ones.
+	 * @see https://github.com/google/guice/issues/101
+	 * 
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Pair<?,Method>> getAnnotatedMethods(Class<?> cls, Class<? extends Annotation> anno) {
 		List<Pair<?,Method>> methods = new LinkedList<Pair<?,Method>>();
