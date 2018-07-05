@@ -21,7 +21,7 @@ import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
 
 /**
- * A Filter interafce for processing Request, Request-Headers, Response and Response-Headers around gRPC method invocation
+ * A Filter interface for processing Request, Request-Headers, Response and Response-Headers around gRPC method invocation
  *  
  * @author regu.b
  *
@@ -29,7 +29,8 @@ import io.grpc.StatusRuntimeException;
  * @param <Res> Proto V3 message
  */
 public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> {
-	public void init();
-	public void destroy();
-	public void doFilterRequest(Req request, Metadata requestHeaders) throws StatusRuntimeException;
+	default void init() {}
+	default void destroy() {}
+	default void doFilterRequest(Metadata requestHeaders) throws StatusRuntimeException{}
+	default void doProcessRequest(Req request) {}
 }

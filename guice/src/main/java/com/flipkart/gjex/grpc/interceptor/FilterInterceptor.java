@@ -73,50 +73,52 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 					}
 					filtersForMethod.add(classToInstanceMap.get(filterClass));
 				});
-				filtersMap.put((service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase(),
+				// Key is of the form <Service Name>+ "/" +<Method Name> 
+				// reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
+				filtersMap.put((service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase(), 
 						filtersForMethod);
 			});
 		});
 	}
 		
+	@SuppressWarnings("rawtypes")
 	@Override
-	public <ReqT , RespT > Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
+	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
 			ServerCallHandler<ReqT, RespT> next) {
+		List<Filter> filters = filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
+		for (Filter filter : filters) {
+			try {
+				filter.doFilterRequest(headers);
+			} catch (StatusRuntimeException se) {
+				call.close(se.getStatus(), se.getTrailers()); // Closing the call and not letting it to proceed further
+				return new ServerCall.Listener<ReqT>() {};
+			}
+		}
 		ServerCall.Listener<ReqT> listener;
 		try {
-	        listener = new SimpleForwardingServerCallListener<ReqT>(next.startCall (
-	        		new SimpleForwardingServerCall<ReqT, RespT>(call) {
-	        			@Override
-	        		    public void sendMessage(final RespT response) {
-	        				super.sendMessage(response);
-	        			}
-	        			@Override
-	        		    public void sendHeaders(final Metadata headers) {
-	        				super.sendHeaders(headers);
-	        			}
-	        		}, headers)) {
-	        		@SuppressWarnings({ "unchecked", "rawtypes" })
+			listener = new SimpleForwardingServerCallListener<ReqT>(
+					next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
+						@Override
+						public void sendMessage(final RespT response) {
+							super.sendMessage(response);
+						}
+						@Override
+						public void sendHeaders(final Metadata headers) {
+							super.sendHeaders(headers);
+						}
+					}, headers)) {
+				@SuppressWarnings("unchecked")
 				@Override
-	        		public void onMessage(ReqT request) {
-	        			List<Filter> filters = filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
-	        			filters.forEach(filter -> { 
-	        				try {
-	        					filter.doFilterRequest((GeneratedMessageV3)request, headers);
-	        				} catch (StatusRuntimeException se) {
-	        					call.close(se.getStatus(), se.getTrailers());
-	        					return;
-	        				}
-	        			});
-		        	    super.onMessage(request);
-	        		}
-	       };
-	    } catch (Throwable ex) {
-	        error ("Uncaught exception from grpc service");
-	        call.close (Status.INTERNAL
-	                .withCause (ex)
-	                .withDescription ("Uncaught exception from grpc service"), null);
-	        return new ServerCall.Listener<ReqT>() {};
-	    }		
+				public void onMessage(ReqT request) {
+					filters.forEach(filter -> filter.doProcessRequest((GeneratedMessageV3)request));
+					super.onMessage(request);
+				}
+			};
+		} catch (Throwable ex) {
+			error("Uncaught exception from grpc service");
+			call.close(Status.INTERNAL.withCause(ex).withDescription("Uncaught exception from grpc service"), null);
+			return new ServerCall.Listener<ReqT>() {};
+		}
 		return listener;
 	}
 
@@ -141,57 +143,5 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		}
 		return methods;
 	}
-	
-	/*
-	private static class MethoAnnotationPair {
-		final Method method;
-		@SuppressWarnings("rawtypes")
-		final Class<? extends Filter>[] filterClasses;
-		@SuppressWarnings("rawtypes")
-		public MethoAnnotationPair(Method method, Class<? extends Filter>[] filterClasses) {
-			super();
-			this.method = method;
-			this.filterClasses = filterClasses;
-		}
-		public Method getMethod() {
-			return method;
-		}
 		
-		@SuppressWarnings("rawtypes")
-		public List<Class<? extends Filter>> getFilterClassList() {
-			return Arrays.asList(filterClasses);
-		}
-		
-	}
-	
-	@SuppressWarnings("rawtypes")
-	public void registerFilters1(List<Filter> filters, List<BindableService> services) {
-		
-		Map<Method, List<Class<? extends Filter>>> methodToFilterClassMap = services.stream()
-				.map(service -> getAnnotatedMethods(service.getClass(),MethodFilters.class))
-				.flatMap(Collection::stream)
-				.map(pair -> new MethoAnnotationPair(pair.getValue(), pair.getValue().getAnnotation(MethodFilters.class).value()))
-				.collect(Collectors.toMap(MethoAnnotationPair::getMethod, MethoAnnotationPair::getFilterClassList));
-
-		Map<Class<?>, Filter> classToInstanceMap = filters.stream()
-				.collect(Collectors.toMap(Object::getClass, Function.identity()));
-
-		Predicate<Class> classInstanceFound =  classToInstanceMap::containsKey;
-		
-		Function<List<Class<? extends Filter>>, List<Filter>> classListToInstanceList = (classes) -> {
-			List<Class<? extends Filter>> invalidClass = classes.stream().filter(classInstanceFound.negate()).collect(Collectors.toList());
-			if(!invalidClass.isEmpty())
-				throw new RuntimeException("Instances not initialized for filter classed - "+ invalidClass);
-			return classes.stream().map(classToInstanceMap::get).collect(Collectors.toList());
-		};
-
-		this.filtersMap = methodToFilterClassMap.entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, entry -> classListToInstanceList.apply(entry.getValue())));
-		info(methodToFilterInstanceMap.toString());
-	
-	}
-	*/
-	
-	
-	
 }

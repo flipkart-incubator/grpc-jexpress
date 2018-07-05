@@ -17,25 +17,22 @@ package com.flipkart.gjex.examples.helloworld.filter;
 
 import javax.inject.Named;
 
-import com.flipkart.gjex.core.filter.AbstractFilter;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 
-import io.grpc.Metadata;
-import io.grpc.StatusRuntimeException;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
 
 /**
- * An implementation of the {@link Filter} interface as example
+ * An implementation of the {@link Filter} interface as example that simply logs Request information
  * @author regu.b
  *
  */
 @Named("LoggingFilter")
-public class LoggingFilter extends AbstractFilter<HelloRequest, HelloReply> implements Logging {
+public class LoggingFilter implements Filter<HelloRequest, HelloReply>, Logging {
 
 	@Override
-	public void doFilterRequest(HelloRequest request, Metadata requestHeaders) throws StatusRuntimeException {
+	public void doProcessRequest(HelloRequest request) {
 		info("Logging from filter. Request payload is : " + request.getName());
 	}
 

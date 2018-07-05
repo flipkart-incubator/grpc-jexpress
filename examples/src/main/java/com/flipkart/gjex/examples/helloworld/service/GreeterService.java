@@ -20,6 +20,7 @@ import javax.inject.Named;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.gjex.core.filter.MethodFilters;
+import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 
 import io.grpc.examples.helloworld.GreeterGrpc;
@@ -45,7 +46,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
-	@MethodFilters({LoggingFilter.class})
+	@MethodFilters({LoggingFilter.class, AuthFilter.class})
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 		responseObserver.onNext(reply);
