@@ -20,6 +20,7 @@ import javax.inject.Named;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 
+import io.grpc.Metadata;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
 
@@ -31,9 +32,22 @@ import io.grpc.examples.helloworld.HelloRequest;
 @Named("LoggingFilter")
 public class LoggingFilter implements Filter<HelloRequest, HelloReply>, Logging {
 
+	/** Custom response key to indiacte request was logged on the server*/
+	static final Metadata.Key<String> CUSTOM_HEADER_KEY = Metadata.Key.of("request_response_logged_header_key", Metadata.ASCII_STRING_MARSHALLER);
+	
 	@Override
 	public void doProcessRequest(HelloRequest request) {
 		info("Logging from filter. Request payload is : " + request.getName());
 	}
+	
+	@Override
+	public void doProcessResponseHeaders(Metadata reponseHeaders) {
+		reponseHeaders.put(CUSTOM_HEADER_KEY, "loggedRequestResponse");
+	}
 
+	@Override
+	public void doProcessResponse(HelloReply response) {
+		info ("Logging from filter. Response payload is : " + response.getMessage());
+	}
+	
 }

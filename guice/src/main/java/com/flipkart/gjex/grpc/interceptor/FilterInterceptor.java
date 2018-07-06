@@ -99,11 +99,14 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 			listener = new SimpleForwardingServerCallListener<ReqT>(
 					next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
 						@Override
+						@SuppressWarnings("unchecked")
 						public void sendMessage(final RespT response) {
+							filters.forEach(filter -> filter.doProcessResponse((GeneratedMessageV3)response));
 							super.sendMessage(response);
 						}
 						@Override
-						public void sendHeaders(final Metadata headers) {
+						public void sendHeaders(final Metadata responseHeaders) {
+							filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
 							super.sendHeaders(headers);
 						}
 					}, headers)) {

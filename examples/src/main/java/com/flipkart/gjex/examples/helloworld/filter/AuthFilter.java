@@ -35,13 +35,13 @@ import io.grpc.examples.helloworld.HelloRequest;
  */
 @Named("AuthFilter")
 public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
-	
-	/** Flag to control authentication check*/
-	private boolean DO_AUTH = false;
-	
+		
 	/** Fictitious authentication key*/
 	@SuppressWarnings("rawtypes")
-	Metadata.Key AUTH_KEY = Metadata.Key.of("DUMMY_AUTH_TOKEN", Metadata.ASCII_STRING_MARSHALLER);
+	static final Metadata.Key AUTH_KEY = Metadata.Key.of("DUMMY_AUTH_TOKEN", Metadata.ASCII_STRING_MARSHALLER);
+	
+	/** Flag to control authentication check*/
+	private boolean doAuth = false;
 	
 	@Override
 	public void doFilterRequest(Metadata requestHeaders) throws StatusRuntimeException {
@@ -51,7 +51,7 @@ public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
 
 	@SuppressWarnings("unchecked")
 	private void checkAuth(Metadata requestHeaders) throws StatusRuntimeException {
-		if (DO_AUTH && requestHeaders.get(AUTH_KEY) == null) {
+		if (doAuth && requestHeaders.get(AUTH_KEY) == null) {
 			error("Rejecting this request as it is unauthenticated!");
 			throw new StatusRuntimeException(Status.UNAUTHENTICATED.withDescription("Auth token is missing in request headers!"), requestHeaders);
 		}
