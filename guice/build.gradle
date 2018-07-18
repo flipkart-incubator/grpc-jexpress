@@ -6,6 +6,12 @@ dependencies {
     implementation libraries.commons_configuration
     implementation libraries.guice
     implementation libraries.yammer_metrics
+    implementation libraries.yammer_healthchecks
+    implementation libraries.jersey
+    implementation libraries.servlet
+    implementation libraries.jackson
+    implementation libraries.jetty_metrics
+    
     implementation 'org.eclipse.jetty:jetty-server:9.4.10.v20180503'
     implementation 'org.eclipse.jetty:jetty-servlet:9.4.10.v20180503'
     implementation 'org.eclipse.jetty:jetty-webapp:9.4.10.v20180503'

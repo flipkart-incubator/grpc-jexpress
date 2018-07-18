@@ -18,6 +18,7 @@ package com.flipkart.gjex.core;
 
 import java.util.List;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
@@ -54,4 +55,10 @@ public interface Bundle {
      */
     @SuppressWarnings("rawtypes")
 	List<Filter> getFilters();
+    
+    /**
+     * Returns HealthCheck instances loaded by this Bundle
+     * @return List containing HealthCheck instances
+     */
+    List<HealthCheck> getHealthChecks();
 }

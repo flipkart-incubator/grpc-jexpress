@@ -18,6 +18,7 @@ package com.flipkart.gjex.guice.module;
 
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
+import com.flipkart.gjex.grpc.service.ApiServer;
 import com.flipkart.gjex.grpc.service.DashboardServer;
 import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.google.inject.AbstractModule;
@@ -39,5 +40,6 @@ public class ServerModule extends AbstractModule {
 		bind(FilterInterceptor.class).annotatedWith(Names.named("FilterInterceptor")).to(FilterInterceptor.class);
 		bind(Service.class).annotatedWith(Names.named("GrpcServer")).to(GrpcServer.class);
 		bind(Service.class).annotatedWith(Names.named("DashboardJettyServer")).to(DashboardServer.class);
+		bind(Service.class).annotatedWith(Names.named("ApiJettyServer")).to(ApiServer.class);
 	}
 }

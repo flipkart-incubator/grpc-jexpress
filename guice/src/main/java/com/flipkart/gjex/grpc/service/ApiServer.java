@@ -26,34 +26,34 @@ import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
 
 /**
- * <code>DashboardServer</code> is a {@link Service} implementation that manages the GJEX Dashboard Jetty Server instance lifecycle
+ * <code>ApiServer</code> is a {@link Service} implementation that manages the GJEX API Jetty Server instance lifecycle
  * 
  * @author regunath.balasubramanian
  */
 
 @Singleton
-public class DashboardServer extends AbstractService implements Logging {
+public class ApiServer extends AbstractService implements Logging {
 
-    private final Server dashboardServer;
+    private final Server apiServer;
 
 	@Inject
-	public DashboardServer(@Named("DashboardJettyServer") Server dashboardServer) {
-		this.dashboardServer = dashboardServer;
+	public ApiServer(@Named("APIJettyServer") Server apiServer) {
+		this.apiServer = apiServer;
 	}
 	
 	@Override
 	public void doStart() throws Exception {
-		this.dashboardServer.start();
-		info("Dashboard Server started and listening on port : " + this.dashboardServer.getURI().getPort());
+		this.apiServer.start();
+		info("API Server started and listening on port : " + this.apiServer.getURI().getPort());
 	}
 
 	@Override
 	public void doStop() {
 		try {
-			this.dashboardServer.stop();
+			this.apiServer.stop();
 		} catch (Exception e) {
 			// Just log the error as we are stopping anyway
-			error("Error stopping Dashboard server : " + e.getMessage(), e);
+			error("Error stopping API server : " + e.getMessage(), e);
 		}
 	}
 

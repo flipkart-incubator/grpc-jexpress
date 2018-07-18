@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
 
@@ -39,7 +40,7 @@ import io.grpc.ServerInterceptors;
 
 @Singleton
 @Named("GrpcServer")
-public class GrpcServer implements Service,Logging {
+public class GrpcServer extends AbstractService implements Logging {
 
 	/** Default port number if none is specified*/
 	private int port = 50051;
@@ -60,7 +61,7 @@ public class GrpcServer implements Service,Logging {
 	}
 	
 	@Override
-	public void start() throws Exception {
+	public void doStart() throws Exception {
 		this.grpcServer = this.grpcServerBuilder.build().start();
 		info("GJEX GrpcServer started.Hosting these services : ****** Start *****");
 		this.grpcServer.getServices().forEach(serviceDefinition -> info(serviceDefinition.getServiceDescriptor().getName()));
@@ -70,7 +71,7 @@ public class GrpcServer implements Service,Logging {
 	}
 
 	@Override
-	public void stop() {
+	public void doStop() {
 	    if (this.grpcServer != null) {
 	    		this.grpcServer.shutdown();
 	    }

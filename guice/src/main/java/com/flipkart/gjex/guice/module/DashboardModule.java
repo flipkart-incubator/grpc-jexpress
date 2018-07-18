@@ -17,17 +17,29 @@
 package com.flipkart.gjex.guice.module;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 
+import com.codahale.metrics.jetty9.InstrumentedHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.flipkart.gjex.Constants;
 import com.flipkart.gjex.core.config.FileLocator;
+import com.flipkart.gjex.core.setup.Bootstrap;
+import com.flipkart.gjex.core.setup.HealthCheckRegistry;
+import com.flipkart.gjex.core.web.HealthCheckResource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
@@ -37,6 +49,12 @@ import com.google.inject.Provides;
  * @author regunath.balasubramanian
  */
 public class DashboardModule extends AbstractModule {
+	
+	private final Bootstrap bootstrap;
+	
+	public DashboardModule(Bootstrap bootstrap) {
+		this.bootstrap = bootstrap;
+	}
 
 	/**
 	 * Creates a Jetty {@link WebAppContext} for the GJEX dashboard
@@ -97,5 +115,51 @@ public class DashboardModule extends AbstractModule {
 		server.setStopAtShutdown(true);
 		return server;
 	}
+	
+	/**
+	 * Creates the Jetty server instance for the GJEX API endpoint.
+	 * @param port where the service is available.
+	 * @return Jetty Server instance
+	 */
+	@Named("APIJettyServer")
+	@Provides
+	@Singleton
+	Server getAPIJettyServer(@Named("Api.service.port") int port,
+							 @Named("APIResourceConfig")ResourceConfig resourceConfig,
+							 @Named("Api.service.acceptors") int acceptorThreads,
+							 @Named("Api.service.selectors") int selectorThreads,
+							 @Named("Api.service.workers") int maxWorkerThreads,
+							 ObjectMapper objectMapper) throws URISyntaxException, UnknownHostException {
+		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
+		provider.setMapper(objectMapper);
+		resourceConfig.register(provider);
+		QueuedThreadPool threadPool = new QueuedThreadPool();
+		threadPool.setMaxThreads(maxWorkerThreads);
+		Server server = new Server(threadPool);
+		ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
+		http.setPort(port);
+		server.addConnector(http);
+		ServletContextHandler context = new ServletContextHandler(server, "/*");
+		ServletHolder servlet = new ServletHolder(new ServletContainer(resourceConfig));
+		context.addServlet(servlet, "/*");
+		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
 
+		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
+		handler.setHandler(context);
+		server.setHandler(handler);
+
+		server.setStopAtShutdown(true);
+		return server;
+	}
+	
+	@Named("APIResourceConfig")
+	@Singleton
+	@Provides
+	public ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
+		ResourceConfig resourceConfig = new ResourceConfig();
+		resourceConfig.register(healthCheckResource);
+		return resourceConfig;
+	}	
+
+	
 }

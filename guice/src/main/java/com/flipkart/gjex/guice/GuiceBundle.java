@@ -18,6 +18,7 @@ package com.flipkart.gjex.guice;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
@@ -53,6 +54,7 @@ public class GuiceBundle implements Bundle, Logging {
 	private List<Service> services;
 	@SuppressWarnings("rawtypes")
 	private List<Filter> filters;
+	private List<HealthCheck> healthchecks;
 	
 	public static class Builder {
 		private List<Module> modules = Lists.newArrayList();
@@ -83,7 +85,7 @@ public class GuiceBundle implements Bundle, Logging {
 		this.modules.add( new ConfigModule());
 		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
 		// add the Dashboard module
-		this.modules.add(new DashboardModule());
+		this.modules.add(new DashboardModule(bootstrap));
 		// add the Grpc Server module
 		this.modules.add(new ServerModule());
 		this.baseInjector = Guice.createInjector(this.modules);
@@ -99,6 +101,8 @@ public class GuiceBundle implements Bundle, Logging {
 		this.baseInjector.getInstance(GrpcServer.class).registerFilters(this.filters, services);
 		// Lookup all Service implementations
 		this.services = this.getInstances(this.baseInjector, Service.class);
+		// Lookup all HealthCheck implementations
+		this.healthchecks = this.getInstances(this.baseInjector, HealthCheck.class);		
 	}	
 
 	@Override
@@ -114,6 +118,13 @@ public class GuiceBundle implements Bundle, Logging {
         Preconditions.checkState(baseInjector != null,
                 "Filter(s) are only available after GuiceBundle.run() is called");
 		return this.filters;
+	} 
+	
+	@Override
+	public List<HealthCheck> getHealthChecks() {		
+        Preconditions.checkState(baseInjector != null,
+                "HealthCheck(s) are only available after GuiceBundle.run() is called");
+		return this.healthchecks;
 	} 
 	
 	public Injector getInjector() {

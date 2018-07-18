@@ -26,9 +26,14 @@ subprojects {
 		    log4j_slf4j: "org.apache.logging.log4j:log4j-slf4j-impl:2.5",
 		    commons_configuration: "commons-configuration:commons-configuration:1.10",
 		    guice: "com.google.inject:guice:4.2.0",
-		    yammer_metrics: "com.palominolabs.metrics:metrics-guice:4.0.0",		    
+		    yammer_metrics: "com.palominolabs.metrics:metrics-guice:4.0.0",
+		    yammer_healthchecks:"io.dropwizard.metrics:metrics-healthchecks:4.0.2",		    
 			grpc_netty: "io.grpc:grpc-netty:${grpcVersion}",
-			grpc_protobuf: "io.grpc:grpc-protobuf:${grpcVersion}"
+			grpc_protobuf: "io.grpc:grpc-protobuf:${grpcVersion}",
+    			jersey: 'org.glassfish.jersey.containers:jersey-container-servlet:2.6',
+    			servlet: 'javax.servlet:javax.servlet-api:3.1.0',
+    			jackson: 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.4',
+    			jetty_metrics: 'com.codahale.metrics:metrics-jetty9:3.0.2'
 		]
 	}
 }

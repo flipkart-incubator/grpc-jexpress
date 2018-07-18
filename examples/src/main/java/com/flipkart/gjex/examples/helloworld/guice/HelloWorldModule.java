@@ -15,9 +15,11 @@
  */
 package com.flipkart.gjex.examples.helloworld.guice;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
+import com.flipkart.gjex.examples.helloworld.healthcheck.AllIsWellHealthCheck;
 import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.google.inject.AbstractModule;
@@ -40,6 +42,7 @@ public class HelloWorldModule extends AbstractModule {
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(Filter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
 		bind(Filter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
+		bind(HealthCheck.class).to(AllIsWellHealthCheck.class);
 	}
 	
 }

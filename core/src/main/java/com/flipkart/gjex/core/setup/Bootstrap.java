@@ -51,6 +51,9 @@ public class Bootstrap implements Logging {
 	@SuppressWarnings("rawtypes")
 	List<Filter> filters;
 	
+	/** The HealthCheckRegistry*/
+	private HealthCheckRegistry healthCheckRegistry;
+	
 	public Bootstrap(Application application) {
 		this.application = application;
 		this.metricRegistry = new MetricRegistry();
@@ -111,7 +114,7 @@ public class Bootstrap implements Logging {
 	public List<Filter> getFilters() {
 		return filters;
 	}
-
+	
 	/**
      * Runs this Bootstrap's bundles in the specified Environment
      * @param environment the Application Environment
@@ -122,10 +125,14 @@ public class Bootstrap implements Logging {
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
         this.services = new LinkedList<Service>();
         this.filters = new LinkedList<Filter>();
+        // Set the HealthCheckRegsitry to the one initialized by the Environment
+        this.healthCheckRegistry = environment.getHealthCheckRegistry();
         for (Bundle bundle : bundles) {
             bundle.run(environment);
             services.addAll(bundle.getServices());
             filters.addAll(bundle.getFilters());
+            // Register all HealthChecks with the HealthCheckRegistry
+            bundle.getHealthChecks().forEach(hc -> this.healthCheckRegistry.register(hc.getClass().getSimpleName(), hc));
         }
 		this.services.forEach(service -> {
 			try {
@@ -145,18 +152,22 @@ public class Bootstrap implements Logging {
 		});
 		this.registerServicesForShutdown();
     }
+
+    public HealthCheckRegistry getHealthCheckRegistry() {		
+		return this.healthCheckRegistry;
+	} 
     
-    private void registerServicesForShutdown() {
-    	Runtime.getRuntime().addShutdownHook(new Thread() {
-    		@Override
-    		public void run() {
-    			// Use stderr here since the logger may have been reset by its JVM shutdown hook.
-    			System.err.println("*** Shutting down gRPC server since JVM is shutting down");
-    			services.forEach(Service::stop);
-    			filters.forEach(Filter::destroy);
-    			System.err.println("*** Server shut down");
-    		}
-    	});    		
+    private void registerServicesForShutdown() throws Exception {
+	    	Runtime.getRuntime().addShutdownHook(new Thread() {
+	    		@Override
+	    		public void run() {
+	    			// Use stdout here since the logger may have been reset by its JVM shutdown hook.
+	    			System.out.println("*** Shutting down GJEX server since JVM is shutting down");
+	    			services.forEach(Service::stop);
+	    			filters.forEach(Filter::destroy);
+	    			System.out.println("*** Server shut down");
+	    		}
+	    	});    		
     }
     
 }
