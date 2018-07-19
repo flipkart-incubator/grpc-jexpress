@@ -31,8 +31,8 @@ public class HelloBean {
 	@NotNull
 	private Integer age;
 	
-	public HelloBean() {
-    }
+	public HelloBean() {		
+	}
 
 	public HelloBean(String greeting, Integer age) {
 		this.greeting = greeting;
