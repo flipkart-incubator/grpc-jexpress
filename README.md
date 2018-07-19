@@ -8,6 +8,7 @@ Provides following features:
 * YAML based configuration support for gRPC service implementations
 * Component Lifecycle (Start(), Stop()) support via Service interface
 * Health Check - ability to add any number of deep Health Checks
+* Validation - using [Hibernate Validator](http://hibernate.org/validator/)
 
 ## Building
 To build GJEX, clone this repository and run:
