@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.validation.ConstraintViolationException;
 
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.MethodFilters;
@@ -83,8 +84,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-			ServerCallHandler<ReqT, RespT> next) {
+	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,ServerCallHandler<ReqT, RespT> next) {
+		
 		List<Filter> filters = filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
 		for (Filter filter : filters) {
 			try {
@@ -94,35 +95,36 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 				return new ServerCall.Listener<ReqT>() {};
 			}
 		}
-		ServerCall.Listener<ReqT> listener;
-		try {
-			listener = new SimpleForwardingServerCallListener<ReqT>(
-					next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
-						@Override
-						@SuppressWarnings("unchecked")
-						public void sendMessage(final RespT response) {
-							filters.forEach(filter -> filter.doProcessResponse((GeneratedMessageV3)response));
-							super.sendMessage(response);
-						}
-						@Override
-						public void sendHeaders(final Metadata responseHeaders) {
-							filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
-							super.sendHeaders(headers);
-						}
-					}, headers)) {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void onMessage(ReqT request) {
-					filters.forEach(filter -> filter.doProcessRequest((GeneratedMessageV3)request));
-					super.onMessage(request);
-				}
-			};
-		} catch (Throwable ex) {
-			error("Uncaught exception from grpc service");
-			call.close(Status.INTERNAL.withCause(ex).withDescription("Uncaught exception from grpc service"), null);
-			return new ServerCall.Listener<ReqT>() {};
-		}
-		return listener;
+		
+		ServerCall.Listener<ReqT> listener = next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
+			@Override
+			@SuppressWarnings("unchecked")
+			public void sendMessage(final RespT response) {
+				filters.forEach(filter -> filter.doProcessResponse((GeneratedMessageV3) response));
+				super.sendMessage(response);
+			}
+			@Override
+			public void sendHeaders(final Metadata responseHeaders) {
+				filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
+				super.sendHeaders(headers);
+			}
+		}, headers);
+		
+		return new SimpleForwardingServerCallListener<ReqT>(listener) {
+			@Override public void onHalfClose() {
+			    try {
+			    		super.onHalfClose();
+			    } catch (RuntimeException ex) {
+			    		handleException(call, ex);
+			    }
+		    }			
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onMessage(ReqT request) {
+				filters.forEach(filter -> filter.doProcessRequest((GeneratedMessageV3) request));
+				super.onMessage(request);
+			}			
+		};
 	}
 
 	/**
@@ -145,6 +147,16 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 			return (superCls != null) ? getAnnotatedMethods(superCls, anno) : null;
 		}
 		return methods;
+	}
+	
+	/** Helper method to handle RuntimeExceptions and convert it into suitable gRPC message. Closes the ServerCall*/
+	private<ReqT, RespT> void handleException(ServerCall<ReqT,RespT> call, Exception e) {
+		error("Closing gRPC call due to RuntimeException.", e);
+		Status returnStatus = Status.INTERNAL;
+		if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
+			returnStatus = Status.INVALID_ARGUMENT;
+		}
+		call.close(returnStatus.withDescription(e.getMessage()),new Metadata());
 	}
 		
 }

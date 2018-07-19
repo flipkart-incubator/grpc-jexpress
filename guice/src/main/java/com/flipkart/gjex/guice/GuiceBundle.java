@@ -40,6 +40,7 @@ import com.google.inject.TypeLiteral;
 import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
 
 import io.grpc.BindableService;
+import ru.vyarus.guice.validator.ImplicitValidationModule;
 
 /**
  * A Guice GJEX Bundle implementation. Multiple Guice Modules may be added to this Bundle.
@@ -84,6 +85,8 @@ public class GuiceBundle implements Bundle, Logging {
 		// add the Config and Metrics MetricsInstrumentationModule
 		this.modules.add( new ConfigModule());
 		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
+		// add the Validation module
+		this.modules.add(new ImplicitValidationModule());
 		// add the Dashboard module
 		this.modules.add(new DashboardModule(bootstrap));
 		// add the Grpc Server module

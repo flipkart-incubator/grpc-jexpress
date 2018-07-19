@@ -11,13 +11,16 @@ dependencies {
     implementation libraries.servlet
     implementation libraries.jackson
     implementation libraries.jetty_metrics
+	implementation libraries.grpc_netty
+	implementation libraries.grpc_protobuf
+    
+	implementation libraries.guice_validator
+	implementation libraries.hibernate_validator
+	implementation libraries.javax_el
     
     implementation 'org.eclipse.jetty:jetty-server:9.4.10.v20180503'
     implementation 'org.eclipse.jetty:jetty-servlet:9.4.10.v20180503'
     implementation 'org.eclipse.jetty:jetty-webapp:9.4.10.v20180503'
-    
-	implementation libraries.grpc_netty
-	implementation libraries.grpc_protobuf
     
 }
 

@@ -20,6 +20,7 @@ import javax.inject.Named;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.gjex.core.filter.MethodFilters;
+import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 
@@ -36,21 +37,44 @@ import io.grpc.stub.StreamObserver;
 @Named("GreeterService")
 public class GreeterService extends GreeterGrpc.GreeterImplBase {
 
+	/** Flag to return bad values in Validation check*/
+	private final boolean isFailValidation = false;
+	
+	/** Property read from configuration*/
 	private String greeting;
+	
+	/** Injected business logic class where validation is performed */
+	private HelloBeanService helloBeanService;
 
-	// demonstrate injecting custom properties from configuration
+	/** Demonstrate injecting custom properties from configuration */
 	@Inject
-	public GreeterService(@Named("hw.greeting") String greeting) {
-		this.greeting = greeting;		
+	public GreeterService(@Named("hw.greeting") String greeting, HelloBeanService helloBeanService) {
+		this.greeting = greeting;
+		this.helloBeanService = helloBeanService;
 	}
 
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
 	@MethodFilters({LoggingFilter.class, AuthFilter.class})
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
+		
+		// invoke business logic implemented in a separate injected class
+		helloBeanService.sayHello(this.getHelloBean());
+		
+		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
+		
 		responseObserver.onNext(reply);
 		responseObserver.onCompleted();
 	}
+
+	public boolean isFailValidation() {
+		return isFailValidation;
+	}
+
+	private HelloBean getHelloBean() {
+		return this.isFailValidation() ? new HelloBean() : new HelloBean("hello",10);
+	}
+	
 }
 
