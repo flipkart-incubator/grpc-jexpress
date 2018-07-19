@@ -34,10 +34,10 @@ public class HelloBean {
 	public HelloBean() {
     }
 
-    public HelloBean(String greeting, Integer age) {
-        this.greeting = greeting;
-        this.age = age;
-    }
+	public HelloBean(String greeting, Integer age) {
+		this.greeting = greeting;
+		this.age = age;
+	}
 
 	public String getGreeting() {
 		return greeting;
