@@ -21,7 +21,9 @@ dependencies {
     implementation 'org.eclipse.jetty:jetty-server:9.4.10.v20180503'
     implementation 'org.eclipse.jetty:jetty-servlet:9.4.10.v20180503'
     implementation 'org.eclipse.jetty:jetty-webapp:9.4.10.v20180503'
-    
+    implementation libraries.lombok
+
+
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

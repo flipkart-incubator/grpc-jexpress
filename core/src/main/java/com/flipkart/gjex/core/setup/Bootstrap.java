@@ -15,10 +15,12 @@
  */
 package com.flipkart.gjex.core.setup;
 
+import java.io.Console;
 import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jmx.JmxReporter;
 import com.codahale.metrics.jvm.BufferPoolMetricSet;
@@ -64,7 +66,7 @@ public class Bootstrap implements Logging {
 		getMetricRegistry().register("jvm.memory", new MemoryUsageGaugeSet());
 		getMetricRegistry().register("jvm.threads", new ThreadStatesGaugeSet());
 
-		JmxReporter.forRegistry(getMetricRegistry()).build().start();
+//		ConsoleReporter.forRegistry(getMetricRegistry()).build().start();
 	}
 	
 	

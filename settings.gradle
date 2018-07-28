@@ -3,3 +3,4 @@ rootProject.name = 'grpc-jexpress'
 include ":core"
 include ":guice"
 include ":runtime"
+include ":examples"
