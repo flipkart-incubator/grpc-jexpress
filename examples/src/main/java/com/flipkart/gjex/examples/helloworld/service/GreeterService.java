@@ -22,8 +22,8 @@ import com.codahale.metrics.annotation.Timed;
 
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
-//import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
-//import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
+import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
+import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 
 
 import io.grpc.examples.helloworld.GreeterGrpc;
@@ -48,7 +48,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 	/** Injected business logic class where validation is performed */
 	private HelloBeanService helloBeanService;
 
-	/** A stub to call an external  grpc service.This would be injected via the ClientModule()**/
+	/** A stub to call an external  grpc service.This would be injected via  @{@link com.flipkart.gjex.guice.module.ClientModule}**/
 	@Inject
 	GreeterGrpc.GreeterBlockingStub blockingStub;
 
@@ -61,17 +61,17 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
-//	@MethodFilters({ AuthFilter.class})
+	@MethodFilters({ AuthFilter.class, LoggingFilter.class})
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		
 		// invoke business logic implemented in a separate injected class
 		helloBeanService.sayHello(this.getHelloBean());
 		
 		// build a reply for this method invocation
-//		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
+		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 
 		System.out.println("Saying hello to an external grpc service");
-		HelloReply reply = blockingStub.sayHello(req);
+		reply = blockingStub.sayHello(req);
 
 		responseObserver.onNext(reply);
 		responseObserver.onCompleted();

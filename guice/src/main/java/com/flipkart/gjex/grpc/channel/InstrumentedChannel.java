@@ -12,6 +12,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by rohit.k on 28/07/18.
  */
+
+/**
+ * A wrapper implementation over @{@link ManagedChannel} which provides metrics of external calls
+ */
 public class InstrumentedChannel extends Channel {
     @Inject
     private MetricRegistry metricRegistry;
@@ -24,13 +28,6 @@ public class InstrumentedChannel extends Channel {
 
         this.channelConfig = channelConfig;
         _delegate = ManagedChannelBuilder.forAddress(channelConfig.getHostname(),channelConfig.getPort()).usePlaintext(true).build();
-        //TODO remove this line
-        metricRegistry = new MetricRegistry();
-        ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .build();
-        reporter.start(1, TimeUnit.SECONDS);
 
     }
     @Override
@@ -55,12 +52,5 @@ public class InstrumentedChannel extends Channel {
     private String getMetricName(String fullMethodName){
         return fullMethodName.replace("/", ".");
     }
-//    public static void main(String[] args) throws InterruptedException {
-//        GrpcChannelConfig channelConfig = new GrpcChannelConfig("localhost",9999);
-//        GreeterGrpc.GreeterBlockingStub blockingStub = GreeterGrpc.newBlockingStub(new InstrumentedChannel(channelConfig));
-//        blockingStub.sayHello(HelloRequest.getDefaultInstance());
-//        Thread.sleep(10000);
-//
-//    }
 }
 

@@ -18,7 +18,7 @@ package com.flipkart.gjex.examples.helloworld.healthcheck;
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.logging.Logging;
 
-import static com.oracle.tools.packager.Log.info;
+
 
 /**
  * A HealthCheck implementation that reports positive results always
