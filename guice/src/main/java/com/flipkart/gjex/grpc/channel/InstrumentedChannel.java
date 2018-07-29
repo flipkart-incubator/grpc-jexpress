@@ -1,13 +1,11 @@
 package com.flipkart.gjex.grpc.channel;
 
-import com.codahale.metrics.ConsoleReporter;
+;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import io.grpc.*;
-
-
 import javax.inject.Inject;
-import java.util.concurrent.TimeUnit;
+
 
 /**
  * Created by rohit.k on 28/07/18.
@@ -20,11 +18,11 @@ public class InstrumentedChannel extends Channel {
     @Inject
     private MetricRegistry metricRegistry;
 
-    private final GrpcChannelConfig channelConfig;
+    private final ChannelConfig channelConfig;
     private final ManagedChannel _delegate ;
 
     @Inject
-    public InstrumentedChannel(GrpcChannelConfig channelConfig){
+    public InstrumentedChannel(ChannelConfig channelConfig){
 
         this.channelConfig = channelConfig;
         _delegate = ManagedChannelBuilder.forAddress(channelConfig.getHostname(),channelConfig.getPort()).usePlaintext(true).build();

@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 /** Configuration object of the  channel used by the grpc client **/
-//This class can be extended to more configurable parameters of the channel like timeout etc.
-public class GrpcChannelConfig {
+//This class can be extended to more configurable parameters of the channel like keep alive time etc.
+public class ChannelConfig {
     private String hostname;
     private int port;
+    private long deadlineInMs=Long.MAX_VALUE;
 
 }
