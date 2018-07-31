@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
 
 /**
  * The pre-start application container, containing services required to bootstrap a GJEX application
- * 
+ *
  * @author regu.b
  *
  */
@@ -44,16 +44,16 @@ public class Bootstrap implements Logging {
 	private final MetricRegistry metricRegistry;
 	private final List<Bundle> bundles;
 	private ClassLoader classLoader;
-	
+
 	/** List of initialized Service instances*/
 	List<Service> services;
 	/** List of initialized Filter instances*/
 	@SuppressWarnings("rawtypes")
 	List<Filter> filters;
-	
+
 	/** The HealthCheckRegistry*/
 	private HealthCheckRegistry healthCheckRegistry;
-	
+
 	public Bootstrap(Application application) {
 		this.application = application;
 		this.metricRegistry = new MetricRegistry();

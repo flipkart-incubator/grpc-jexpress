@@ -29,20 +29,20 @@ import io.grpc.examples.helloworld.HelloRequest;
 /**
  * An implementation of the {@link Filter} interface as example that performs naive authentication based on
  * information contained in the Request headers
- * 
+ *
  * @author regu.b
  *
  */
 @Named("AuthFilter")
 public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
-		
+
 	/** Fictitious authentication key*/
 	@SuppressWarnings("rawtypes")
 	static final Metadata.Key AUTH_KEY = Metadata.Key.of("DUMMY_AUTH_TOKEN", Metadata.ASCII_STRING_MARSHALLER);
-	
+
 	/** Flag to control authentication check*/
 	private final boolean isAuth = false;
-	
+
 	@Override
 	public void doFilterRequest(Metadata requestHeaders) throws StatusRuntimeException {
 		info("Headers found in the request : " + requestHeaders.toString());
@@ -56,10 +56,10 @@ public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
 			throw new StatusRuntimeException(Status.UNAUTHENTICATED.withDescription("Auth token is missing in request headers!"), requestHeaders);
 		}
 	}
-	
+
 	public boolean isAuth() {
 		return this.isAuth;
 	}
-	
+
 }
 
