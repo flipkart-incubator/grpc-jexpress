@@ -1,6 +1,5 @@
 package com.flipkart.gjex.grpc.channel;
 
-;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import io.grpc.*;
