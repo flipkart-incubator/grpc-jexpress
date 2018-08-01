@@ -101,10 +101,12 @@ public class GuiceBundle implements Bundle, Logging {
 	public void run(Environment environment) {
 		// Add all Grpc Services to the Grpc Server
 		List<BindableService> services = this.getInstances(this.baseInjector, BindableService.class);
+
 		this.baseInjector.getInstance(GrpcServer.class).registerServices(services);
 		// Add all Grpc Filters to the Grpc Server
 		this.filters = this.getInstances(this.baseInjector, Filter.class);
 		this.baseInjector.getInstance(GrpcServer.class).registerFilters(this.filters, services);
+
 		// Lookup all Service implementations
 		this.services = this.getInstances(this.baseInjector, Service.class);
 		// Lookup all HealthCheck implementations
