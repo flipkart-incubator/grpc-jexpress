@@ -7,6 +7,7 @@ repositories {
 }
 
 dependencies {
+	compile "com.flipkart.grpc-jexpress:core:1.0"    
 	compile "com.flipkart.grpc-jexpress:runtime:1.0"    
     compile "io.grpc:examples:1.10.0" 
     compile "io.dropwizard.metrics:metrics-healthchecks:4.0.2"

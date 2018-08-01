@@ -20,6 +20,7 @@ import javax.inject.Named;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.gjex.core.filter.MethodFilters;
+import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
@@ -55,11 +56,12 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
-	@MethodFilters({LoggingFilter.class, AuthFilter.class})
+	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
+	@Traced // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		
 		// invoke business logic implemented in a separate injected class
-		helloBeanService.sayHello(this.getHelloBean());
+		helloBeanService.sayHelloInBean(this.getHelloBean());
 		
 		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();

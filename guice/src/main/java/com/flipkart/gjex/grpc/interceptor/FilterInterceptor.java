@@ -15,8 +15,6 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -32,7 +30,7 @@ import javax.validation.ConstraintViolationException;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
-import com.flipkart.gjex.core.util.Pair;
+import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 import com.google.protobuf.GeneratedMessageV3;
 
 import io.grpc.BindableService;
@@ -66,7 +64,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		Map<Class<?>, Filter> classToInstanceMap = filters.stream()
 				.collect(Collectors.toMap(Object::getClass, Function.identity()));
 		services.forEach(service -> {
-			this.getAnnotatedMethods(service.getClass(),MethodFilters.class).forEach(pair -> {
+			AnnotationUtils.getAnnotatedMethods(service.getClass(),MethodFilters.class).forEach(pair -> {
 				List<Filter> filtersForMethod = new LinkedList<Filter>();
 				Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
 					if (!classToInstanceMap.containsKey(filterClass)) {
@@ -125,28 +123,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 				super.onMessage(request);
 			}			
 		};
-	}
-
-	/**
-	 * Helper method to get annotated methods on a Class. Navigates up the superclass hierarchy to get the methods. This is required when used with DI mechanisms like Guice that
-	 * create a CGLIB proxy sub-type for instances and annotations are not copied to the sub-type.
-	 * Cannot use @Inherited annotation as a workaround because it applies only to Type/Class level annotations and not for Method-level ones.
-	 * @see https://github.com/google/guice/issues/101
-	 * 
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<Pair<?,Method>> getAnnotatedMethods(Class<?> cls, Class<? extends Annotation> anno) {
-		List<Pair<?,Method>> methods = new LinkedList<Pair<?,Method>>();
-		for (Method m : cls.getDeclaredMethods()) {
-			if (m.getAnnotation(anno) != null) {
-				methods.add(new Pair(cls,m));
-			}
-		}
-		if (methods.isEmpty()) {
-			Class<?> superCls = cls.getSuperclass();
-			return (superCls != null) ? getAnnotatedMethods(superCls, anno) : null;
-		}
-		return methods;
 	}
 	
 	/** Helper method to handle RuntimeExceptions and convert it into suitable gRPC message. Closes the ServerCall*/
