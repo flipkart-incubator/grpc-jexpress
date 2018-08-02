@@ -48,8 +48,8 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 	private HelloBeanService helloBeanService;
 
 	/** A stub to call an external  grpc service.This would be injected via  @{@link com.flipkart.gjex.guice.module.ClientModule}**/
-	@Inject
-	GreeterGrpc.GreeterBlockingStub blockingStub;
+	//@Inject
+	//GreeterGrpc.GreeterBlockingStub blockingStub;
 
 	/** Demonstrate injecting custom properties from configuration */
 	@Inject
@@ -70,12 +70,14 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 
+		/*
 		System.out.println("Saying hello to an external grpc service");
 		try {
 			reply = blockingStub.sayHello(req);
 		}catch (Exception e){
 			System.out.println("Failed to say hello to external grpc service.Ensure Greeter service is running");
 		}
+		*/
 
 		responseObserver.onNext(reply);
 		responseObserver.onCompleted();

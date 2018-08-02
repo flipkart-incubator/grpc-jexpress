@@ -26,6 +26,7 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
+import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
 
 import io.grpc.BindableService;
 import io.grpc.Server;
@@ -49,15 +50,19 @@ public class GrpcServer extends AbstractService implements Logging {
 	private ServerBuilder<?> grpcServerBuilder;
 	private Server grpcServer;
 	
-	/** The Filter ServerInterceptor*/
+	/** The ServerInterceptors*/
 	private FilterInterceptor filterInterceptor;
+	private TracingInterceptor tracingInterceptor;
 	
 	@Inject
-	public GrpcServer(@Named("Grpc.server.port") int port, @Named("FilterInterceptor") FilterInterceptor filterInterceptor) {
+	public GrpcServer(@Named("Grpc.server.port") int port, 
+			@Named("FilterInterceptor") FilterInterceptor filterInterceptor,
+			@Named("TracingInterceptor") TracingInterceptor tracingInterceptor) {
 		info("Creating GrpcServer listening on port : " + port);
 		this.port = port;
 		this.grpcServerBuilder = ServerBuilder.forPort(this.port);
 		this.filterInterceptor = filterInterceptor;
+		this.tracingInterceptor = tracingInterceptor;
 	}
 	
 	@Override
@@ -67,7 +72,7 @@ public class GrpcServer extends AbstractService implements Logging {
 		this.grpcServer.getServices().forEach(serviceDefinition -> info(serviceDefinition.getServiceDescriptor().getName()));
 		info("GJEX GrpcServer started.Hosting these services : ****** End *****");
 		// Not waiting for termination as this blocks main thread preventing any subsequent startup, like the Jetty Dashboard server 
-//		 this.grpcServer.awaitTermination();
+		// this.grpcServer.awaitTermination();
 	}
 
 	@Override
@@ -83,7 +88,8 @@ public class GrpcServer extends AbstractService implements Logging {
 	}
 
 	public void registerServices(List<BindableService> services) {
-		services.forEach(service -> this.grpcServerBuilder.addService(ServerInterceptors.intercept (service, this.filterInterceptor)));
+		services.forEach(service -> this.grpcServerBuilder.addService(ServerInterceptors.intercept(service, 
+				this.tracingInterceptor, this.filterInterceptor)));
 	}
 
 }

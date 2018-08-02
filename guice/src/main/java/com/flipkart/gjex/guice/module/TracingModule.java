@@ -26,6 +26,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.tracing.OpenTracingContextKey;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -85,6 +86,7 @@ public class TracingModule extends AbstractModule implements Logging {
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			io.opentracing.Span methodInvocationSpan = tracer.buildSpan(invocation.getMethod().getName())
+					.asChildOf(OpenTracingContextKey.activeSpan())
 					.start();
 			Scope scope = tracer.scopeManager().activate(methodInvocationSpan, true);
 			Object result = null;
