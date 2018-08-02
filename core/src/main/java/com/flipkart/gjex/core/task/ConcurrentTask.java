@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for specifying an execution task in GJEX that typically invokes a network resource, external gRPC service etc.
+ * Annotation for specifying an execution task in GJEX that executes concurrently and typically invokes a network resource, external gRPC service etc.
  * @author regu.b
  *
  */
@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Task {
+public @interface ConcurrentTask {
 
 	/**
      * Defines the maximum time GJEX can "expect" the task to run for.
