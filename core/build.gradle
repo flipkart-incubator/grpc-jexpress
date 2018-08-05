@@ -12,6 +12,7 @@ dependencies {
 	implementation libraries.grpc_protobuf
     implementation libraries.jersey
     implementation libraries.servlet
+	implementation libraries.opentracing
     implementation 'io.dropwizard.metrics:metrics-jvm:4.0.2'
     implementation 'io.dropwizard.metrics:metrics-jmx:4.0.2'
     implementation 'org.yaml:snakeyaml:1.15'

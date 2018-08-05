@@ -37,6 +37,7 @@ subprojects {
 			guice_validator: 'ru.vyarus:guice-validator:1.2.0',
 			hibernate_validator: 'org.hibernate:hibernate-validator:5.4.1.Final',
 			javax_el: 'org.glassfish:javax.el:3.0.1-b08',
+			opentracing: 'io.opentracing:opentracing-api:0.31.0',
 			lombok: 'org.projectlombok:lombok:1.18.2',
 			grpc_stub :"io.grpc:grpc-stub:${grpcVersion}"
 		]

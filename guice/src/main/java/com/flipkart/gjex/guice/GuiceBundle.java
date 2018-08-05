@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016, the original author or authors.
+ * Copyright (c) The original author or authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.flipkart.gjex.guice.module.DashboardModule;
 import com.flipkart.gjex.guice.module.ServerModule;
+import com.flipkart.gjex.guice.module.TracingModule;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.inject.Binding;
@@ -87,6 +88,8 @@ public class GuiceBundle implements Bundle, Logging {
 		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
 		// add the Validation module
 		this.modules.add(new ImplicitValidationModule());
+		// add the Tracing module
+		this.modules.add(new TracingModule());
 		// add the Dashboard module
 		this.modules.add(new DashboardModule(bootstrap));
 		// add the Grpc Server module

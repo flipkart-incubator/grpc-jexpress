@@ -3,5 +3,7 @@ rootProject.name = 'grpc-jexpress'
 include ":core"
 include ":guice"
 include ":runtime"
+
 /** Uncomment the below line to build examples.Ensure that example module of grpc-java is built locally **/
-include ":examples"
+//include ":examples"
+

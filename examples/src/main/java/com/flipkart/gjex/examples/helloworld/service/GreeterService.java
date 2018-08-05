@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016, the original author or authors.
+ * Copyright (c) The original author or authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.codahale.metrics.annotation.Timed;
-
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
-
 
 import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.HelloReply;
@@ -65,17 +64,20 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
-	@MethodFilters({ AuthFilter.class, LoggingFilter.class})
+	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
+	@Traced // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		
 		// invoke business logic implemented in a separate injected class
-		helloBeanService.sayHello(this.getHelloBean());
+		helloBeanService.sayHelloInBean(this.getHelloBean());
 		
 		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 
 
 		logger().info("Saying hello to an external grpc service");
+
+
 		try {
 			reply = blockingStub.sayHello(req);
 		}catch (Exception e){

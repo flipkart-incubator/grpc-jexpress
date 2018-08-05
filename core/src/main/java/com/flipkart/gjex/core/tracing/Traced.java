@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.gjex.examples.helloworld.healthcheck;
+package com.flipkart.gjex.core.tracing;
 
-import com.codahale.metrics.health.HealthCheck;
-import com.flipkart.gjex.core.logging.Logging;
-
-
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * A HealthCheck implementation that reports positive results always
+ * Annotation for specifying that a method invocation needs to be traced as a Span in an active distributed trace.
  * @author regu.b
  *
  */
-public class AllIsWellHealthCheck extends HealthCheck implements Logging {
 
-	@Override
-	protected Result check() throws Exception {
-		info("Returning healthy status.");
-		return Result.healthy("All Is Well");
-	}
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Traced {
 
+	/**
+     * Adds a Span only when an active span exists.
+     */
+	boolean withActiveSpanOnly() default true;	
+    
 }

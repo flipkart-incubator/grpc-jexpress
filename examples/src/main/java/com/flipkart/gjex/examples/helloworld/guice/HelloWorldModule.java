@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016, the original author or authors.
+ * Copyright (c) The original author or authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ public class HelloWorldModule extends AbstractModule {
 	protected void configure() {
 		install(new ConfigModule("hello_world_config.yml")); // load custom module specific configurations that are injectable in gRPC implementations. See @GreeterService source for example
 		install(new ClientModule<>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
+
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(Filter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
 		bind(Filter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);

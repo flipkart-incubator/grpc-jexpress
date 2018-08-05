@@ -9,6 +9,7 @@ Provides following features:
 * Component Lifecycle (Start(), Stop()) support via Service interface
 * Health Check - ability to add any number of deep Health Checks
 * Validation - using [Hibernate Validator](http://hibernate.org/validator/)
+* Distributed Tracing - using [opentracing](http://opentracing.io/) and the [openzipkin](https://github.com/openzipkin/brave) implementation
 
 ## Building
 To build GJEX, clone this repository and run:
