@@ -21,6 +21,7 @@ import javax.inject.Named;
 import com.codahale.metrics.annotation.Timed;
 
 import com.flipkart.gjex.core.filter.MethodFilters;
+import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
@@ -30,6 +31,9 @@ import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.stub.StreamObserver;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Sample Grpc service implementation that leverages GJEX features
@@ -37,7 +41,7 @@ import io.grpc.stub.StreamObserver;
  *
  */
 @Named("GreeterService")
-public class GreeterService extends GreeterGrpc.GreeterImplBase {
+public class GreeterService extends GreeterGrpc.GreeterImplBase implements Logging {
 
 	/** Flag to return bad values in Validation check*/
 	private final boolean isFailValidation = false;
@@ -71,11 +75,11 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 
 
-		System.out.println("Saying hello to an external grpc service");
+		logger().info("Saying hello to an external grpc service");
 		try {
 			reply = blockingStub.sayHello(req);
 		}catch (Exception e){
-			System.out.println("Failed to say hello to external grpc service.Ensure Greeter service is running");
+			logger().info("Failed to say hello to external grpc service.Ensure Greeter service is running");
 		}
 
 		responseObserver.onNext(reply);
