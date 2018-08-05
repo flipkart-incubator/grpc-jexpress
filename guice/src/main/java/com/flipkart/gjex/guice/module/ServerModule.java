@@ -41,7 +41,7 @@ public class ServerModule extends AbstractModule {
 		bind(FilterInterceptor.class).annotatedWith(Names.named("FilterInterceptor")).to(FilterInterceptor.class);
 		bind(TracingInterceptor.class).annotatedWith(Names.named("TracingInterceptor")).to(TracingInterceptor.class);
 		bind(Service.class).annotatedWith(Names.named("GrpcServer")).to(GrpcServer.class);
-//		bind(Service.class).annotatedWith(Names.named("DashboardJettyServer")).to(DashboardServer.class);
-//		bind(Service.class).annotatedWith(Names.named("ApiJettyServer")).to(ApiServer.class);
+		bind(Service.class).annotatedWith(Names.named("DashboardJettyServer")).to(DashboardServer.class);
+		bind(Service.class).annotatedWith(Names.named("ApiJettyServer")).to(ApiServer.class);
 	}
 }

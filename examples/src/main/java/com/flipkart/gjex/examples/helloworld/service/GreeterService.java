@@ -30,9 +30,7 @@ import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.stub.StreamObserver;
-import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
-import lombok.extern.log4j.Log4j2;
+
 
 /**
  * Sample Grpc service implementation that leverages GJEX features
