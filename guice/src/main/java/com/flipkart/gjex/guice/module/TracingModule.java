@@ -17,6 +17,7 @@ package com.flipkart.gjex.guice.module;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,6 +29,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.tracing.OpenTracingContextKey;
 import com.flipkart.gjex.core.tracing.Traced;
+import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -36,6 +38,7 @@ import com.google.inject.matcher.Matchers;
 
 import brave.Tracing;
 import brave.opentracing.BraveTracer;
+import io.grpc.Context;
 import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.log.Fields;
@@ -78,25 +81,44 @@ public class TracingModule extends AbstractModule implements Logging {
 	 * The Tracing method interceptor
 	 */
 	class TracedMethodInterceptor implements MethodInterceptor {
+		
+		/** The OpenTracing Tracer instance*/
 		@Inject @Named("Tracer")
 		Tracer tracer;
+		
 		/**
 		 * Starts a Trace(implicitly) or adds a Span for every method annotated with {@link Traced}. Nesting of spans is implicit
 		 */
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
-			io.opentracing.Span methodInvocationSpan = tracer.buildSpan(invocation.getMethod().getName())
-					.asChildOf(OpenTracingContextKey.activeSpan())
-					.start();
-			Scope scope = tracer.scopeManager().activate(methodInvocationSpan, true);
+			Scope scope = null;
+			io.opentracing.Span methodInvocationSpan = null;
+			Callable<Object> methodCallable = new MethodCallable(invocation);
+			if (OpenTracingContextKey.activeSpan() != null) {
+				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
+				TracingSampler tracingSampler = OpenTracingContextKey.activeTracingSampler();
+				tracingSampler.initializeSamplerFor(methodInvoked, invocation.getMethod().getAnnotation(Traced.class).withSamplingRate());
+				if (tracingSampler.isSampled(methodInvoked)) {
+					methodInvocationSpan = tracer.buildSpan(methodInvoked)
+							.asChildOf(OpenTracingContextKey.activeSpan())
+							.start();
+					// Set the Method invocation Span as the current span
+					methodCallable = Context.current().withValue(OpenTracingContextKey.getKey(), methodInvocationSpan).wrap(methodCallable);
+					scope = tracer.scopeManager().activate(methodInvocationSpan, true);					
+				}
+			}
 			Object result = null;
 			try  {
-				result = invocation.proceed();
+				result = methodCallable.call();
 			} catch(Exception ex) {
-			    Tags.ERROR.set(methodInvocationSpan, true);
-			    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
+				if (methodInvocationSpan != null) {
+				    Tags.ERROR.set(methodInvocationSpan, true);
+				    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
+				}
 			} finally {
-				scope.close();
+				if (scope != null) {
+					scope.close();
+				}
 			}
 			return result;
 		}
@@ -118,5 +140,20 @@ public class TracingModule extends AbstractModule implements Logging {
 	        }
 	        return matches;
 	    }
-	}	
+	}
+	
+	/** Wraps a MethodInvocation as a Callable for use with gRPC Context*/
+	class MethodCallable implements Callable<Object> {
+		MethodInvocation invocation ;
+		MethodCallable(MethodInvocation invocation) {
+			this.invocation = invocation;
+		}
+		public Object call() throws Exception {
+			try {
+				return this.invocation.proceed();
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
 }
