@@ -15,16 +15,25 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
 import com.flipkart.gjex.core.tracing.OpenTracingContextKey;
+import com.flipkart.gjex.core.tracing.Traced;
+import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 
+import io.grpc.BindableService;
 import io.grpc.Context;
 import io.grpc.Contexts;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
@@ -33,6 +42,7 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -52,35 +62,71 @@ import io.opentracing.propagation.TextMapExtractAdapter;
 @Named("TracingInterceptor")
 public class TracingInterceptor implements ServerInterceptor, Logging {
 
+	/** Map of ConfigurableTracingSampler instance mapped to Service and its method*/
+	private Map<String, TracingSampler> samplerMap = new HashMap<String, TracingSampler>();
+	
 	@Inject @Named("Tracer")
 	Tracer tracer;
 
+	public void registerTracingSamplers(List<TracingSampler> samplers, List<BindableService> services) {
+		Map<Class<?>, TracingSampler> classToInstanceMap = samplers.stream()
+				.collect(Collectors.toMap(Object::getClass, Function.identity()));
+		services.forEach(service -> {
+			AnnotationUtils.getAnnotatedMethods(service.getClass(),Traced.class).forEach(pair -> {
+				Arrays.asList(pair.getValue().getAnnotation(Traced.class).withTracingSampler()).forEach(samplerClass -> {
+					// Key is of the form <Service Name>+ "/" +<Method Name> 
+					// reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
+					String samplerComponentName = (service.bindService().getServiceDescriptor().getName() + "/" 
+							+ pair.getValue().getName()).toLowerCase();
+					if (samplerClass == null) {
+						samplerMap.put(samplerComponentName, new ConfigurableTracingSampler());
+					} else {
+						if (!classToInstanceMap.containsKey(samplerClass)) {
+							throw new RuntimeException("TracingSampler instance not bound for TracingSampler class :" + samplerClass.getName());
+						}
+						samplerMap.put(samplerComponentName, classToInstanceMap.get(samplerClass));
+					}
+				});
+			});
+		});
+		
+	}
+	
 	@Override
 	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,ServerCallHandler<ReqT, RespT> next) {
-		Map<String, String> headerMap = new HashMap<String, String>();
-		for (String key : headers.keys()) {
-			if (!key.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-				String value = headers.get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER));
-				headerMap.put(key, value);
-			}
-		}
-		final Span span = getSpanFromHeaders(call,headerMap);
-		// Set the client side initiated Trace and Span in the Context
-		Context ctxWithSpan = Context.current().withValue(OpenTracingContextKey.getKey(), span)
-		        .withValue(OpenTracingContextKey.getSpanContextKey(), span.context());
-		    ServerCall.Listener<ReqT> listenerWithContext = Contexts
-		        .interceptCall(ctxWithSpan, call, headers, next);
-		return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {
-			@Override
-			public void onMessage(ReqT message) {
-				Scope scope = tracer.scopeManager().activate(span, false);
-				try {
-					delegate().onMessage(message);
-				} finally {
-					scope.close();
+		TracingSampler tracingSampler = this.samplerMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
+		if (tracingSampler != null) {
+			Map<String, String> headerMap = new HashMap<String, String>();
+			for (String key : headers.keys()) {
+				if (!key.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
+					String value = headers.get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER));
+					headerMap.put(key, value);
 				}
 			}
-		};
+			
+			final Span span = getSpanFromHeaders(call,headerMap);
+			// Set the client side initiated Trace and Span in the Context
+			Context ctxWithSpan = Context.current().withValue(OpenTracingContextKey.getKey(), span)
+			        .withValue(OpenTracingContextKey.getSpanContextKey(), span.context())
+			        .withValue(OpenTracingContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
+			    ServerCall.Listener<ReqT> listenerWithContext = Contexts
+			        .interceptCall(ctxWithSpan, call, headers, next);
+			    
+			return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {
+				@Override
+				public void onMessage(ReqT message) {
+					Scope scope = tracer.scopeManager().activate(span, false);
+					try {
+						delegate().onMessage(message);
+					} finally {
+						scope.close();
+					}
+				}
+			};
+		} else {
+			return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
+					new SimpleForwardingServerCall<ReqT, RespT>(call){},headers)){};
+		}
 	}
 	
 	/**

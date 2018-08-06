@@ -25,6 +25,7 @@ import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
+import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
 import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
 
@@ -86,6 +87,10 @@ public class GrpcServer extends AbstractService implements Logging {
 
 	public void registerFilters(@SuppressWarnings("rawtypes") List<Filter> filters, List<BindableService> services) {
 		this.filterInterceptor.registerFilters(filters, services);
+	}
+	
+	public void registerTracingSamplers(List<TracingSampler> samplers, List<BindableService> services) {
+		this.tracingInterceptor.registerTracingSamplers(samplers, services);
 	}
 
 	public void registerServices(List<BindableService> services) {

@@ -30,6 +30,7 @@ import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
+import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.google.common.collect.Lists;
 
 /**
@@ -50,6 +51,8 @@ public class Bootstrap implements Logging {
 	/** List of initialized Filter instances*/
 	@SuppressWarnings("rawtypes")
 	List<Filter> filters;
+	/** List of initialized ConfigurableTracingSampler instances*/
+	List<TracingSampler> tracingSamplers;
 
 	/** The HealthCheckRegistry*/
 	private HealthCheckRegistry healthCheckRegistry;
@@ -115,6 +118,10 @@ public class Bootstrap implements Logging {
 		return filters;
 	}
 	
+	public List<TracingSampler> getTracingSamplers() {
+		return tracingSamplers;
+	}
+
 	/**
      * Runs this Bootstrap's bundles in the specified Environment
      * @param environment the Application Environment
@@ -131,6 +138,7 @@ public class Bootstrap implements Logging {
             bundle.run(environment);
             services.addAll(bundle.getServices());
             filters.addAll(bundle.getFilters());
+            this.tracingSamplers = bundle.getTracingSamplers();
             // Register all HealthChecks with the HealthCheckRegistry
             bundle.getHealthChecks().forEach(hc -> this.healthCheckRegistry.register(hc.getClass().getSimpleName(), hc));
         }
@@ -156,7 +164,7 @@ public class Bootstrap implements Logging {
     public HealthCheckRegistry getHealthCheckRegistry() {		
 		return this.healthCheckRegistry;
 	} 
-    
+        
     private void registerServicesForShutdown() throws Exception {
 	    	Runtime.getRuntime().addShutdownHook(new Thread() {
 	    		@Override

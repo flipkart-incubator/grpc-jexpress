@@ -25,6 +25,7 @@ import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
+import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 
 import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.HelloReply;
@@ -63,7 +64,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
 	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
-	@Traced // Start a new Trace or participate in a Client-initiated distributed trace
+	@Traced(withTracingSampler=AllWhitelistTracingSampler.class) // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		
 		// invoke business logic implemented in a separate injected class
