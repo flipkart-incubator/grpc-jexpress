@@ -73,13 +73,13 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 
 
-		logger().info("Saying hello to an external grpc service");
+		info("Saying hello to an external grpc service");
 
 
 		try {
 			reply = blockingStub.sayHello(req);
 		}catch (Exception e){
-			logger().info("Failed to say hello to external grpc service.Ensure Greeter service is running");
+			info("Failed to say hello to external grpc service.Ensure Greeter service is running");
 		}
 
 		responseObserver.onNext(reply);
