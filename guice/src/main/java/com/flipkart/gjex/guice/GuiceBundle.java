@@ -25,6 +25,7 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
+import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.flipkart.gjex.guice.module.DashboardModule;
@@ -57,6 +58,7 @@ public class GuiceBundle implements Bundle, Logging {
 	@SuppressWarnings("rawtypes")
 	private List<Filter> filters;
 	private List<HealthCheck> healthchecks;
+	private List<TracingSampler> tracingSamplers;
 	
 	public static class Builder {
 		private List<Module> modules = Lists.newArrayList();
@@ -99,14 +101,17 @@ public class GuiceBundle implements Bundle, Logging {
 
 	@Override
 	public void run(Environment environment) {
+		GrpcServer grpcServer = this.baseInjector.getInstance(GrpcServer.class);
 		// Add all Grpc Services to the Grpc Server
 		List<BindableService> services = this.getInstances(this.baseInjector, BindableService.class);
-
-		this.baseInjector.getInstance(GrpcServer.class).registerServices(services);
+		grpcServer.registerServices(services);
 		// Add all Grpc Filters to the Grpc Server
 		this.filters = this.getInstances(this.baseInjector, Filter.class);
-		this.baseInjector.getInstance(GrpcServer.class).registerFilters(this.filters, services);
-
+		grpcServer.registerFilters(this.filters, services);
+		// Add all Grpc Filters to the Grpc Server
+		this.tracingSamplers = this.getInstances(this.baseInjector, TracingSampler.class);
+		grpcServer.registerTracingSamplers(this.tracingSamplers, services);
+		
 		// Lookup all Service implementations
 		this.services = this.getInstances(this.baseInjector, Service.class);
 		// Lookup all HealthCheck implementations
@@ -135,12 +140,19 @@ public class GuiceBundle implements Bundle, Logging {
 		return this.healthchecks;
 	} 
 	
+	@Override
+	public List<TracingSampler> getTracingSamplers() {
+        Preconditions.checkState(baseInjector != null,
+                "TracingSampler(s) is only available after GuiceBundle.run() is called");
+        return this.tracingSamplers;
+	}
+	
 	public Injector getInjector() {
         Preconditions.checkState(baseInjector != null,
                 "Injector is only available after GuiceBundle.initialize() is called");
         return baseInjector;
     }	
-	
+		
     private <T> List<T> getInstances(Injector injector, Class<T> type) {
         List<T> instances = new ArrayList<T>();
         List<Binding<T>> bindings = injector.findBindingsByType(TypeLiteral.get(type));

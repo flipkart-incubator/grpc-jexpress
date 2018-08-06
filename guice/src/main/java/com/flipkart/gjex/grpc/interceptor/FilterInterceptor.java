@@ -55,7 +55,7 @@ import io.grpc.StatusRuntimeException;
 @Named("FilterInterceptor")
 public class FilterInterceptor implements ServerInterceptor, Logging {
 	
-	/** List of Filter instances*/
+	/** Map of Filter instances mapped to Service and its method*/
 	@SuppressWarnings("rawtypes")
 	private Map<String,List<Filter>> filtersMap = new HashMap<String, List<Filter>>();	
 	
