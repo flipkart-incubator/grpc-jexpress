@@ -92,7 +92,11 @@ public class TracingModule extends AbstractModule implements Logging {
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			Scope scope = null;
-			io.opentracing.Span methodInvocationSpan = null;
+			/*
+			 * Initializing method invocation span as null means the current active span may get unset if there is no parent active span or the Tracing sampler returns 
+			 * negative for sampling the request
+			 */
+			io.opentracing.Span methodInvocationSpan = null;  
 			Callable<Object> methodCallable = new MethodCallable(invocation);
 			if (OpenTracingContextKey.activeSpan() != null) {
 				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
@@ -102,10 +106,10 @@ public class TracingModule extends AbstractModule implements Logging {
 					methodInvocationSpan = tracer.buildSpan(methodInvoked)
 							.asChildOf(OpenTracingContextKey.activeSpan())
 							.start();
-					// Set the Method invocation Span as the current span
-					methodCallable = Context.current().withValue(OpenTracingContextKey.getKey(), methodInvocationSpan).wrap(methodCallable);
 					scope = tracer.scopeManager().activate(methodInvocationSpan, true);					
 				}
+				// Set the Method invocation Span as the current span - may be null too and this means subsequent methods will not get traced
+				methodCallable = Context.current().withValue(OpenTracingContextKey.getKey(), methodInvocationSpan).wrap(methodCallable);
 			}
 			Object result = null;
 			try  {
