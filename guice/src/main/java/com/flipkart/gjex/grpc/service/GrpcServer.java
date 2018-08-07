@@ -72,8 +72,9 @@ public class GrpcServer extends AbstractService implements Logging {
 		info("GJEX GrpcServer started.Hosting these services : ****** Start *****");
 		this.grpcServer.getServices().forEach(serviceDefinition -> info(serviceDefinition.getServiceDescriptor().getName()));
 		info("GJEX GrpcServer started.Hosting these services : ****** End *****");
-		// Not waiting for termination as this blocks main thread preventing any subsequent startup, like the Jetty Dashboard server 
+		// Not waiting for termination as this blocks main thread preventing any subsequent startup, like the Jetty Dashboard server
 		// this.grpcServer.awaitTermination();
+
 	}
 
 	@Override

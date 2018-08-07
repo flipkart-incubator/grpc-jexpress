@@ -20,6 +20,7 @@ import javax.inject.Named;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.gjex.core.filter.MethodFilters;
+import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
@@ -31,13 +32,14 @@ import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.stub.StreamObserver;
 
+
 /**
  * Sample Grpc service implementation that leverages GJEX features
  * @author regu.b
  *
  */
 @Named("GreeterService")
-public class GreeterService extends GreeterGrpc.GreeterImplBase {
+public class GreeterService extends GreeterGrpc.GreeterImplBase implements Logging {
 
 	/** Flag to return bad values in Validation check*/
 	private final boolean isFailValidation = false;
@@ -49,8 +51,8 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 	private HelloBeanService helloBeanService;
 
 	/** A stub to call an external  grpc service.This would be injected via  @{@link com.flipkart.gjex.guice.module.ClientModule}**/
-	//@Inject
-	//GreeterGrpc.GreeterBlockingStub blockingStub;
+	@Inject
+	GreeterGrpc.GreeterBlockingStub blockingStub;
 
 	/** Demonstrate injecting custom properties from configuration */
 	@Inject
@@ -71,14 +73,15 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
 		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 
-		/*
-		System.out.println("Saying hello to an external grpc service");
+
+		info("Saying hello to an external grpc service");
+
+
 		try {
 			reply = blockingStub.sayHello(req);
 		}catch (Exception e){
-			System.out.println("Failed to say hello to external grpc service.Ensure Greeter service is running");
+			info("Failed to say hello to external grpc service.Ensure Greeter service is running");
 		}
-		*/
 
 		responseObserver.onNext(reply);
 		responseObserver.onCompleted();
