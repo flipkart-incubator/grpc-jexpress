@@ -28,6 +28,9 @@ import com.flipkart.gjex.core.logging.Logging;
  *
  */
 public class ConfigurableTracingSampler implements TracingSampler, Logging {
+	
+	/** Flag to determine if tracing is enabled - this would ideally be controlled via a dynamic configuration system*/
+	private boolean isTraceEnabled = false;
 
 	/** Map of components and their respective samplers */
 	private Map<String, CountingSampler> componentMap = new HashMap<String, CountingSampler>();
@@ -70,8 +73,25 @@ public class ConfigurableTracingSampler implements TracingSampler, Logging {
 	 * Default behavior is to turn off tracing
 	 */
 	protected boolean isTraceEnabled(String component) {
-		return false;
+		return this.isTraceEnabled;
 	}
 	
+	/**
+	 * Sets the trace enabled flag for this sampler. Resets the active samplers if tracing gets disabled.
+	 * @param traceEnabled true or false to set/unset tracing
+	 */
+	protected void setIsTraceEnabled(boolean traceEnabled) {
+		if (this.isTraceEnabled && !traceEnabled) {
+			this.resetSamplers();
+		}
+		this.isTraceEnabled = traceEnabled;
+	}
+	
+	/**
+	 * Resets all active samplers
+	 */
+	protected void resetSamplers() {
+		this.componentMap.clear();
+	}	
 	
 }
