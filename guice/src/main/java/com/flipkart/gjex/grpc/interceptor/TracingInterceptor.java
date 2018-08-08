@@ -64,8 +64,6 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 	/** Map of ConfigurableTracingSampler instance mapped to Service and its method*/
 	private Map<String, TracingSampler> samplerMap = new HashMap<String, TracingSampler>();
 	
-	/** */
-	
 	@Inject @Named("Tracer")
 	Tracer tracer;
 
@@ -106,7 +104,10 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 			}
 			
 			final Span span = getSpanFromHeaders(call,headerMap);
-			// Set the client side initiated Trace and Span in the Context
+			/*
+			 *  Set the client side initiated Trace and Span in the Context.
+			 *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
+			 */
 			Context ctxWithSpan = Context.current().withValue(OpenTracingContextKey.getKey(), span)
 			        .withValue(OpenTracingContextKey.getSpanContextKey(), span.context())
 			        .withValue(OpenTracingContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
