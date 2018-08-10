@@ -46,12 +46,4 @@ public interface Constants {
      */
     String GRPC_MODULE_NAMES = "GJEX.grpc.module.names";
     
-    /**
-     *  Root for dashboard webapp configs.
-     */
-    String DASHBOARD = "dashboard";
-
-    /** Useful constants for servlet container configuration parts */
-    String DASHBOARD_CONTEXT_PATH = "/admin";
-
 }
