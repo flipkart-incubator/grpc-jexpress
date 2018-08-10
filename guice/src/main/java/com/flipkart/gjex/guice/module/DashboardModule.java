@@ -53,15 +53,16 @@ import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServl
  * @author regunath.balasubramanian
  */
 public class DashboardModule extends AbstractModule implements Logging {
-	
+
 	private final Bootstrap bootstrap;
-	
+
 	public DashboardModule(Bootstrap bootstrap) {
 		this.bootstrap = bootstrap;
 	}
 
 	/**
 	 * Creates the Jetty server instance for the admin Dashboard and configures it with the @Named("DashboardContext").
+	 * 
 	 * @param port where the service is available
 	 * @param acceptorThreads no. of acceptors
 	 * @param maxWorkerThreads max no. of worker threads
@@ -71,12 +72,11 @@ public class DashboardModule extends AbstractModule implements Logging {
 	@Provides
 	@Singleton
 	Server getDashboardJettyServer(@Named("Dashboard.service.port") int port,
-			@Named("DashboardResourceConfig")ResourceConfig resourceConfig,
+			@Named("DashboardResourceConfig") ResourceConfig resourceConfig,
 			@Named("Dashboard.service.acceptors") int acceptorThreads,
 			@Named("Dashboard.service.selectors") int selectorThreads,
-			@Named("Dashboard.service.workers") int maxWorkerThreads,
-			ObjectMapper objectMapper) {
-		
+			@Named("Dashboard.service.workers") int maxWorkerThreads, ObjectMapper objectMapper) {
+
 		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
 		provider.setMapper(objectMapper);
 		resourceConfig.register(provider);
@@ -86,34 +86,35 @@ public class DashboardModule extends AbstractModule implements Logging {
 		ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
 		http.setPort(port);
 		server.addConnector(http);
-		
-		/** Initialize the Context and Servlet for serving static content*/
+
+		/** Initialize the Context and Servlet for serving static content */
 		URL webRootLocation = this.getClass().getResource("/webroot/pages/dashboard.ftl");
 		if (webRootLocation == null) {
 			warn("Webroot location not found! Unable to find root location for Dashboard.");
 		}
 		ServletContextHandler context = new ServletContextHandler();
-        try {
-			URI webRootUri = URI.create(webRootLocation.toURI().toASCIIString().replaceFirst("/pages/dashboard.ftl$","/"));
-	        context.setContextPath("/");
-	        context.setBaseResource(Resource.newResource(webRootUri));
-	        context.addServlet(DefaultServlet.class,"/");
-        } catch (Exception e) {
-        		error("Unable to set resource base for Dashboard.", e);
-        }
-        context.getMimeTypes().addMimeMapping("txt","text/plain;charset=utf-8");
-        server.setHandler(context);
+		try {
+			URI webRootUri = URI
+					.create(webRootLocation.toURI().toASCIIString().replaceFirst("/pages/dashboard.ftl$", "/"));
+			context.setContextPath("/");
+			context.setBaseResource(Resource.newResource(webRootUri));
+			context.addServlet(DefaultServlet.class, "/");
+		} catch (Exception e) {
+			error("Unable to set resource base for Dashboard.", e);
+		}
+		context.getMimeTypes().addMimeMapping("txt", "text/plain;charset=utf-8");
+		server.setHandler(context);
 
-        /** Add the Servlet for serving the Dashboard resource*/
-        ServletHolder servlet = new ServletHolder(new ServletContainer(resourceConfig));
+		/** Add the Servlet for serving the Dashboard resource */
+		ServletHolder servlet = new ServletHolder(new ServletContainer(resourceConfig));
 		context.addServlet(servlet, "/admin/*");
-		
-		/** Add the Hystrix metrics stream servlets*/
-		context.addServlet(HystrixMetricsStreamServlet.class,"/stream/hystrix.stream.command.local");
-		context.addServlet(HystrixMetricsStreamServlet.class,"/stream/hystrix.stream.global");
-		context.addServlet(HystrixMetricsStreamServlet.class,"/stream/hystrix.stream.tp.local");
 
-		/** Add the Metrics instrumentation*/
+		/** Add the Hystrix metrics stream servlets */
+		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.command.local");
+		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.global");
+		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.tp.local");
+
+		/** Add the Metrics instrumentation */
 		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
 		handler.setHandler(context);
 		server.setHandler(handler);
@@ -121,7 +122,7 @@ public class DashboardModule extends AbstractModule implements Logging {
 		server.setStopAtShutdown(true);
 		return server;
 	}
-	
+
 	/**
 	 * Creates the Jetty server instance for the GJEX API endpoint.
 	 * @param port where the service is available.
@@ -131,11 +132,10 @@ public class DashboardModule extends AbstractModule implements Logging {
 	@Provides
 	@Singleton
 	Server getAPIJettyServer(@Named("Api.service.port") int port,
-							 @Named("APIResourceConfig")ResourceConfig resourceConfig,
-							 @Named("Api.service.acceptors") int acceptorThreads,
-							 @Named("Api.service.selectors") int selectorThreads,
-							 @Named("Api.service.workers") int maxWorkerThreads,
-							 ObjectMapper objectMapper) throws URISyntaxException, UnknownHostException {
+			@Named("APIResourceConfig") ResourceConfig resourceConfig,
+			@Named("Api.service.acceptors") int acceptorThreads, @Named("Api.service.selectors") int selectorThreads,
+			@Named("Api.service.workers") int maxWorkerThreads, ObjectMapper objectMapper)
+			throws URISyntaxException, UnknownHostException {
 		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
 		provider.setMapper(objectMapper);
 		resourceConfig.register(provider);
@@ -157,7 +157,7 @@ public class DashboardModule extends AbstractModule implements Logging {
 		server.setStopAtShutdown(true);
 		return server;
 	}
-	
+
 	@Named("APIResourceConfig")
 	@Singleton
 	@Provides
@@ -165,7 +165,7 @@ public class DashboardModule extends AbstractModule implements Logging {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(healthCheckResource);
 		return resourceConfig;
-	}	
+	}
 
 	@Named("DashboardResourceConfig")
 	@Singleton
@@ -176,7 +176,6 @@ public class DashboardModule extends AbstractModule implements Logging {
 		resourceConfig.property(FreemarkerMvcFeature.TEMPLATES_BASE_PATH, "webroot/pages");
 		resourceConfig.register(FreemarkerMvcFeature.class);
 		return resourceConfig;
-	}	
-	
-	
+	}
+
 }
