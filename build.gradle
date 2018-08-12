@@ -31,6 +31,7 @@ subprojects {
 			grpc_netty: "io.grpc:grpc-netty:${grpcVersion}",
 			grpc_protobuf: "io.grpc:grpc-protobuf:${grpcVersion}",
     			jersey: 'org.glassfish.jersey.containers:jersey-container-servlet:2.6',
+    			jersey_freemarker: 'org.glassfish.jersey.ext:jersey-mvc-freemarker:2.6',
     			servlet: 'javax.servlet:javax.servlet-api:3.1.0',
     			jackson: 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.4',
     			jetty_metrics: 'com.codahale.metrics:metrics-jetty9:3.0.2',
@@ -39,7 +40,9 @@ subprojects {
 			javax_el: 'org.glassfish:javax.el:3.0.1-b08',
 			opentracing: 'io.opentracing:opentracing-api:0.31.0',
 			lombok: 'org.projectlombok:lombok:1.18.2',
-			grpc_stub :"io.grpc:grpc-stub:${grpcVersion}"
+			grpc_stub :"io.grpc:grpc-stub:${grpcVersion}",
+			hystrix_core: "com.netflix.hystrix:hystrix-core:1.5.12",
+			hystrix_metrics_stream: "com.netflix.hystrix:hystrix-metrics-event-stream:1.5.12"
 		]
 	}
 }

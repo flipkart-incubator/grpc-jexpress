@@ -34,6 +34,7 @@ public class HelloBeanService implements Logging {
 	@Traced
 	public void sayHelloInBean(@NotNull @Valid HelloBean helloBean) {
 		info("A valid HelloBean has been passed.");
+		addToTrace("Request", helloBean.toString());
 		this.tracedMethod1();
 	}
 	

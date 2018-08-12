@@ -16,8 +16,9 @@
 
 package com.flipkart.gjex.guice.module;
 
-import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 import javax.inject.Named;
@@ -25,73 +26,43 @@ import javax.inject.Singleton;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.mvc.freemarker.FreemarkerMvcFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import com.codahale.metrics.jetty9.InstrumentedHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.flipkart.gjex.Constants;
-import com.flipkart.gjex.core.config.FileLocator;
+import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.HealthCheckRegistry;
+import com.flipkart.gjex.core.web.DashboardResource;
 import com.flipkart.gjex.core.web.HealthCheckResource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 
 /**
- * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashbaord components.
+ * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashboard components.
  * 
  * @author regunath.balasubramanian
  */
-public class DashboardModule extends AbstractModule {
-	
+public class DashboardModule extends AbstractModule implements Logging {
+
 	private final Bootstrap bootstrap;
-	
+
 	public DashboardModule(Bootstrap bootstrap) {
 		this.bootstrap = bootstrap;
 	}
 
 	/**
-	 * Creates a Jetty {@link WebAppContext} for the GJEX dashboard
-	 * @return Jetty WebAppContext
-	 */
-	@Named("DashboardContext")
-	@Provides
-	@Singleton
-	WebAppContext getDashboardWebAppContext() {
-		String path = null;
-        File[] files = FileLocator.findDirectories("packaged/webapps/dashboard/WEB-INF", null);
-        for (File file : files) {
-			// we need only WEB-INF from runtime project 
-			String fileToString = file.toString();
-			if (fileToString.contains(".jar!") && fileToString.startsWith("file:/")) {
-				fileToString = fileToString.replace("file:/","jar:file:/");
-				if (fileToString.contains("runtime-")) {
-					path = fileToString;
-					break;
-				}
-			} else {
-				if (fileToString.contains(Constants.DASHBOARD)) {
-					path = fileToString;
-					break;
-				}
-			}
-		}
-		// trim off the "WEB-INF" part as the WebAppContext path should refer to the parent directory
-		if (path.endsWith("WEB-INF")) {
-			path = path.replace("WEB-INF", "");
-		}
-		WebAppContext webAppContext = new WebAppContext(path, Constants.DASHBOARD_CONTEXT_PATH);
-		return webAppContext;
-	}
-	
-	/**
 	 * Creates the Jetty server instance for the admin Dashboard and configures it with the @Named("DashboardContext").
+	 * 
 	 * @param port where the service is available
 	 * @param acceptorThreads no. of acceptors
 	 * @param maxWorkerThreads max no. of worker threads
@@ -101,21 +72,57 @@ public class DashboardModule extends AbstractModule {
 	@Provides
 	@Singleton
 	Server getDashboardJettyServer(@Named("Dashboard.service.port") int port,
+			@Named("DashboardResourceConfig") ResourceConfig resourceConfig,
 			@Named("Dashboard.service.acceptors") int acceptorThreads,
 			@Named("Dashboard.service.selectors") int selectorThreads,
-			@Named("Dashboard.service.workers") int maxWorkerThreads,
-			@Named("DashboardContext") WebAppContext webappContext) {
+			@Named("Dashboard.service.workers") int maxWorkerThreads, ObjectMapper objectMapper) {
+
+		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
+		provider.setMapper(objectMapper);
+		resourceConfig.register(provider);
 		QueuedThreadPool threadPool = new QueuedThreadPool();
-        threadPool.setMaxThreads(maxWorkerThreads);
+		threadPool.setMaxThreads(maxWorkerThreads);
 		Server server = new Server(threadPool);
 		ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
 		http.setPort(port);
 		server.addConnector(http);
-		server.setHandler(webappContext);
+
+		/** Initialize the Context and Servlet for serving static content */
+		URL webRootLocation = this.getClass().getResource("/webroot/pages/dashboard.ftl");
+		if (webRootLocation == null) {
+			warn("Webroot location not found! Unable to find root location for Dashboard.");
+		}
+		ServletContextHandler context = new ServletContextHandler();
+		try {
+			URI webRootUri = URI
+					.create(webRootLocation.toURI().toASCIIString().replaceFirst("/pages/dashboard.ftl$", "/"));
+			context.setContextPath("/");
+			context.setBaseResource(Resource.newResource(webRootUri));
+			context.addServlet(DefaultServlet.class, "/");
+		} catch (Exception e) {
+			error("Unable to set resource base for Dashboard.", e);
+		}
+		context.getMimeTypes().addMimeMapping("txt", "text/plain;charset=utf-8");
+		server.setHandler(context);
+
+		/** Add the Servlet for serving the Dashboard resource */
+		ServletHolder servlet = new ServletHolder(new ServletContainer(resourceConfig));
+		context.addServlet(servlet, "/admin/*");
+
+		/** Add the Hystrix metrics stream servlets */
+		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.command.local");
+		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.global");
+		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.tp.local");
+
+		/** Add the Metrics instrumentation */
+		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
+		handler.setHandler(context);
+		server.setHandler(handler);
+
 		server.setStopAtShutdown(true);
 		return server;
 	}
-	
+
 	/**
 	 * Creates the Jetty server instance for the GJEX API endpoint.
 	 * @param port where the service is available.
@@ -125,11 +132,10 @@ public class DashboardModule extends AbstractModule {
 	@Provides
 	@Singleton
 	Server getAPIJettyServer(@Named("Api.service.port") int port,
-							 @Named("APIResourceConfig")ResourceConfig resourceConfig,
-							 @Named("Api.service.acceptors") int acceptorThreads,
-							 @Named("Api.service.selectors") int selectorThreads,
-							 @Named("Api.service.workers") int maxWorkerThreads,
-							 ObjectMapper objectMapper) throws URISyntaxException, UnknownHostException {
+			@Named("APIResourceConfig") ResourceConfig resourceConfig,
+			@Named("Api.service.acceptors") int acceptorThreads, @Named("Api.service.selectors") int selectorThreads,
+			@Named("Api.service.workers") int maxWorkerThreads, ObjectMapper objectMapper)
+			throws URISyntaxException, UnknownHostException {
 		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
 		provider.setMapper(objectMapper);
 		resourceConfig.register(provider);
@@ -151,7 +157,7 @@ public class DashboardModule extends AbstractModule {
 		server.setStopAtShutdown(true);
 		return server;
 	}
-	
+
 	@Named("APIResourceConfig")
 	@Singleton
 	@Provides
@@ -159,7 +165,17 @@ public class DashboardModule extends AbstractModule {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(healthCheckResource);
 		return resourceConfig;
-	}	
+	}
 
-	
+	@Named("DashboardResourceConfig")
+	@Singleton
+	@Provides
+	public ResourceConfig getDashboardResourceConfig(DashboardResource dashboardResource) {
+		ResourceConfig resourceConfig = new ResourceConfig();
+		resourceConfig.register(dashboardResource);
+		resourceConfig.property(FreemarkerMvcFeature.TEMPLATES_BASE_PATH, "webroot/pages");
+		resourceConfig.register(FreemarkerMvcFeature.class);
+		return resourceConfig;
+	}
+
 }

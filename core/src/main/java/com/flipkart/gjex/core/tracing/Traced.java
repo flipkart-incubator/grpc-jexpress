@@ -21,6 +21,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import io.grpc.BindableService;
+
 /**
  * Annotation for specifying that a method invocation needs to be traced as a Span in an active distributed trace.
  * @author regu.b
@@ -45,9 +47,10 @@ public @interface Traced {
 	float withSamplingRate() default Traced.RATE_ALWAYS_SAMPLE;
 	
 	/**
-	 * Tracing is delegated to the specified sampler. Note that specifying a TracingSampler overrides any {@link #withSamplingRate()} setting
+	 * Tracing is delegated to the specified sampler. Note that specifying a TracingSampler overrides any {@link #withSamplingRate()} setting. 
+	 * NOTE : In GJEX, this attribute is interpreted and used only when specified for gRPC services i.e. sub-types of {@link BindableService}
 	 * @return null or a TracingSampler implementation
 	 */
 	Class<? extends TracingSampler> withTracingSampler() default TracingSampler.class;
-    
+	
 }

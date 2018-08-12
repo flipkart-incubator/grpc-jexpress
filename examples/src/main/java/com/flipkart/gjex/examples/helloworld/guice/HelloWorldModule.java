@@ -22,12 +22,9 @@ import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 import com.flipkart.gjex.examples.helloworld.healthcheck.AllIsWellHealthCheck;
 import com.flipkart.gjex.examples.helloworld.service.GreeterService;
-
+import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 import com.flipkart.gjex.grpc.channel.ChannelConfig;
 import com.flipkart.gjex.guice.module.ClientModule;
-
-import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
-
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;

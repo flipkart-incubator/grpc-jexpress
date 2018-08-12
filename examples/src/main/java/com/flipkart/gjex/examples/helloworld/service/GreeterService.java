@@ -64,7 +64,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
 	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
-	@Traced(withTracingSampler=AllWhitelistTracingSampler.class) // Start a new Trace or participate in a Client-initiated distributed trace
+	@Traced(withTracingSampler=AllWhitelistTracingSampler.class, withSamplingRate=0.5f) // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		
 		// invoke business logic implemented in a separate injected class
@@ -73,15 +73,14 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 
-
 		info("Saying hello to an external grpc service");
-
-
+		/*
 		try {
 			reply = blockingStub.sayHello(req);
 		}catch (Exception e){
 			warn("Failed to say hello to external grpc service.Ensure Greeter service is running");
 		}
+		*/
 
 		responseObserver.onNext(reply);
 		responseObserver.onCompleted();

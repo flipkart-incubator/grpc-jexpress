@@ -11,8 +11,11 @@ dependencies {
 	implementation libraries.grpc_netty
 	implementation libraries.grpc_protobuf
     implementation libraries.jersey
+    implementation libraries.jersey_freemarker
     implementation libraries.servlet
 	implementation libraries.opentracing
+	implementation libraries.hystrix_core
+	implementation libraries.hystrix_metrics_stream
     implementation 'io.dropwizard.metrics:metrics-jvm:4.0.2'
     implementation 'io.dropwizard.metrics:metrics-jmx:4.0.2'
     implementation 'org.yaml:snakeyaml:1.15'

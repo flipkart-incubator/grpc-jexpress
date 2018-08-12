@@ -23,6 +23,7 @@ import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
 import com.flipkart.gjex.Constants;
+import com.flipkart.gjex.core.tracing.OpenTracingContextKey;
 
 /**
  * Convenience logging implementation with default behavior for use by classes in GJEX runtime and applications.
@@ -158,6 +159,12 @@ public interface Logging {
 
     default void errorLog(String msg, Object... args){
         logger().error(msgWithLogIdent(msg), args);
+    }
+    
+    default void addToTrace(String key, String value) {
+    		if (OpenTracingContextKey.activeSpan() != null) {
+    			OpenTracingContextKey.activeSpan().setTag(key, value);
+    		}
     }
 
 }

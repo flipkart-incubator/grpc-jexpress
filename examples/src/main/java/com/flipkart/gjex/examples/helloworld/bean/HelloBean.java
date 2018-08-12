@@ -54,5 +54,10 @@ public class HelloBean {
 	public void setAge(Integer age) {
 		this.age = age;
 	}
+
+	@Override
+	public String toString() {
+		return "Greeting : " + greeting + ", Age : " + age;
+	}
 	
 }

@@ -24,12 +24,8 @@ import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
  */
 public class AllWhitelistTracingSampler extends ConfigurableTracingSampler {
 
-	/**
-	 * Overriden method. Enables tracing for all calls
-	 * @see com.flipkart.gjex.core.tracing.ConfigurableTracingSampler#isTraceEnabled(java.lang.String)
-	 */
-	protected boolean isTraceEnabled(String component) {
-		return true;
+	public AllWhitelistTracingSampler() {
+		super.setIsTraceEnabled(true); // turns on tracing
 	}
 
 }

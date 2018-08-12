@@ -15,10 +15,17 @@
  */
 package com.flipkart.gjex.grpc.channel;
 
+import javax.inject.Inject;
+
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import io.grpc.*;
-import javax.inject.Inject;
+
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.MethodDescriptor;
 
 
 /**
@@ -32,15 +39,11 @@ public class InstrumentedChannel extends Channel {
     @Inject
     private MetricRegistry metricRegistry;
 
-    private final ChannelConfig channelConfig;
     private final ManagedChannel _delegate ;
 
     @Inject
     public InstrumentedChannel(ChannelConfig channelConfig){
-
-        this.channelConfig = channelConfig;
         _delegate = ManagedChannelBuilder.forAddress(channelConfig.getHostname(),channelConfig.getPort()).usePlaintext(true).build();
-
     }
     @Override
     public <RequestT, ResponseT> ClientCall<RequestT, ResponseT> newCall(MethodDescriptor<RequestT, ResponseT> methodDescriptor, CallOptions callOptions) {

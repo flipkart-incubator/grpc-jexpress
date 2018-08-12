@@ -36,14 +36,13 @@ import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 import io.grpc.BindableService;
 import io.grpc.Context;
 import io.grpc.Contexts;
+import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
-import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
-import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -105,24 +104,17 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 			}
 			
 			final Span span = getSpanFromHeaders(call,headerMap);
-			// Set the client side initiated Trace and Span in the Context
+			/*
+			 *  Set the client side initiated Trace and Span in the Context.
+			 *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
+			 */
 			Context ctxWithSpan = Context.current().withValue(OpenTracingContextKey.getKey(), span)
 			        .withValue(OpenTracingContextKey.getSpanContextKey(), span.context())
 			        .withValue(OpenTracingContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
 			    ServerCall.Listener<ReqT> listenerWithContext = Contexts
 			        .interceptCall(ctxWithSpan, call, headers, next);
 			    
-			return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {
-				@Override
-				public void onMessage(ReqT message) {
-					Scope scope = tracer.scopeManager().activate(span, false);
-					try {
-						delegate().onMessage(message);
-					} finally {
-						scope.close();
-					}
-				}
-			};
+			return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {};
 		} else {
 			return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
 					new SimpleForwardingServerCall<ReqT, RespT>(call){},headers)){};
@@ -138,6 +130,8 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 		try {
 			SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers));
 			span = tracer.buildSpan(methodInvoked).asChildOf(parentSpanCtx).start();
+			//Service name can be added as a Tag from opentracing-java version v0.31.1 onwards
+			//Tags.SERVICE.set(span, MethodDescriptor.extractFullServiceName(methodInvoked));
 		} catch (IllegalArgumentException iae) {
 			span = tracer.buildSpan(methodInvoked).withTag("Error", "Extract failed and an IllegalArgumentException was thrown")
 					.start();

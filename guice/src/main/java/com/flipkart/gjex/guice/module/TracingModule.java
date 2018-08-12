@@ -38,6 +38,7 @@ import com.google.inject.matcher.Matchers;
 
 import brave.Tracing;
 import brave.opentracing.BraveTracer;
+import io.grpc.BindableService;
 import io.grpc.Context;
 import io.opentracing.Scope;
 import io.opentracing.Tracer;
@@ -91,21 +92,38 @@ public class TracingModule extends AbstractModule implements Logging {
 		 */
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
+			Scope parentScope = null;
 			Scope scope = null;
-			io.opentracing.Span methodInvocationSpan = null;
+			/*
+			 * Initializing method invocation span as null means the current active span may get unset if there is no parent active span or the Tracing sampler returns 
+			 * negative for sampling the request
+			 */
+			io.opentracing.Span methodInvocationSpan = null;  
 			Callable<Object> methodCallable = new MethodCallable(invocation);
 			if (OpenTracingContextKey.activeSpan() != null) {
 				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
+				// check and warn if TracingSampler is used for non BindableService classes
+				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass())) {
+					warn("TracingSampler declarations are interpreted only for sub-types of gRPC BindableService. TracingSampler declared for : " 
+							+ invocation.getMethod().getDeclaringClass() + " will not be interpreted/honored");
+				}
 				TracingSampler tracingSampler = OpenTracingContextKey.activeTracingSampler();
 				tracingSampler.initializeSamplerFor(methodInvoked, invocation.getMethod().getAnnotation(Traced.class).withSamplingRate());
 				if (tracingSampler.isSampled(methodInvoked)) {
+					/*
+					 * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor) 
+					 * but not activated because it has to be sampled here.
+					 */
+					if (tracer.scopeManager().active() == null) { 
+						parentScope = tracer.scopeManager().activate(OpenTracingContextKey.activeSpan(), true);
+					}
 					methodInvocationSpan = tracer.buildSpan(methodInvoked)
 							.asChildOf(OpenTracingContextKey.activeSpan())
 							.start();
-					// Set the Method invocation Span as the current span
-					methodCallable = Context.current().withValue(OpenTracingContextKey.getKey(), methodInvocationSpan).wrap(methodCallable);
 					scope = tracer.scopeManager().activate(methodInvocationSpan, true);					
 				}
+				// Set the Method invocation Span as the current span - may be null too and this means subsequent methods will not get traced
+				methodCallable = Context.current().withValue(OpenTracingContextKey.getKey(), methodInvocationSpan).wrap(methodCallable);
 			}
 			Object result = null;
 			try  {
@@ -118,6 +136,9 @@ public class TracingModule extends AbstractModule implements Logging {
 			} finally {
 				if (scope != null) {
 					scope.close();
+				}
+				if (parentScope != null) {
+					parentScope.close();
 				}
 			}
 			return result;
