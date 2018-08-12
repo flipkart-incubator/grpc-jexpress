@@ -33,6 +33,7 @@ import io.grpc.BindableService;
 import io.grpc.examples.helloworld.GreeterGrpc;
 
 
+
 /**
  * Guice module for wiring sample Service to GJEX runtime
  * @author regu.b
