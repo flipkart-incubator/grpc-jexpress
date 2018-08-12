@@ -33,7 +33,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
 import io.grpc.BindableService;
-
+import io.grpc.examples.helloworld.GreeterGrpc;
 
 
 /**

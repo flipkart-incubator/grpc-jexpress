@@ -80,7 +80,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 		try {
 			reply = blockingStub.sayHello(req);
 		}catch (Exception e){
-			info("Failed to say hello to external grpc service.Ensure Greeter service is running");
+			warn("Failed to say hello to external grpc service.Ensure Greeter service is running");
 		}
 
 		responseObserver.onNext(reply);
