@@ -30,6 +30,7 @@ import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.flipkart.gjex.guice.module.DashboardModule;
 import com.flipkart.gjex.guice.module.ServerModule;
+import com.flipkart.gjex.guice.module.TaskModule;
 import com.flipkart.gjex.guice.module.TracingModule;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -90,8 +91,10 @@ public class GuiceBundle implements Bundle, Logging {
 		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
 		// add the Validation module
 		this.modules.add(new ImplicitValidationModule());
-		// add the Tracing module
+		// add the Tracing module before Task module so that even Concurrent tasks can be traced
 		this.modules.add(new TracingModule());
+		// add the Task module
+		this.modules.add(new TaskModule());
 		// add the Dashboard module
 		this.modules.add(new DashboardModule(bootstrap));
 		// add the Grpc Server module

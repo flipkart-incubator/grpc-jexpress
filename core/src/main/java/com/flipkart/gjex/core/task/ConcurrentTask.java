@@ -38,7 +38,7 @@ public @interface ConcurrentTask {
      * Any result produced by the task after the timeout value has elapsed will be ignored by the GJEX engine and
      * will not be used by or passed on to other tasks that may be dependent on these results.
      */
-    long timeout();	
+    int timeout();	
     
     /** 
      * The number of times GJEX can retry the task in case of runtime failures.

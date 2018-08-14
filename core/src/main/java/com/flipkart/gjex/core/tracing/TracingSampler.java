@@ -40,5 +40,5 @@ public interface TracingSampler {
 	 * @param rate the sampling rate in the range 0.0f to 1.0f
 	 */
 	void initializeSamplerFor(String component, float rate);
-	
+
 }

@@ -19,6 +19,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.task.ConcurrentTask;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 
@@ -32,6 +33,7 @@ public class HelloBeanService implements Logging {
 	
 	/** Method params with javax.validation annotations to force validation*/
 	@Traced
+	@ConcurrentTask(timeout = 100)
 	public void sayHelloInBean(@NotNull @Valid HelloBean helloBean) {
 		info("A valid HelloBean has been passed.");
 		addToTrace("Request", helloBean.toString());
@@ -40,19 +42,27 @@ public class HelloBeanService implements Logging {
 	
 	/** Synthetic methods to demonstrate Tracing flow*/
 	@Traced
+	@ConcurrentTask(timeout = 100)
 	public void tracedMethod1() {
+		info("Invoked trace method1");
 		this.tracedMethod2();
 	}
 	@Traced
+	@ConcurrentTask(timeout = 100)
 	public void tracedMethod2() {
+		info("Invoked trace method2");
 		this.tracedMethod3();
 	}
 	@Traced
+	@ConcurrentTask(timeout = 100)
 	public void tracedMethod3() {
+		info("Invoked trace method3");
 		this.tracedMethod4();
 	}
 	@Traced
+	@ConcurrentTask(timeout = 100)
 	public void tracedMethod4() {
+		info("Invoked trace method4");
 	}
 	
 }

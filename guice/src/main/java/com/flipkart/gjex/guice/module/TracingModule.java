@@ -103,9 +103,9 @@ public class TracingModule extends AbstractModule implements Logging {
 			if (OpenTracingContextKey.activeSpan() != null) {
 				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
 				// check and warn if TracingSampler is used for non BindableService classes
-				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass())) {
+				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass()) && invocation.getMethod().getAnnotation(Traced.class).withTracingSampler() != TracingSampler.class) {
 					warn("TracingSampler declarations are interpreted only for sub-types of gRPC BindableService. TracingSampler declared for : " 
-							+ invocation.getMethod().getDeclaringClass() + " will not be interpreted/honored");
+							+ methodInvoked + " will not be interpreted/honored");
 				}
 				TracingSampler tracingSampler = OpenTracingContextKey.activeTracingSampler();
 				tracingSampler.initializeSamplerFor(methodInvoked, invocation.getMethod().getAnnotation(Traced.class).withSamplingRate());
