@@ -18,6 +18,8 @@ package com.flipkart.gjex.guice.module;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -90,6 +92,7 @@ public class TracingModule extends AbstractModule implements Logging {
 		/**
 		 * Starts a Trace(implicitly) or adds a Span for every method annotated with {@link Traced}. Nesting of spans is implicit
 		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			Scope parentScope = null;
@@ -128,22 +131,35 @@ public class TracingModule extends AbstractModule implements Logging {
 			Object result = null;
 			try  {
 				result = methodCallable.call();
+				if (result != null && CompletableFuture.class.isAssignableFrom(result.getClass())) {
+					((CompletableFuture)result).whenComplete(new AsyncScopeCloserConsumer(scope, parentScope));
+					return result; // scopes will be closed when the callback executes
+				}
 			} catch(Exception ex) {
+				error("Error tracing method", ex);
 				if (methodInvocationSpan != null) {
 				    Tags.ERROR.set(methodInvocationSpan, true);
 				    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
 				}
-			} finally {
-				if (scope != null) {
-					scope.close();
-				}
-				if (parentScope != null) {
-					parentScope.close();
-				}
 			}
+			closeScopes(scope, parentScope);
 			return result;
 		}
 	}	
+	
+	/** Convenience class to extract Scope closing in {@link CompletableFuture#whenComplete(BiConsumer)}*/
+	class AsyncScopeCloserConsumer implements BiConsumer<Object,Object> {
+		Scope scope;
+		Scope parentScope;
+		AsyncScopeCloserConsumer(Scope scope, Scope parentScope) {
+			this.scope = scope;
+			this.parentScope = parentScope;
+		}
+		@Override
+		public void accept(Object t, Object u) {
+			closeScopes(scope, parentScope);
+		}
+	}
 	
 	/**
 	 * The Matcher that matches methods with the {@link Traced} annotation
@@ -177,4 +193,15 @@ public class TracingModule extends AbstractModule implements Logging {
 			}
 		}
 	}
+	
+	/** Helper method to close Scope instances*/
+	private void closeScopes(Scope scope, Scope parentScope) {
+		if (scope != null) {
+			scope.close();
+		}
+		if (parentScope != null) {
+			parentScope.close();
+		}		
+	}	
+	
 }

@@ -15,6 +15,8 @@
  */
 package com.flipkart.gjex.core.task;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.aopalliance.intercept.MethodInvocation;
 
 import com.flipkart.gjex.core.logging.Logging;
@@ -41,7 +43,10 @@ public class TaskExecutor extends HystrixCommand<Object> implements Logging {
 	/** The currently active gRPC Context*/
 	private Context currentContext;
 	
-	public TaskExecutor(MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout) {
+	/** The CompletableFuture to set the results on*/
+	private CompletableFuture<Object> future;
+	
+	public TaskExecutor(CompletableFuture<Object> future, MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout) {
 		super(Setter
                 .withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
 		        .andCommandKey(HystrixCommandKey.Factory.asKey(name))
@@ -51,6 +56,7 @@ public class TaskExecutor extends HystrixCommand<Object> implements Logging {
 	                .withExecutionIsolationStrategy(ExecutionIsolationStrategy.THREAD)
 	                .withExecutionTimeoutInMilliseconds(timeout)));
 		currentContext = Context.current(); // store the current gRPC Context
+		this.future = future;
 		this.invocation = invocation;
 	}
 
@@ -58,11 +64,14 @@ public class TaskExecutor extends HystrixCommand<Object> implements Logging {
 	 * Overridden method implementation. Invokes the Method invocation while setting relevant current gRPC Context
 	 * @see com.netflix.hystrix.HystrixCommand#run()
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected Object run() throws Exception {
 		Context previous = this.currentContext.attach();
 		try {
-			return (Object)this.invocation.proceed();
+			Object result = ((AsyncResult)this.invocation.proceed()).invoke();
+			this.future.complete(result);
+			return result;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {

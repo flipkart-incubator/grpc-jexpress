@@ -17,6 +17,7 @@ package com.flipkart.gjex.guice.module;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.concurrent.CompletableFuture;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -45,9 +46,11 @@ public class TaskModule extends AbstractModule implements Logging {
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			ConcurrentTask task = invocation.getMethod().getAnnotation(ConcurrentTask.class);
-			TaskExecutor taskExecutor = new TaskExecutor(invocation,invocation.getMethod().getDeclaringClass().getSimpleName(),
-					invocation.getMethod().getName(), task.concurrency(), task.timeout()); 
-			return taskExecutor.queue(); // we return the Future and not wait for its completion. This enables response to compose in a reatcive manner
+			CompletableFuture<Object> future = new CompletableFuture<Object>();
+			TaskExecutor taskExecutor = new TaskExecutor(future, invocation,invocation.getMethod().getDeclaringClass().getSimpleName(),
+					invocation.getMethod().getName(), task.concurrency(), task.timeout());
+			taskExecutor.queue();
+			return future; // we return the CompletableFuture and not wait for its completion. This enables responses to be composed in a reactive manner
 		}
 	}
 	
