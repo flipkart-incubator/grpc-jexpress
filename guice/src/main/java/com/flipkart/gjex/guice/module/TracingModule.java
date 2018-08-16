@@ -117,9 +117,9 @@ public class TracingModule extends AbstractModule implements Logging {
 					 * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor) 
 					 * but not activated because it has to be sampled here.
 					 */
-					if (tracer.scopeManager().active() == null) { 
+					if (tracer.scopeManager().active() == null || tracer.scopeManager().active().span() != OpenTracingContextKey.activeSpan()) { 
 						parentScope = tracer.scopeManager().activate(OpenTracingContextKey.activeSpan(), true);
-					}
+					} 
 					methodInvocationSpan = tracer.buildSpan(methodInvoked)
 							.asChildOf(OpenTracingContextKey.activeSpan())
 							.start();

@@ -70,7 +70,7 @@ public class TaskExecutor extends HystrixCommand<Object> implements Logging {
 		Context previous = this.currentContext.attach();
 		try {
 			Object result = ((AsyncResult)this.invocation.proceed()).invoke();
-			this.future.complete(result);
+			this.future.complete(result); // mark the CompletableFuture as complete with the execution result
 			return result;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
