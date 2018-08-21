@@ -42,7 +42,8 @@ subprojects {
 			lombok: 'org.projectlombok:lombok:1.18.2',
 			grpc_stub :"io.grpc:grpc-stub:${grpcVersion}",
 			hystrix_core: "com.netflix.hystrix:hystrix-core:1.5.12",
-			hystrix_metrics_stream: "com.netflix.hystrix:hystrix-metrics-event-stream:1.5.12"
+			hystrix_metrics_stream: "com.netflix.hystrix:hystrix-metrics-event-stream:1.5.12",
+			rxjava2: "io.reactivex.rxjava2:rxjava:2.2.0"
 		]
 	}
 }

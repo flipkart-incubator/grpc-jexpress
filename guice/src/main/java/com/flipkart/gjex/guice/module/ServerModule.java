@@ -16,6 +16,11 @@
 
 package com.flipkart.gjex.guice.module;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+import org.apache.commons.configuration.Configuration;
+
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
 import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
@@ -23,6 +28,7 @@ import com.flipkart.gjex.grpc.service.ApiServer;
 import com.flipkart.gjex.grpc.service.DashboardServer;
 import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.name.Names;
 
 /**
@@ -35,6 +41,14 @@ import com.google.inject.name.Names;
 public class ServerModule extends AbstractModule {
 
 	public ServerModule() {}
+	
+	@Named("GlobalConfig")
+	@Provides
+	@Singleton
+	/** Returns the Global config of all flattened out properties loaded by instances of this class. Doing this here as multiple ConfigModule can be instantiated */
+	Configuration getGlobalConfiguration() {
+		return ConfigModule.getGlobalConfig();
+	}
 	
 	@Override
     protected void configure() {		

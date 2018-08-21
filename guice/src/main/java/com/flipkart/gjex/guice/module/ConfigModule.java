@@ -37,6 +37,9 @@ import com.google.inject.name.Names;
  */
 public class ConfigModule extends AbstractModule {
 
+	/** Global config map*/
+	private static final YamlConfiguration GLOBAL_CONFIG = new YamlConfiguration();
+	
 	/** Yaml configurations loaded by this module*/
     private final YamlConfiguration[] yamlConfigurations;
 
@@ -74,6 +77,10 @@ public class ConfigModule extends AbstractModule {
         }
     }
     
+    public static YamlConfiguration getGlobalConfig() {
+    		return GLOBAL_CONFIG;
+    }
+    
     /**
      * Performs concrete bindings for interfaces
      *
@@ -82,6 +89,7 @@ public class ConfigModule extends AbstractModule {
     @Override
     protected void configure() {
         bindConfigProperties();
+        GLOBAL_CONFIG.addAll(this.yamlConfigurations); // add the loaded YamlConfigurationS to the GLOBAL_CONFIG
     }
 
     /**

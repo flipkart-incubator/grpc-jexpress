@@ -22,6 +22,7 @@ dependencies {
     implementation libraries.lombok
     	implementation libraries.hystrix_core
 	implementation libraries.hystrix_metrics_stream
+	implementation libraries.rxjava2
     
     implementation 'org.eclipse.jetty:jetty-server:9.4.10.v20180503'
     implementation 'org.eclipse.jetty:jetty-servlet:9.4.10.v20180503'

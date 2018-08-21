@@ -19,7 +19,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,6 +28,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.task.FutureDecorator;
 import com.flipkart.gjex.core.tracing.OpenTracingContextKey;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.core.tracing.TracingSampler;
@@ -46,6 +46,7 @@ import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.log.Fields;
 import io.opentracing.tag.Tags;
+import io.reactivex.functions.BiConsumer;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
@@ -56,7 +57,7 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
  * 
  * @author regu.b
  */
-public class TracingModule extends AbstractModule implements Logging {
+public class TracingModule<T> extends AbstractModule implements Logging {
 	
 	@Override
     protected void configure() {
@@ -131,16 +132,16 @@ public class TracingModule extends AbstractModule implements Logging {
 			Object result = null;
 			try  {
 				result = methodCallable.call();
-				if (result != null && CompletableFuture.class.isAssignableFrom(result.getClass())) {
-					((CompletableFuture)result).whenComplete(new AsyncScopeCloserConsumer(scope, parentScope));
-					return result; // scopes will be closed when the callback executes
+				if (result != null && FutureDecorator.class.isAssignableFrom(result.getClass())) {
+					((FutureDecorator)result).whenComplete(new AsyncScopeCloserConsumer(scope, parentScope)); // scopes will be closed when the callback executes
+					return result; 
 				}
 			} catch(Exception ex) {
-				error("Error tracing method", ex);
 				if (methodInvocationSpan != null) {
 				    Tags.ERROR.set(methodInvocationSpan, true);
 				    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
 				}
+				throw ex;
 			}
 			closeScopes(scope, parentScope);
 			return result;
@@ -148,7 +149,7 @@ public class TracingModule extends AbstractModule implements Logging {
 	}	
 	
 	/** Convenience class to extract Scope closing in {@link CompletableFuture#whenComplete(BiConsumer)}*/
-	class AsyncScopeCloserConsumer implements BiConsumer<Object,Object> {
+	class AsyncScopeCloserConsumer implements BiConsumer<T,Throwable> {
 		Scope scope;
 		Scope parentScope;
 		AsyncScopeCloserConsumer(Scope scope, Scope parentScope) {
@@ -156,7 +157,7 @@ public class TracingModule extends AbstractModule implements Logging {
 			this.parentScope = parentScope;
 		}
 		@Override
-		public void accept(Object t, Object u) {
+		public void accept(T t, Throwable u) {
 			closeScopes(scope, parentScope);
 		}
 	}

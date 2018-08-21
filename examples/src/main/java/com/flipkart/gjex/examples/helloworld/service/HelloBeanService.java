@@ -15,7 +15,6 @@
  */
 package com.flipkart.gjex.examples.helloworld.service;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import javax.validation.Valid;
@@ -24,8 +23,11 @@ import javax.validation.constraints.NotNull;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.task.AsyncResult;
 import com.flipkart.gjex.core.task.ConcurrentTask;
+import com.flipkart.gjex.core.task.FutureDecorator;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
+
+import io.reactivex.functions.BiFunction;
 
 /**
  * A sample business logic implementation that is called with an entity that is validated for correctness
@@ -62,25 +64,36 @@ public class HelloBeanService implements Logging {
 	public void tracedMethod2() {
 		info("Invoked trace method2");
 		ResponseEntity entity = new ResponseEntity();
-		CompletableFuture<ResponseEntity> future1 = (CompletableFuture<ResponseEntity>)this.tracedMethod3(entity);
-		CompletableFuture<ResponseEntity> future2 = (CompletableFuture<ResponseEntity>)this.tracedMethod4(entity);
-		try {
-			CompletableFuture.allOf(future1,future2).get();
-		} catch (Exception e) {
-			error("Error getting results from futures");
-		}
-		this.tracedMethod5(entity);
-		info("Final response : " + entity.method5);
+		FutureDecorator<ResponseEntity> future1 = (FutureDecorator<ResponseEntity>)this.tracedMethod3(entity);
+		FutureDecorator<ResponseEntity> future2 = (FutureDecorator<ResponseEntity>)this.tracedMethod4(entity);
+		ResponseEntity finalEntity = FutureDecorator.compose(future1, future2, 
+				new BiFunction<ResponseEntity,ResponseEntity,ResponseEntity>() {
+					@Override
+					public ResponseEntity apply(ResponseEntity t1, ResponseEntity t2) throws Exception {
+						ResponseEntity finalEntity = new ResponseEntity();
+						finalEntity.method2 = entity.method2;
+						if (t1 != null) { // call to get t1 may have timedout or errored. Execution was allowed to proceed as it is optional
+							finalEntity.method3 = entity.method3; // we use the value only if the call was successful, else it is null
+						}
+						finalEntity.method4 = t2.method4;
+						return finalEntity; 
+					}
+		});
+		this.tracedMethod5(finalEntity);
+		info("Final response : " + finalEntity.method5);
 	}
 	
-	/** A Concurrent Traced task executing in its own threadpool via HystrixCommand. Modifies the entity passed to it*/
+	/**
+	 * A Concurrent Traced task executing in its own threadpool via HystrixCommand. Modifies the entity passed to it
+	 * Here timeout is configured as an explicit value. This method is also marked as {@link ConcurrentTask.Completion#Optional}
+	 */
 	@Traced
-	@ConcurrentTask(timeout = 300)
+	@ConcurrentTask(completion=ConcurrentTask.Completion.Optional, timeout = 200) // Task is marked to timeout, execution will proceed as this is marked as Optional
 	public Future<ResponseEntity> tracedMethod3(ResponseEntity entity) {
 		return new AsyncResult<ResponseEntity>() {
             @Override
             public ResponseEntity invoke() {
-            		sleep(200);
+            		sleep(250);
             		info("Invoked trace method3");
             		entity.method3 = "InvokedMethod3";
             		return entity;
@@ -88,9 +101,13 @@ public class HelloBeanService implements Logging {
         };		
 	}
 	
-	/** A Concurrent Traced task executing in its own threadpool via HystrixCommand. Modifies the entity passed to it*/
+	/** 
+	 * A Concurrent Traced task executing in its own threadpool via HystrixCommand. Modifies the entity passed to it
+	 * Timeout is configured as a config property in application configuration i.e. hello_world_config.yml in this example 
+	 * This method is implicitly(default) marked as {@link ConcurrentTask.Completion#Mandatory}
+	 */
 	@Traced
-	@ConcurrentTask(timeout = 300)
+	@ConcurrentTask(timeoutConfig = "Task.hello.timeout")
 	public Future<ResponseEntity> tracedMethod4(ResponseEntity entity) {
 		return new AsyncResult<ResponseEntity>() {
             @Override

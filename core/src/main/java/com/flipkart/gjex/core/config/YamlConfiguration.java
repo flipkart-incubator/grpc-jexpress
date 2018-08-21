@@ -45,8 +45,10 @@ public class YamlConfiguration extends AbstractConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(YamlConfiguration.class);
 
-    private Map<String, Object> configTab;
+    private Map<String, Object> configTab = new HashMap<>();
 
+    public YamlConfiguration() {}
+    
     public YamlConfiguration(String path) throws IOException {
         FileReader reader = new FileReader(path);
         load(reader);
@@ -69,6 +71,13 @@ public class YamlConfiguration extends AbstractConfiguration {
         load(reader);
         reader.close();
     }
+    
+    public void addAll(YamlConfiguration... configurations) {
+    		for (YamlConfiguration config : configurations) {
+    			config.getKeys().forEachRemaining(key -> {this.configTab.put(key, config.getProperty(key));});
+    		}
+    }
+    
     ////////////////////////////////////////////////////////////////////////////
     // Methods of base class AbstractConfiguration
 
@@ -104,7 +113,6 @@ public class YamlConfiguration extends AbstractConfiguration {
     private void load(Reader in) {
         Yaml yaml = new Yaml();
         Map<?, ?> dom = (Map<?, ?>) yaml.load(in);
-        configTab = new HashMap<>();
         flatten(null, dom);
         LOGGER.debug("yaml configuration loaded: {}", configTab);
     }

@@ -15,8 +15,6 @@
  */
 package com.flipkart.gjex.core.task;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.aopalliance.intercept.MethodInvocation;
 
 import com.flipkart.gjex.core.logging.Logging;
@@ -29,13 +27,14 @@ import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.hystrix.HystrixThreadPoolProperties;
 
 import io.grpc.Context;
+import io.reactivex.functions.BiConsumer;
 
 /**
  * A {@link HystrixCommand} implementation to provide async execution and circuit breaking functionality for method invocations.
  * @author regu.b
  *
  */
-public class TaskExecutor extends HystrixCommand<Object> implements Logging {
+public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 
 	/** The MethodInvocation to execute asynchronously*/
 	private final MethodInvocation invocation;
@@ -43,10 +42,10 @@ public class TaskExecutor extends HystrixCommand<Object> implements Logging {
 	/** The currently active gRPC Context*/
 	private Context currentContext;
 	
-	/** The CompletableFuture to set the results on*/
-	private CompletableFuture<Object> future;
-	
-	public TaskExecutor(CompletableFuture<Object> future, MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout) {
+	/** The completion BiConsumer*/
+	private BiConsumer<T, Throwable> completionConsumer;
+		
+	public TaskExecutor(MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout) {
 		super(Setter
                 .withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
 		        .andCommandKey(HystrixCommandKey.Factory.asKey(name))
@@ -56,26 +55,36 @@ public class TaskExecutor extends HystrixCommand<Object> implements Logging {
 	                .withExecutionIsolationStrategy(ExecutionIsolationStrategy.THREAD)
 	                .withExecutionTimeoutInMilliseconds(timeout)));
 		currentContext = Context.current(); // store the current gRPC Context
-		this.future = future;
 		this.invocation = invocation;
+	}
+
+	public void setCompletionConsumer(BiConsumer<T, Throwable> completionConsumer) {
+		this.completionConsumer = completionConsumer;
 	}
 
 	/**
 	 * Overridden method implementation. Invokes the Method invocation while setting relevant current gRPC Context
 	 * @see com.netflix.hystrix.HystrixCommand#run()
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	@Override
-	protected Object run() throws Exception {
-		Context previous = this.currentContext.attach();
+	protected T run() throws Exception {
+		Context previous = this.currentContext.attach(); // setting the current gRPC context for the executing Hystrix thread
+		Throwable error = null;
+		T result = null;
 		try {
-			Object result = ((AsyncResult)this.invocation.proceed()).invoke();
-			this.future.complete(result); // mark the CompletableFuture as complete with the execution result
+			result = ((AsyncResult<T>)this.invocation.proceed()).invoke(); // call the AsyncResult#invoke() to execute the actual work to be performed asynchronously
 			return result;
 		} catch (Throwable e) {
+			error = e;
+			error("Error executing task", e);
 			throw new RuntimeException(e);
 		} finally {
-			this.currentContext.detach(previous);
+			if (this.completionConsumer != null) {
+				this.completionConsumer.accept(result, error); // inform the completion status to the registered completion consumer
+			}
+			this.currentContext.detach(previous); // unset the current gRPC context
 		}
 	}
+	
 }

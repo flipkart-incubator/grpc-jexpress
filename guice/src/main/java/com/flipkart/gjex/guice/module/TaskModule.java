@@ -17,13 +17,17 @@ package com.flipkart.gjex.guice.module;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.concurrent.CompletableFuture;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.configuration.Configuration;
 
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.task.ConcurrentTask;
+import com.flipkart.gjex.core.task.FutureDecorator;
 import com.flipkart.gjex.core.task.TaskExecutor;
 import com.google.inject.AbstractModule;
 import com.google.inject.matcher.AbstractMatcher;
@@ -34,23 +38,40 @@ import com.google.inject.matcher.Matchers;
  * @author regu.b
  *
  */
-public class TaskModule extends AbstractModule implements Logging {
+public class TaskModule<T> extends AbstractModule implements Logging {
 	
 	@Override
     protected void configure() {
 		TaskMethodInterceptor methodInterceptor = new TaskMethodInterceptor();
+		requestInjection(methodInterceptor);
 		bindInterceptor(Matchers.any(), new TaskMethodMatcher(), methodInterceptor);
 	}
 	
 	class TaskMethodInterceptor implements MethodInterceptor {
+		
+		@Inject @Named("GlobalConfig")
+		Configuration globalConfig;
+		
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			ConcurrentTask task = invocation.getMethod().getAnnotation(ConcurrentTask.class);
-			CompletableFuture<Object> future = new CompletableFuture<Object>();
-			TaskExecutor taskExecutor = new TaskExecutor(future, invocation,invocation.getMethod().getDeclaringClass().getSimpleName(),
-					invocation.getMethod().getName(), task.concurrency(), task.timeout());
-			taskExecutor.queue();
-			return future; // we return the CompletableFuture and not wait for its completion. This enables responses to be composed in a reactive manner
+			int timeout = 0;
+			if (task.timeoutConfig().length() > 0) { // check if timeout is specified as a config property
+				timeout = globalConfig.getInt(task.timeoutConfig());
+			}
+			if (task.timeout() > 0) { // we take the method level annotation value as the final override
+				timeout = task.timeout();
+			}
+			int concurrency = 0;
+			if (task.concurrencyConfig().length() > 0) { // check if concurrency is specified as a config property
+				concurrency = globalConfig.getInt(task.concurrencyConfig());
+			}
+			if (task.concurrency() > 0) { // we take the method level annotation value as the final override
+				concurrency = task.concurrency();
+			}
+			return new FutureDecorator<T>(new TaskExecutor<T>(invocation,
+					invocation.getMethod().getDeclaringClass().getSimpleName(),
+					invocation.getMethod().getName(), concurrency, timeout),task.completion()) ; // we return the FutureDecorator and not wait for its completion. This enables responses to be composed in a reactive manner
 		}
 	}
 	

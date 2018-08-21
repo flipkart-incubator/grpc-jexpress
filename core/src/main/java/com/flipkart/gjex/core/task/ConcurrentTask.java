@@ -32,13 +32,29 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ConcurrentTask {
 
+	/** Possible completion values*/
+    public enum Completion {
+		Mandatory, Optional;
+    }
+	
+	/**
+	 * Indicates whether the successful completion of this ConcurrentTask is Mandatory or Optional when composing any final responses
+	 * from multiple ConcurrentTask executions 
+	 */
+	Completion completion() default Completion.Mandatory;
+
 	/**
      * Defines the maximum time GJEX can "expect" the task to run for.
      * In case the task does not produce a result within the timeout, the task may be retried by GJEX (based on the number of retries remaining)
      * Any result produced by the task after the timeout value has elapsed will be ignored by the GJEX engine and
      * will not be used by or passed on to other tasks that may be dependent on these results.
      */
-    int timeout();	
+    int timeout() default 0;	
+    
+    /**
+     * Timeout configured as a Config property. Note that {@link ConcurrentTask#timeout()} overrides this value 
+     */
+    String timeoutConfig() default "";
     
     /** 
      * The number of times GJEX can retry the task in case of runtime failures.
@@ -51,4 +67,11 @@ public @interface ConcurrentTask {
      * Indicates the maximum concurrency for this Task within a single GJEX JVM node.
      */
     int concurrency() default 10;
+    
+    /**
+     * Concurrency configured as a Config property. Note that {@link ConcurrentTask#concurrency()} overrides this value 
+     */
+    String concurrencyConfig() default "";
+
 }
+

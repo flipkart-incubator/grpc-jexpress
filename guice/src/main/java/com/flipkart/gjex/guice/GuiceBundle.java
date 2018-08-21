@@ -84,6 +84,7 @@ public class GuiceBundle implements Bundle, Logging {
         this.modules = modules;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void initialize(Bootstrap bootstrap) {
 		// add the Config and Metrics MetricsInstrumentationModule
@@ -156,11 +157,11 @@ public class GuiceBundle implements Bundle, Logging {
         return baseInjector;
     }	
 		
-    private <T> List<T> getInstances(Injector injector, Class<T> type) {
-        List<T> instances = new ArrayList<T>();
-        List<Binding<T>> bindings = injector.findBindingsByType(TypeLiteral.get(type));
-        for(Binding<T> binding : bindings) {
-            Key<T> key = binding.getKey();
+    private <S> List<S> getInstances(Injector injector, Class<S> type) {
+        List<S> instances = new ArrayList<S>();
+        List<Binding<S>> bindings = injector.findBindingsByType(TypeLiteral.get(type));
+        for(Binding<S> binding : bindings) {
+            Key<S> key = binding.getKey();
             instances.add(injector.getInstance(key));
         }
         return instances;

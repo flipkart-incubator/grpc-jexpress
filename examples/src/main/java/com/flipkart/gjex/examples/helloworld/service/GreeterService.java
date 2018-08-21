@@ -27,6 +27,9 @@ import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 
+import io.grpc.Metadata;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
@@ -64,13 +67,18 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
 	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
-	@Traced(withTracingSampler=AllWhitelistTracingSampler.class, withSamplingRate=1.0f) // Start a new Trace or participate in a Client-initiated distributed trace
+	@Traced(withTracingSampler=AllWhitelistTracingSampler.class, withSamplingRate=0.5f) // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		
 		info("Saying hello in Greeter service");
 		
-		// invoke business logic implemented in a separate injected class
-		helloBeanService.sayHelloInBean(this.getHelloBean());
+		try {
+			// invoke business logic implemented in a separate injected class
+			helloBeanService.sayHelloInBean(this.getHelloBean());
+		} catch (Exception businessException) { // demonstrates returning any business logic exceptions as a suitable response to the client
+			responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(businessException.getMessage()), new Metadata()));
+			return;
+		}
 		
 		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
