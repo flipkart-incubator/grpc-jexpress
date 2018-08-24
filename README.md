@@ -8,6 +8,7 @@ Provides following features:
 * YAML based configuration support for gRPC service implementations
 * Component Lifecycle (Start(), Stop()) support via Service interface
 * Health Check - ability to add any number of deep Health Checks
+* Filters - ability to add any number of Filters to gRPC stub method implementations
 * Validation - using [Hibernate Validator](http://hibernate.org/validator/)
 * Distributed Tracing - using [opentracing](http://opentracing.io/) and the [openzipkin](https://github.com/openzipkin/brave) implementation
 * Concurrent execution, Circuit breaking using [Hystrix](https://github.com/Netflix/Hystrix) and Dispatch-Compose through a [FutureDecorator](https://github.com/flipkart-incubator/grpc-jexpress/blob/master/core/src/main/java/com/flipkart/gjex/core/task/FutureDecorator.java) API
