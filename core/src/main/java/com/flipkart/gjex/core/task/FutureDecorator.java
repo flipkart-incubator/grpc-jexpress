@@ -23,6 +23,9 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.grpc.Context;
+import io.grpc.Status;
+import io.grpc.StatusException;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function3;
@@ -138,9 +141,14 @@ public class FutureDecorator<T> implements Future<T> {
 	
 	/** Convenience method to get the response from completion of the specified FutureDecorator and evaluate completion as defined in the FutureDecorator*/
 	@SuppressWarnings("rawtypes")
-	private static Object getResultFromFuture(FutureDecorator future) throws TaskException {
+	private static Object getResultFromFuture(FutureDecorator future) {
 		Object result = null;
 		try {
+			if (Context.current().getDeadline() != null && Context.current().getDeadline().isExpired()) {
+				LOGGER.error("Task execution evaluation failed.Deadline exceeded in server execution.");
+				throw new TaskException("Task execution evaluation failed.", 
+						new StatusException(Status.DEADLINE_EXCEEDED.withDescription("Deadline exceeded in server execution.")));
+			}
 			result = future.get();
 		} catch (ExecutionException e1) {
 			if (future.getCompletion().equals(ConcurrentTask.Completion.Mandatory)) {

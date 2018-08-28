@@ -28,7 +28,7 @@ import javax.inject.Singleton;
 
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
-import com.flipkart.gjex.core.tracing.OpenTracingContextKey;
+import com.flipkart.gjex.core.tracing.GJEXContextKey;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
@@ -108,9 +108,9 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 			 *  Set the client side initiated Trace and Span in the Context.
 			 *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
 			 */
-			Context ctxWithSpan = Context.current().withValue(OpenTracingContextKey.getKey(), span)
-			        .withValue(OpenTracingContextKey.getSpanContextKey(), span.context())
-			        .withValue(OpenTracingContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
+			Context ctxWithSpan = Context.current().withValues(GJEXContextKey.getKey(), span,
+			        GJEXContextKey.getSpanContextKey(), span.context(),
+			        GJEXContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
 			    ServerCall.Listener<ReqT> listenerWithContext = Contexts
 			        .interceptCall(ctxWithSpan, call, headers, next);
 			    

@@ -88,12 +88,12 @@ public class HelloBeanService implements Logging {
 	 * Here timeout is configured as an explicit value. This method is also marked as {@link ConcurrentTask.Completion#Optional}
 	 */
 	@Traced
-	@ConcurrentTask(completion=ConcurrentTask.Completion.Optional, timeout = 200) // Task is marked to timeout, execution will proceed as this is marked as Optional
+	@ConcurrentTask(completion=ConcurrentTask.Completion.Optional, timeout = 300) // Task is marked to timeout, execution will proceed as this is marked as Optional
 	public Future<ResponseEntity> tracedMethod3(ResponseEntity entity) {
 		return new AsyncResult<ResponseEntity>() {
             @Override
             public ResponseEntity invoke() {
-            		sleep(250);
+            		sleep(200);
             		info("Invoked trace method3");
             		entity.method3 = "InvokedMethod3";
             		return entity;

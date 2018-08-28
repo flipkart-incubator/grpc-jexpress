@@ -21,6 +21,8 @@ import javax.inject.Named;
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.service.Api;
+import com.flipkart.gjex.core.task.TaskException;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
@@ -29,6 +31,7 @@ import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 
 import io.grpc.Metadata;
 import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.HelloReply;
@@ -65,6 +68,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	}
 
 	@Override
+	@Api(deadlineConfig = "Api.sayhello.deadline") // specify an API level Deadline that will cascade to all @ConcurrentTask invoked in serving this API
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
 	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
 	@Traced(withTracingSampler=AllWhitelistTracingSampler.class, withSamplingRate=0.5f) // Start a new Trace or participate in a Client-initiated distributed trace
@@ -75,8 +79,8 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 		try {
 			// invoke business logic implemented in a separate injected class
 			helloBeanService.sayHelloInBean(this.getHelloBean());
-		} catch (Exception businessException) { // demonstrates returning any business logic exceptions as a suitable response to the client
-			responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(businessException.getMessage()), new Metadata()));
+		} catch (Exception exception) { // demonstrates returning any business logic or Task execution exceptions as a suitable response to the client
+			this.handleException(exception, responseObserver);
 			return;
 		}
 		
@@ -98,6 +102,19 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 		return this.isFailValidation() ? new HelloBean() : new HelloBean("hello",10);
 	}
 	
+	/** Handle exceptions in invoking delegate methods.*/
+	private void handleException(Exception e, StreamObserver<HelloReply> responseObserver) {
+		if (TaskException.class.isAssignableFrom(e.getClass())) {
+			TaskException te = (TaskException)e;
+			if (te.getCause() != null && StatusException.class.isAssignableFrom(te.getCause().getClass())) {
+				responseObserver.onError((StatusException)te.getCause());
+				return;
+			}
+		} 
+		responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage()), new Metadata()));
+	}
+	
+	/** Invoke an external gRPC call as a client*/
 	private void invokeGrpcCall(HelloRequest req, HelloReply reply) {
 		info("Saying hello to an external grpc service");
 		try {

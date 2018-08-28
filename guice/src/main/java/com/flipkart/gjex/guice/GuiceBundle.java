@@ -27,6 +27,7 @@ import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.service.GrpcServer;
+import com.flipkart.gjex.guice.module.ApiModule;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.flipkart.gjex.guice.module.DashboardModule;
 import com.flipkart.gjex.guice.module.ServerModule;
@@ -92,6 +93,8 @@ public class GuiceBundle implements Bundle, Logging {
 		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
 		// add the Validation module
 		this.modules.add(new ImplicitValidationModule());
+		// add the Api module before Tracing module so that APIs are timed from the start of execution
+		this.modules.add(new ApiModule());
 		// add the Tracing module before Task module so that even Concurrent tasks can be traced
 		this.modules.add(new TracingModule());
 		// add the Task module

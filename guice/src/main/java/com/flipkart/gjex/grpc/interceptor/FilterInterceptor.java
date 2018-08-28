@@ -131,7 +131,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		Status returnStatus = Status.INTERNAL;
 		if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
 			returnStatus = Status.INVALID_ARGUMENT;
-		}
+		} 
 		call.close(returnStatus.withDescription(e.getMessage()),new Metadata());
 	}
 		

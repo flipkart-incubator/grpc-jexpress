@@ -22,14 +22,10 @@ import io.opentracing.SpanContext;
 /**
  * Code ported from {@linkplain https://github.com/opentracing-contrib/java-grpc/blob/master/src/main/java/io/opentracing/contrib/grpc/OpenTracingContextKey.java}
  * 
- * Class summary:
- * 
- * A {@link io.grpc.Context} key for the current OpenTracing trace state.
+ * Supports storing {@link io.grpc.Context} key for the current OpenTracing trace state
  *
- * Can be used to get the active span, or to set the active span for a scoped unit of work.
- * See the <a href="../../../../../../README.rst">grpc-java OpenTracing docs</a> for use cases and examples.
  */
-public class OpenTracingContextKey {
+public class GJEXContextKey {
 
 	public static final String KEY_NAME = "io.opentracing.active-span";
 	public static final String KEY_CONTEXT_NAME = "io.opentracing.active-span-context";
@@ -62,7 +58,7 @@ public class OpenTracingContextKey {
 	}
 
 	/**
-	 * @return the GJEX TracingSampler key for span context
+	 * @return the GJEX TracingSampler key and active sampler
 	 */
 	public static Context.Key<TracingSampler> getTracingSamplerKey() {
 		return keyTracingSampler;
@@ -70,5 +66,5 @@ public class OpenTracingContextKey {
 	public static TracingSampler activeTracingSampler() {
 		return keyTracingSampler.get();
 	}
-
+	
 }
