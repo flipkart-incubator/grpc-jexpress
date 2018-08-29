@@ -143,21 +143,33 @@ public class FutureDecorator<T> implements Future<T> {
 	@SuppressWarnings("rawtypes")
 	private static Object getResultFromFuture(FutureDecorator future) {
 		Object result = null;
-		try {
-			if (Context.current().getDeadline() != null && Context.current().getDeadline().isExpired()) {
+		Integer futureGetTimeout = null;
+		if (Context.current().getDeadline() != null) {
+			if (Context.current().getDeadline().isExpired()) {
 				LOGGER.error("Task execution evaluation failed.Deadline exceeded in server execution.");
 				throw new TaskException("Task execution evaluation failed.", 
 						new StatusException(Status.DEADLINE_EXCEEDED.withDescription("Deadline exceeded in server execution.")));
 			}
-			result = future.get();
-		} catch (ExecutionException e1) {
-			if (future.getCompletion().equals(ConcurrentTask.Completion.Mandatory)) {
-				throw new TaskException("Error executing mandatory Task : " + e1.getCause().getMessage(), e1);
+			futureGetTimeout = (int)Context.current().getDeadline().timeRemaining(TimeUnit.MILLISECONDS);
+		}
+		LOGGER.debug("Waiting for : " + futureGetTimeout + " for method : " + future.taskExecutor.getInvocation().getMethod().getName());
+		try {
+			if (futureGetTimeout != null) {
+				result = future.get(futureGetTimeout.longValue(), TimeUnit.MILLISECONDS);
 			} else {
-				LOGGER.warn("Execution exception in optional task :" + e1.getCause().getMessage() + " . Not failing the execution and proceeding.");
+				result = future.get();
 			}
-		} catch (InterruptedException e) {
-			throw new TaskException("Error executing mandatory Task : " + e.getCause().getMessage(), e);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			String errorMessage =  e.getCause() == null ? e.getMessage() :  e.getCause().getMessage();
+			if (future.getCompletion().equals(ConcurrentTask.Completion.Mandatory)) {
+				if (TimeoutException.class.isAssignableFrom(e.getClass())) {
+					throw new TaskException("Task execution results not available.", 
+							new StatusException(Status.DEADLINE_EXCEEDED.withDescription("Deadline exceeded waiting for results :" + e.getMessage())));
+				}
+				throw new TaskException("Error executing mandatory Task : " + errorMessage, e);
+			} else {
+				LOGGER.warn("Execution exception in optional task :" + errorMessage + " . Not failing the execution and proceeding.");
+			}
 		}
 		return result;
 	}

@@ -62,6 +62,10 @@ public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 		this.completionConsumer = completionConsumer;
 	}
 
+	public MethodInvocation getInvocation() {
+		return invocation;
+	}
+
 	/**
 	 * Overridden method implementation. Invokes the Method invocation while setting relevant current gRPC Context
 	 * @see com.netflix.hystrix.HystrixCommand#run()

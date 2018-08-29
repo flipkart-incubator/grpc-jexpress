@@ -89,7 +89,6 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 					deadline = globalConfig.getInt(api.deadlineConfig());
 				}
 				if (Context.current().getDeadline() == null) {
-					info("Setting deadline of : " + deadline + " for " + invocation.getMethod().getName());
 					cancellableContext = Context.current().withDeadlineAfter(deadline, TimeUnit.MILLISECONDS, scheduledExecutorService);
 					previous = cancellableContext.attach();
 				} else {
@@ -102,7 +101,7 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 			} finally {
 				if (cancellableContext != null) {
 					cancellableContext.detach(previous);
-					info("Cancelled a cancellable context");
+					debug("Cancelled a cancellable context");
 					cancellableContext.cancel(null); // we cancel the cancellable context with null (no error)
 				}
 			}

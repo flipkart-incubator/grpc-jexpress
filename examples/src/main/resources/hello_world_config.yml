@@ -1,7 +1,7 @@
 hw:
   greeting: " Hello "
 Api:
-  sayhello.deadline: 500
+  sayhello.deadline: 330
 Task:
-  hello.timeout: 300  
+  hello.timeout: 200  
   
