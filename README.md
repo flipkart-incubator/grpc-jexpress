@@ -12,6 +12,7 @@ Provides following features:
 * Validation - using [Hibernate Validator](http://hibernate.org/validator/)
 * Distributed Tracing - using [opentracing](http://opentracing.io/) and the [openzipkin](https://github.com/openzipkin/brave) implementation
 * Concurrent execution, Circuit breaking using [Hystrix](https://github.com/Netflix/Hystrix) and Dispatch-Compose through a [FutureDecorator](https://github.com/flipkart-incubator/grpc-jexpress/blob/master/core/src/main/java/com/flipkart/gjex/core/task/FutureDecorator.java) API
+* Deadlining for APIs - ability to specify execution timeouts for gRPC stubs at service end
 
 ## Building
 To build GJEX, clone this repository and run:
