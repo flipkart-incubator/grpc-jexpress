@@ -1,5 +1,5 @@
 # grpc-jexpress
-Productivity extensions to grpc-java, called GJEX - for Grpc Java Express.
+Runtime extensions to grpc-java, called GJEX - for Grpc Java Express.
 
 Provides following features:
 * Transparent gRPC runtime startup alongwith Jetty for dashboard/administration
