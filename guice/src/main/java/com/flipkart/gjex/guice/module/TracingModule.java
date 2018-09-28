@@ -18,7 +18,6 @@ package com.flipkart.gjex.guice.module;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -118,7 +117,7 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 					 * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor) 
 					 * but not activated because it has to be sampled here.
 					 */
-					if (tracer.scopeManager().active() == null || tracer.scopeManager().active().span() != GJEXContextKey.activeSpan()) { 
+					if (tracer.scopeManager().active() == null || (tracer.scopeManager().active().span() != GJEXContextKey.activeSpan())) { 
 						parentScope = tracer.scopeManager().activate(GJEXContextKey.activeSpan(), true);
 					} 
 					methodInvocationSpan = tracer.buildSpan(methodInvoked)
@@ -141,14 +140,15 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 				    Tags.ERROR.set(methodInvocationSpan, true);
 				    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
 				}
+				closeScopes(scope, parentScope); // close any open scopes
 				throw ex;
-			}
+			} 
 			closeScopes(scope, parentScope);
 			return result;
 		}
 	}	
 	
-	/** Convenience class to extract Scope closing in {@link CompletableFuture#whenComplete(BiConsumer)}*/
+	/** Convenience class to extract Scope closing in {@link FutureDecorator#whenComplete(BiConsumer)}*/
 	class AsyncScopeCloserConsumer implements BiConsumer<T,Throwable> {
 		Scope scope;
 		Scope parentScope;
@@ -202,9 +202,9 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 	private void closeScopes(Scope scope, Scope parentScope) {
 		if (scope != null) {
 			scope.close();
-		}
-		if (parentScope != null) {
-			parentScope.close();
+		}		
+		if (parentScope != null && parentScope.span() == GJEXContextKey.activeRootSpan()) { // close the parent span only if it is the root span
+			parentScope.close(); 
 		}		
 	}	
 	

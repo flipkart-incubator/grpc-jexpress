@@ -108,7 +108,8 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 			 *  Set the client side initiated Trace and Span in the Context.
 			 *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
 			 */
-			Context ctxWithSpan = Context.current().withValues(GJEXContextKey.getKey(), span,
+			Context ctxWithSpan = Context.current().withValues(GJEXContextKey.getKeyRoot(), span, // root span and active span are the same
+					GJEXContextKey.getKey(), span,
 			        GJEXContextKey.getSpanContextKey(), span.context(),
 			        GJEXContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
 			    ServerCall.Listener<ReqT> listenerWithContext = Contexts

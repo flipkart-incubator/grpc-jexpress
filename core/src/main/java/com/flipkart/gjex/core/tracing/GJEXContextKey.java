@@ -27,15 +27,29 @@ import io.opentracing.SpanContext;
  */
 public class GJEXContextKey {
 
+	public static final String KEY_ROOT_SPAN = "io.opentracing.root-span";
 	public static final String KEY_NAME = "io.opentracing.active-span";
 	public static final String KEY_CONTEXT_NAME = "io.opentracing.active-span-context";
 	public static final String KEY_TRACING_SAMPLER_NAME = "io.opentracing.active-tracing-sampler";
+	private static final Context.Key<Span> keyRoot = Context.key(KEY_ROOT_SPAN);
 	private static final Context.Key<Span> key = Context.key(KEY_NAME);
 	private static final Context.Key<SpanContext> keyContext = Context.key(KEY_CONTEXT_NAME);
-	private static final Context.Key<TracingSampler> keyTracingSampler = Context.key(KEY_TRACING_SAMPLER_NAME);
+	private static final Context.Key<TracingSampler> keyTracingSampler = Context.key(KEY_TRACING_SAMPLER_NAME);	
 
 	/**
-	 * @return the OpenTracing context key
+	 * @return the OpenTracing context key for Root span
+	 */
+	public static Context.Key<Span> getKeyRoot() {
+		return keyRoot;
+	}
+	/**
+	 * @return the active root span for the current request
+	 */
+	public static Span activeRootSpan() {
+		return keyRoot.get();
+	}
+	/**
+	 * @return the OpenTracing context key for Active span
 	 */
 	public static Context.Key<Span> getKey() {
 		return key;
