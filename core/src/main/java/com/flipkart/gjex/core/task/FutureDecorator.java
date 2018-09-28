@@ -152,7 +152,6 @@ public class FutureDecorator<T> implements Future<T> {
 			}
 			futureGetTimeout = (int)Context.current().getDeadline().timeRemaining(TimeUnit.MILLISECONDS);
 		}
-		LOGGER.debug("Waiting for : " + futureGetTimeout + " for method : " + future.taskExecutor.getInvocation().getMethod().getName());
 		try {
 			if (futureGetTimeout != null) {
 				result = future.get(futureGetTimeout.longValue(), TimeUnit.MILLISECONDS);
