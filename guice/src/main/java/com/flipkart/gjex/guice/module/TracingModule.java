@@ -28,6 +28,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.task.FutureDecorator;
+import com.flipkart.gjex.core.task.TaskException;
 import com.flipkart.gjex.core.tracing.GJEXContextKey;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.core.tracing.TracingSampler;
@@ -135,13 +136,20 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 					((FutureDecorator)result).whenComplete(new AsyncScopeCloserConsumer(scope, parentScope)); // scopes will be closed when the callback executes
 					return result; 
 				}
-			} catch(Exception ex) {
-				if (methodInvocationSpan != null) {
-				    Tags.ERROR.set(methodInvocationSpan, true);
-				    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
+			} catch(Exception ex) { // we want to log errors to the trace only once
+				TaskException tex = null;
+				if (TaskException.class.isAssignableFrom(ex.getClass())) {
+					tex = (TaskException)ex;
+					if (tex.isTraced()) {
+						logErrorToSpan(methodInvocationSpan, ex);
+						tex.setTraced(false);
+					}
+				} else {
+					logErrorToSpan(methodInvocationSpan, ex);
+					tex = new TaskException(ex,false);
 				}
 				closeScopes(scope, parentScope); // close any open scopes
-				throw ex;
+				throw tex;
 			} 
 			closeScopes(scope, parentScope);
 			return result;
@@ -207,5 +215,13 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 			parentScope.close(); 
 		}		
 	}	
+	
+	/** Helper to log error to the traced Span*/
+	private void logErrorToSpan(io.opentracing.Span methodInvocationSpan, Exception ex) {
+		if (methodInvocationSpan != null) {
+			Tags.ERROR.set(methodInvocationSpan, true);
+		    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
+		}
+	}
 	
 }
