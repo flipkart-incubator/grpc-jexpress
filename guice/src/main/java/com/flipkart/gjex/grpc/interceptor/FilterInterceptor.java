@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -30,6 +31,7 @@ import javax.validation.ConstraintViolationException;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 import com.google.protobuf.GeneratedMessageV3;
 
@@ -64,19 +66,22 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		Map<Class<?>, Filter> classToInstanceMap = filters.stream()
 				.collect(Collectors.toMap(Object::getClass, Function.identity()));
 		services.forEach(service -> {
-			AnnotationUtils.getAnnotatedMethods(service.getClass(),MethodFilters.class).forEach(pair -> {
-				List<Filter> filtersForMethod = new LinkedList<Filter>();
-				Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
-					if (!classToInstanceMap.containsKey(filterClass)) {
-						throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
-					}
-					filtersForMethod.add(classToInstanceMap.get(filterClass));
+			List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
+			if(annotatedMethods != null) {
+				annotatedMethods.forEach(pair -> {
+					List<Filter> filtersForMethod = new LinkedList<Filter>();
+					Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
+						if (!classToInstanceMap.containsKey(filterClass)) {
+							throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
+						}
+						filtersForMethod.add(classToInstanceMap.get(filterClass));
+					});
+					// Key is of the form <Service Name>+ "/" +<Method Name>
+					// reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
+					filtersMap.put((service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase(),
+							filtersForMethod);
 				});
-				// Key is of the form <Service Name>+ "/" +<Method Name> 
-				// reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
-				filtersMap.put((service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase(), 
-						filtersForMethod);
-			});
+			}
 		});
 	}
 		

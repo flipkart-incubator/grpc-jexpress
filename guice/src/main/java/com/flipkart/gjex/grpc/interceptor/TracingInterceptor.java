@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
 import com.flipkart.gjex.core.tracing.GJEXContextKey;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 
 import io.grpc.BindableService;
@@ -71,22 +73,25 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 		Map<Class<?>, TracingSampler> classToInstanceMap = samplers.stream()
 				.collect(Collectors.toMap(Object::getClass, Function.identity()));
 		services.forEach(service -> {
-			AnnotationUtils.getAnnotatedMethods(service.getClass(),Traced.class).forEach(pair -> {
-				Arrays.asList(pair.getValue().getAnnotation(Traced.class).withTracingSampler()).forEach(samplerClass -> {
-					// Key is of the form <Service Name>+ "/" +<Method Name> 
-					// reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
-					String samplerComponentName = (service.bindService().getServiceDescriptor().getName() + "/" 
-							+ pair.getValue().getName()).toLowerCase();
-					if (samplerClass == null) {
-						samplerMap.put(samplerComponentName, new ConfigurableTracingSampler());
-					} else {
-						if (!classToInstanceMap.containsKey(samplerClass)) {
-							throw new RuntimeException("TracingSampler instance not bound for TracingSampler class :" + samplerClass.getName());
+			List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), Traced.class);
+			if(annotatedMethods != null) {
+				annotatedMethods.forEach(pair -> {
+					Arrays.asList(pair.getValue().getAnnotation(Traced.class).withTracingSampler()).forEach(samplerClass -> {
+						// Key is of the form <Service Name>+ "/" +<Method Name>
+						// reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
+						String samplerComponentName = (service.bindService().getServiceDescriptor().getName() + "/"
+								+ pair.getValue().getName()).toLowerCase();
+						if (samplerClass == null) {
+							samplerMap.put(samplerComponentName, new ConfigurableTracingSampler());
+						} else {
+							if (!classToInstanceMap.containsKey(samplerClass)) {
+								throw new RuntimeException("TracingSampler instance not bound for TracingSampler class :" + samplerClass.getName());
+							}
+							samplerMap.put(samplerComponentName, classToInstanceMap.get(samplerClass));
 						}
-						samplerMap.put(samplerComponentName, classToInstanceMap.get(samplerClass));
-					}
+					});
 				});
-			});
+			}
 		});
 		
 	}
