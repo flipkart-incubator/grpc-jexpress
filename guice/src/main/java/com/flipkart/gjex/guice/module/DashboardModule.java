@@ -132,7 +132,7 @@ public class DashboardModule extends AbstractModule implements Logging {
 	@Provides
 	@Singleton
 	Server getAPIJettyServer(@Named("Api.service.port") int port,
-			@Named("APIResourceConfig") ResourceConfig resourceConfig,
+			@Named("HealthCheckResourceConfig") ResourceConfig resourceConfig,
 			@Named("Api.service.acceptors") int acceptorThreads, @Named("Api.service.selectors") int selectorThreads,
 			@Named("Api.service.workers") int maxWorkerThreads, ObjectMapper objectMapper)
 			throws URISyntaxException, UnknownHostException {
@@ -158,7 +158,7 @@ public class DashboardModule extends AbstractModule implements Logging {
 		return server;
 	}
 
-	@Named("APIResourceConfig")
+	@Named("HealthCheckResourceConfig")
 	@Singleton
 	@Provides
 	public ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
