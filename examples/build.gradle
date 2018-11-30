@@ -7,14 +7,15 @@ repositories {
 }
 
 dependencies {
-	compile "com.flipkart.grpc-jexpress:core:1.0"    
-	compile "com.flipkart.grpc-jexpress:runtime:1.0"
+	compile "com.flipkart.grpc-jexpress:core:1.0-SNAPSHOT"
+	compile "com.flipkart.grpc-jexpress:runtime:1.0-SNAPSHOT"
     compile "io.grpc:examples:1.+"
     compile "io.dropwizard.metrics:metrics-healthchecks:4.0.2"
 	compile 'ru.vyarus:guice-validator:1.2.0'
 	compile 'org.hibernate:hibernate-validator:5.4.1.Final'
     compile 'org.glassfish:javax.el:3.0.1-b08'
     compile 'io.reactivex.rxjava2:rxjava:2.2.0'
+    compile 'net.sourceforge.argparse4j:argparse4j:0.8.1'
 }
 
 apply plugin: 'application'

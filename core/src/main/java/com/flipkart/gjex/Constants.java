@@ -45,5 +45,27 @@ public interface Constants {
      * The GRPC Service modules property name
      */
     String GRPC_MODULE_NAMES = "GJEX.grpc.module.names";
-    
+
+    String GRPC_SERVER_PORT ="Grpc.server.port";
+
+    String DASHBOARD_SERVER_PORT="Dashboard.service.port";
+
+    String API_SCHEDULEDEXECUTOR_THREADPOOL_SIZE="Api.scheduledexecutor.threadpool.size";
+
+    String DASHBOARD_SERVICE_ACCEPTORS="Dashboard.service.acceptors";
+
+    String DASHBOARD_SERVICE_SELECTORS= "Dashboard.service.selectors";
+
+    String DASHBOARD_SERVICE_WORKERS="Dashboard.service.workers";
+
+    String API_SERVICE_PORT="Api.service.port";
+
+    String API_SERVICE_ACCEPTORS="Api.service.acceptors";
+
+    String API_SERVICE_WORKERS="Api.service.workers";
+
+    String API_SERVICE_SELECTORS="Api.service.selectors";
+
+    String GLOBALCONFIG="GlobalConfig";
+
 }

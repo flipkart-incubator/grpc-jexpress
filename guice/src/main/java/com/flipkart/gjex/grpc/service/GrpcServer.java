@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import com.flipkart.gjex.Constants;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
@@ -56,7 +57,7 @@ public class GrpcServer extends AbstractService implements Logging {
 	private TracingInterceptor tracingInterceptor;
 	
 	@Inject
-	public GrpcServer(@Named("Grpc.server.port") int port, 
+	public GrpcServer(@Named(Constants.GRPC_SERVER_PORT) int port,
 			@Named("FilterInterceptor") FilterInterceptor filterInterceptor,
 			@Named("TracingInterceptor") TracingInterceptor tracingInterceptor) {
 		info("Creating GrpcServer listening on port : " + port);

@@ -16,6 +16,7 @@
 package com.flipkart.gjex.core.setup;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,13 +26,17 @@ import com.codahale.metrics.jvm.BufferPoolMetricSet;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.gjex.core.Application;
 import com.flipkart.gjex.core.Bundle;
+import com.flipkart.gjex.core.config.JExpressConfiguration;
+import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
+import com.flipkart.gjex.core.config.FileConfigurationSourceProvider;
+import com.flipkart.gjex.core.config.YamlConfigurationFactory;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.tracing.TracingSampler;
-import com.google.common.collect.Lists;
 
 /**
  * The pre-start application container, containing services required to bootstrap a GJEX application
@@ -39,11 +44,11 @@ import com.google.common.collect.Lists;
  * @author regu.b
  *
  */
-public class Bootstrap implements Logging {
+public class Bootstrap<T extends JExpressConfiguration> implements Logging {
 
-	private final Application application;
+	private final Application<T> application;
 	private final MetricRegistry metricRegistry;
-	private final List<Bundle> bundles;
+	private final List<Bundle<? super T>> configuredBundles;
 	private ClassLoader classLoader;
 
 	/** List of initialized Service instances*/
@@ -60,7 +65,7 @@ public class Bootstrap implements Logging {
 	public Bootstrap(Application application) {
 		this.application = application;
 		this.metricRegistry = new MetricRegistry();
-		this.bundles = Lists.newArrayList();
+		this.configuredBundles = new ArrayList<>();
 		getMetricRegistry().register("jvm.buffers", new BufferPoolMetricSet(ManagementFactory
                 .getPlatformMBeanServer()));
 		getMetricRegistry().register("jvm.gc", new GarbageCollectorMetricSet());
@@ -97,11 +102,11 @@ public class Bootstrap implements Logging {
      *
      * @param bundle a {@link Bundle}
      */
-    public void addBundle(Bundle bundle) {
-        bundle.initialize(this);
-        bundles.add(bundle);
-    }    
-	
+    public void addBundle(T configuration, Bundle<? super T> bundle) {
+        bundle.initialize(configuration,this);
+        configuredBundles.add(bundle);
+    }
+
     /**
      * Returns the application's metrics.
      */
@@ -128,14 +133,14 @@ public class Bootstrap implements Logging {
      * @throws Exception in case of errors during run
      */
     @SuppressWarnings("rawtypes")
-	public void run(Environment environment) throws Exception {
+	public void run(T configuration, Environment environment) throws Exception {
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
         this.services = new LinkedList<Service>();
         this.filters = new LinkedList<Filter>();
         // Set the HealthCheckRegsitry to the one initialized by the Environment
         this.healthCheckRegistry = environment.getHealthCheckRegistry();
-        for (Bundle bundle : bundles) {
-            bundle.run(environment);
+        for (Bundle<? super T> bundle : configuredBundles) {
+            bundle.run(configuration, environment);
             services.addAll(bundle.getServices());
             filters.addAll(bundle.getFilters());
             this.tracingSamplers = bundle.getTracingSamplers();

@@ -26,7 +26,7 @@ import com.flipkart.gjex.guice.GuiceBundle;
  * @author regu.b
  *
  */
-public class HelloWorldApplication extends Application {
+public class HelloWorldApplication extends Application<HelloConfiguration> {
 
 	@Override
     public String getName() {
@@ -34,15 +34,16 @@ public class HelloWorldApplication extends Application {
     }
 	
 	@Override
-	public void initialize(Bootstrap bootstrap) {
+	public void initialize(HelloConfiguration configuration, Bootstrap<HelloConfiguration> bootstrap) {
 		GuiceBundle guiceBundle = GuiceBundle.newBuilder()
-				.addModules(new HelloWorldModule())
+				.addModules(new HelloWorldModule(configuration))
+				.addModules(new StringLiteralModule(configuration))
 				.build();
-		bootstrap.addBundle(guiceBundle);
+		bootstrap.addBundle(configuration, guiceBundle);
 	}
 
 	@Override
-	public void run(Environment environment) throws Exception {
+	public void run(HelloConfiguration configuration, Environment environment) throws Exception {
 		// doing nothing additionally
 	}
 	

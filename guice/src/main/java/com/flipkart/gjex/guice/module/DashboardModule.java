@@ -24,6 +24,7 @@ import java.net.UnknownHostException;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import com.flipkart.gjex.Constants;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -71,11 +72,11 @@ public class DashboardModule extends AbstractModule implements Logging {
 	@Named("DashboardJettyServer")
 	@Provides
 	@Singleton
-	Server getDashboardJettyServer(@Named("Dashboard.service.port") int port,
+	Server getDashboardJettyServer(@Named(Constants.DASHBOARD_SERVER_PORT) int port,
 			@Named("DashboardResourceConfig") ResourceConfig resourceConfig,
-			@Named("Dashboard.service.acceptors") int acceptorThreads,
-			@Named("Dashboard.service.selectors") int selectorThreads,
-			@Named("Dashboard.service.workers") int maxWorkerThreads, ObjectMapper objectMapper) {
+			@Named(Constants.DASHBOARD_SERVICE_ACCEPTORS) int acceptorThreads,
+			@Named(Constants.DASHBOARD_SERVICE_SELECTORS) int selectorThreads,
+			@Named(Constants.DASHBOARD_SERVICE_WORKERS) int maxWorkerThreads, ObjectMapper objectMapper) {
 
 		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
 		provider.setMapper(objectMapper);
@@ -131,10 +132,11 @@ public class DashboardModule extends AbstractModule implements Logging {
 	@Named("APIJettyServer")
 	@Provides
 	@Singleton
-	Server getAPIJettyServer(@Named("Api.service.port") int port,
+	Server getAPIJettyServer(@Named(Constants.API_SERVICE_PORT) int port,
 			@Named("HealthCheckResourceConfig") ResourceConfig resourceConfig,
-			@Named("Api.service.acceptors") int acceptorThreads, @Named("Api.service.selectors") int selectorThreads,
-			@Named("Api.service.workers") int maxWorkerThreads, ObjectMapper objectMapper)
+			@Named(Constants.API_SERVICE_ACCEPTORS) int acceptorThreads,
+			@Named(Constants.API_SERVICE_SELECTORS) int selectorThreads,
+			@Named(Constants.DASHBOARD_SERVICE_WORKERS) int maxWorkerThreads, ObjectMapper objectMapper)
 			throws URISyntaxException, UnknownHostException {
 		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
 		provider.setMapper(objectMapper);

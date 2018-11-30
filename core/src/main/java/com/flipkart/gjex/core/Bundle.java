@@ -28,21 +28,21 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 /**
  * A reusable bundle of functionality, used to define blocks of application behavior.
  */
-public interface Bundle {
+public interface Bundle<T> {
 	
     /**
      * Initializes this Bundle with the application bootstrap.
      *
      * @param bootstrap the application bootstrap
      */
-    void initialize(Bootstrap bootstrap);
+    void initialize(T configuration, Bootstrap<?> bootstrap);
 
     /**
      * Runs this Bundle in the application environment.
      *
      * @param environment the application environment
      */
-    void run(Environment environment);
+    void run(T configuration, Environment environment);
     
     /**
      * Returns Service instances loaded by this Bundle

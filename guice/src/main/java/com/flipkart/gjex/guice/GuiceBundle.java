@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.Bundle;
+import com.flipkart.gjex.core.config.JExpressConfiguration;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
@@ -52,7 +53,7 @@ import ru.vyarus.guice.validator.ImplicitValidationModule;
  * @author regu.b
  *
  */
-public class GuiceBundle implements Bundle, Logging {
+public class GuiceBundle<T extends JExpressConfiguration> implements Bundle<T>, Logging {
 
 	private final List<Module> modules;
 	private Injector baseInjector;
@@ -87,9 +88,9 @@ public class GuiceBundle implements Bundle, Logging {
 	
 	@SuppressWarnings("rawtypes")
 	@Override
-	public void initialize(Bootstrap bootstrap) {
+	public void initialize(T configuration, Bootstrap<?> bootstrap) {
 		// add the Config and Metrics MetricsInstrumentationModule
-		this.modules.add( new ConfigModule());
+		this.modules.add( new ConfigModule(configuration));
 		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
 		// add the Validation module
 		this.modules.add(new ImplicitValidationModule());
@@ -107,7 +108,7 @@ public class GuiceBundle implements Bundle, Logging {
 	}
 
 	@Override
-	public void run(Environment environment) {
+	public void run(T configuration, Environment environment) {
 		GrpcServer grpcServer = this.baseInjector.getInstance(GrpcServer.class);
 		// Add all Grpc Services to the Grpc Server
 		List<BindableService> services = this.getInstances(this.baseInjector, BindableService.class);

@@ -1,7 +1,20 @@
 hw:
   greeting: " Hello "
-Api:
-  sayhello.deadline: 330
 Task:
   hello.timeout: 200  
-  
+Grpc:
+  server.port: 50051
+Dashboard:
+  service.port: 9999
+  service.acceptors: 5
+  service.selectors: 10
+  service.workers: 30
+Api:
+  service.port: 9998
+  service.acceptors: 5
+  service.selectors: 10
+  service.workers: 30
+  sayhello.deadline: 330
+  scheduledexecutor.threadpool.size: 2
+Tracing:
+  collector.endpoint: http://localhost:9411/api/v2/spans

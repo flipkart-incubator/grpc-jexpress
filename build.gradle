@@ -14,7 +14,7 @@ def grpcVersion = '1.10.0'
 subprojects {
 	apply plugin: 'maven'
 	group = 'com.flipkart.grpc-jexpress'
-	version = '1.0'  
+	version = '1.0-SNAPSHOT'
 	jar {
     		manifest.attributes provider: 'gradle'
     }    

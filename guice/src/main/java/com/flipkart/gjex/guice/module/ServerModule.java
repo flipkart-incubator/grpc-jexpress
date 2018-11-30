@@ -42,14 +42,6 @@ public class ServerModule extends AbstractModule {
 
 	public ServerModule() {}
 	
-	@Named("GlobalConfig")
-	@Provides
-	@Singleton
-	/** Returns the Global config of all flattened out properties loaded by instances of this class. Doing this here as multiple ConfigModule can be instantiated */
-	Configuration getGlobalConfiguration() {
-		return ConfigModule.getGlobalConfig();
-	}
-	
 	@Override
     protected void configure() {		
 		bind(FilterInterceptor.class).annotatedWith(Names.named("FilterInterceptor")).to(FilterInterceptor.class);

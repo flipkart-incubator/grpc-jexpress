@@ -15,13 +15,22 @@
  */
 package com.flipkart.gjex.core;
 
+import java.io.File;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.gjex.Constants;
+import com.flipkart.gjex.core.config.*;
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.parser.ArgumentParserWrapper;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
+import com.google.common.base.Strings;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
  * The base class for a GJEX application
@@ -29,19 +38,24 @@ import com.flipkart.gjex.core.setup.Environment;
  * @author regu.b
  *
  */
-public abstract class Application implements Logging {
+public abstract class Application<T extends JExpressConfiguration> implements Logging {
 	
 	/** The GJEX startup display contents*/
 	private static final MessageFormat STARTUP_DISPLAY = new MessageFormat(
-            "\n*************************************************************************\n" +	
-					" ╔═╗ ╦╔═╗═╗ ╦  " + "    Application name : {0} \n" + 
-					" ║ ╦ ║║╣ ╔╩╦╝  " + "    Startup Time : {1}" + " ms\n" + 
+			"\n*************************************************************************\n" +
+					" ╔═╗ ╦╔═╗═╗ ╦  " + "    Application name : {0} \n" +
+					" ║ ╦ ║║╣ ╔╩╦╝  " + "    Startup Time : {1}" + " ms\n" +
 					" ╚═╝╚╝╚═╝╩ ╚═  " + "    Host Name: {2} \n " +
-             "*************************************************************************"
+					"*************************************************************************"
     );
     
 	/** The machine name where this GJEX instance is running */
 	private String hostName;
+	private final ArgumentParserWrapper parser;
+
+	public final Class<T> getConfigurationClass() {
+		return Generics.getTypeParameter(getClass(), JExpressConfiguration.class);
+	}
 	
 	/*
 	
@@ -49,6 +63,7 @@ public abstract class Application implements Logging {
      * Constructor for this class
      */
     public Application() {
+			this.parser = new ArgumentParserWrapper();
 	    	try {
 	    		this.hostName = InetAddress.getLocalHost().getHostName();
 	    	} catch (UnknownHostException e) {
@@ -69,14 +84,14 @@ public abstract class Application implements Logging {
 	 * by implementing this method.
 	 * @param bootstrap the Bootstrap for this Application
 	 */
-	public abstract void initialize(Bootstrap bootstrap);
+	public abstract void initialize(T configuration, Bootstrap<T> bootstrap);
 	
 	/**
 	 * Runs this Application in the specified Environment
 	 * @param environment the Environment to run in
 	 * @throws Exception in case of errors during run
 	 */
-	public abstract void run(Environment environment) throws Exception;
+	public abstract void run(T configuration, Environment environment) throws Exception;
 	
 	/**
 	 * Parses command-line arguments and runs this Application. Usually called from a {@code public
@@ -85,19 +100,29 @@ public abstract class Application implements Logging {
 	 * @param arguments command-line arguments for starting this Application
 	 * @throws Exception in case of errors during run
 	 */
-	public final void run(String[] arguments) throws Exception {
+	public final void run(String ... arguments) throws Exception {
 		info("** GJEX starting up... **");
 		long start = System.currentTimeMillis();
 		
 		final Bootstrap bootstrap = new Bootstrap(this);
-		/* Hook for applications to initialize their pre-start environment using bootstrap's properties */
-        initialize(bootstrap);
+
+
+
         /* Create Environment */
         Environment environment = new Environment(getName(),bootstrap.getMetricRegistry());      
-        /* Run bundles etc */
-        bootstrap.run(environment);
+
+		YamlConfigurationFactory<T> factory = new YamlConfigurationFactory<T>(getConfigurationClass(), new ObjectMapper());
+
+		T configuration = factory.build(new FileConfigurationSourceProvider(), getConfigurationFile(arguments));
+
+		/* Hook for applications to initialize their pre-start environment using bootstrap's properties */
+		initialize(configuration, bootstrap);
+
+		/* Run bundles etc */
+		bootstrap.run(configuration, environment);
+
         /* Run this Application */        
-        run(environment);        
+        run(configuration, environment);
 
 	    final Object[] displayArgs = {
 	    			this.getName(),
@@ -108,5 +133,27 @@ public abstract class Application implements Logging {
 	    info("** GJEX startup complete **");
 	    
 	}
-	
+
+	private String getConfigurationFile(String ...arguments){
+		final Namespace namespace;
+
+		String configurationFile="";
+		try {
+			namespace = parser.parseArguments(arguments);
+			configurationFile = namespace.getString("file");
+		} catch (ArgumentParserException e) {
+		}
+
+		if(Strings.isNullOrEmpty(configurationFile)){
+			configurationFile = System.getProperty(Constants.CONFIG_FILE_PROPERTY);
+		}
+		if(Strings.isNullOrEmpty(configurationFile)){
+			URL resource = this.getClass().getClassLoader().getResource(Constants.CONFIGURATION_YML);
+			if(resource != null) {
+				configurationFile = resource.getFile();
+			}
+		}
+
+		return configurationFile;
+	}
 }

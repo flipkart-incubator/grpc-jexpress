@@ -20,6 +20,10 @@ dependencies {
     implementation 'io.dropwizard.metrics:metrics-jvm:4.0.2'
     implementation 'io.dropwizard.metrics:metrics-jmx:4.0.2'
     implementation 'org.yaml:snakeyaml:1.15'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.7'
+    implementation 'junit:junit:4.12'
+    implementation 'net.sourceforge.argparse4j:argparse4j:0.8.1'
+
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

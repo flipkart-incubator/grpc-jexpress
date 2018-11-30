@@ -73,7 +73,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
 	@Traced(withTracingSampler=AllWhitelistTracingSampler.class, withSamplingRate=1.0f) // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-		
+
 		info("Saying hello in Greeter service");
 		
 		try {
@@ -83,7 +83,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 			this.handleException(exception, responseObserver);
 			return;
 		}
-		
+
 		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 		

@@ -16,101 +16,61 @@
 
 package com.flipkart.gjex.guice.module;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 
 import com.flipkart.gjex.Constants;
-import com.flipkart.gjex.core.config.FileLocator;
+import com.flipkart.gjex.core.config.GrpcConfig;
+import com.flipkart.gjex.core.config.JExpressConfiguration;
 import com.flipkart.gjex.core.config.YamlConfiguration;
 import com.google.inject.AbstractModule;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.name.Names;
 
 /**
- * <code>ConfigModule</code> is a Guice module for loading application configuration attributes 
- * 
+ * <code>ConfigModule</code> is a Guice module for loading application JExpressConfiguration attributes
+ *
  * @author regunath.balasubramanian
  */
 public class ConfigModule extends AbstractModule {
-
-	/** Global config map*/
-	private static final YamlConfiguration GLOBAL_CONFIG = new YamlConfiguration();
-	
-	/** Yaml configurations loaded by this module*/
-    private final YamlConfiguration[] yamlConfigurations;
+    private JExpressConfiguration JExpressConfiguration;
 
     /**
-     * Constructor to load the GJEX application startup configuration from System property or classpath
+     * Constructor to load the GJEX application startup JExpressConfiguration from System property or classpath
      */
-    public ConfigModule() {
-        try {
-            URL configUrl = null;
-            String configFile = System.getProperty(Constants.CONFIG_FILE_PROPERTY);
-            if (configFile != null) {
-                configUrl = new File(configFile).toURI().toURL();
-            } else {
-                configUrl = this.getClass().getClassLoader().getResource(Constants.CONFIGURATION_YML);
-            }
-            yamlConfigurations = new YamlConfiguration[] {new YamlConfiguration(configUrl)};
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public ConfigModule(JExpressConfiguration JExpressConfiguration) {
+        this.JExpressConfiguration = JExpressConfiguration;
     }
 
-    /**
-     * Constructor to load configuration information from files that match the specified file name
-     * @param configFileName the configuration file name
-     */
-    public ConfigModule(String configFileName) {
-    		List<YamlConfiguration> yamlConfigurationsList = new LinkedList<YamlConfiguration>();
-        try {
-        		for (File configFile : FileLocator.findFiles(configFileName)) {
-	            yamlConfigurationsList.add(new YamlConfiguration(configFile.toURI().toURL()));
-        		}
-        		yamlConfigurations = yamlConfigurationsList.toArray(new YamlConfiguration[0]);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public static YamlConfiguration getGlobalConfig() {
-    		return GLOBAL_CONFIG;
-    }
-    
     /**
      * Performs concrete bindings for interfaces
      *
      * @see com.google.inject.AbstractModule#configure()
      */
     @Override
-    protected void configure() {
-        bindConfigProperties();
-        GLOBAL_CONFIG.addAll(this.yamlConfigurations); // add the loaded YamlConfigurationS to the GLOBAL_CONFIG
-    }
-
-    /**
-     * Binds individual flattened key-value properties in the configuration yml
-     * file. So one can directly inject something like this:
-     *
-     * @Named("Hibernate.hibernate.jdbcDriver") String jdbcDriver OR
-     * @Named("Dashboard.service.port") int port
-     */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private void bindConfigProperties() {
-    		for (YamlConfiguration yamlConfiguration: yamlConfigurations) {
-    			// we will not bind the entire YamlConfiguration but instead the individual properties that are injectable
-	        // bind(YamlConfiguration.class).toInstance(yamlConfiguration);
-	        Iterator<String> propertyKeys = yamlConfiguration.getKeys();
-	        while (propertyKeys.hasNext()) {
-	            String propertyKey = propertyKeys.next();
-	            Object propertyValue = yamlConfiguration.getProperty(propertyKey);
-	            LinkedBindingBuilder annotatedWith = bind(propertyValue.getClass()).annotatedWith(Names.named(propertyKey));
-	            annotatedWith.toInstance(propertyValue);
-	        }
-    		}
+    protected void configure() {
+
+        GrpcConfig grpcConfig = JExpressConfiguration.getGrpc();
+        bind(Integer.class).annotatedWith(Names.named(Constants.GRPC_SERVER_PORT)).toInstance(grpcConfig.getServer().getPort());
+        bind(Integer.class).annotatedWith(Names.named(Constants.DASHBOARD_SERVER_PORT)).toInstance(grpcConfig.getDashboard().getService().getPort());
+        bind(Integer.class).annotatedWith(Names.named(Constants.API_SCHEDULEDEXECUTOR_THREADPOOL_SIZE)).toInstance(grpcConfig.getApi().getScheduledexecutor().getThreadpool().getSize());
+        bind(Integer.class).annotatedWith(Names.named(Constants.DASHBOARD_SERVICE_ACCEPTORS)).toInstance(grpcConfig.getDashboard().getService().getAcceptors());
+        bind(Integer.class).annotatedWith(Names.named(Constants.DASHBOARD_SERVICE_SELECTORS)).toInstance(grpcConfig.getDashboard().getService().getSelectors());
+        bind(Integer.class).annotatedWith(Names.named(Constants.DASHBOARD_SERVICE_WORKERS)).toInstance(grpcConfig.getDashboard().getService().getWorkers());
+        bind(Integer.class).annotatedWith(Names.named(Constants.API_SERVICE_PORT)).toInstance(grpcConfig.getApi().getService().getPort());
+        bind(Integer.class).annotatedWith(Names.named(Constants.API_SERVICE_ACCEPTORS)).toInstance(grpcConfig.getApi().getService().getAcceptors());
+        bind(Integer.class).annotatedWith(Names.named(Constants.API_SERVICE_WORKERS)).toInstance(grpcConfig.getApi().getService().getWorkers());
+        bind(Integer.class).annotatedWith(Names.named(Constants.API_SERVICE_SELECTORS)).toInstance(grpcConfig.getApi().getService().getSelectors());
+
+        YamlConfiguration yamlConfiguration = new YamlConfiguration();
+        for (Map.Entry<String, Object> entry : JExpressConfiguration.getGuiceBindableKeyVal().entrySet()) {
+            Object propertyValue = entry.getValue();
+            String propertyKey = entry.getKey();
+            yamlConfiguration.addProperty(entry.getKey(), entry.getValue());
+            LinkedBindingBuilder annotatedWith = bind(propertyValue.getClass()).annotatedWith(Names.named(propertyKey));
+            annotatedWith.toInstance(propertyValue);
+        }
+
+        bind(org.apache.commons.configuration.Configuration.class).annotatedWith(Names.named(Constants.GLOBALCONFIG)).toInstance(yamlConfiguration);
     }
 }

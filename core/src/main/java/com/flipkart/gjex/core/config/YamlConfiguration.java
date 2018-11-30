@@ -48,37 +48,7 @@ public class YamlConfiguration extends AbstractConfiguration {
     private Map<String, Object> configTab = new HashMap<>();
 
     public YamlConfiguration() {}
-    
-    public YamlConfiguration(String path) throws IOException {
-        FileReader reader = new FileReader(path);
-        load(reader);
-        reader.close();
-    }
 
-    public YamlConfiguration(File file) throws IOException {
-        FileReader reader = new FileReader(file);
-        load(reader);
-        reader.close();
-    }
-
-    public YamlConfiguration(URL url) throws IOException {
-        InputStreamReader reader = new InputStreamReader(url.openStream());
-        load(reader);
-        reader.close();
-    }
-
-    public YamlConfiguration(BufferedReader reader) throws IOException {
-        load(reader);
-        reader.close();
-    }
-    
-    public void addAll(YamlConfiguration... configurations) {
-    		for (YamlConfiguration config : configurations) {
-    			config.getKeys().forEachRemaining(key -> {this.configTab.put(key, config.getProperty(key));});
-    		}
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////
     // Methods of base class AbstractConfiguration
 
     @Override
@@ -103,31 +73,7 @@ public class YamlConfiguration extends AbstractConfiguration {
 
     @Override
     protected void addPropertyDirect(String key, Object value) {
-        // TODO Auto-generated method stub
+        this.configTab.put(key, value);
 
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Helper methods
-
-    private void load(Reader in) {
-        Yaml yaml = new Yaml();
-        Map<?, ?> dom = (Map<?, ?>) yaml.load(in);
-        flatten(null, dom);
-        LOGGER.debug("yaml configuration loaded: {}", configTab);
-    }
-
-    private void flatten(String prefix, Map<?, ?> dom) {
-        Set<?> keys = dom.keySet();
-        for(Object key : keys) {
-            String name = (prefix != null) ? (prefix + "." + key.toString()) : key.toString();
-            Object value = dom.get(key);
-            if(value instanceof Map) {
-                flatten(name, (Map<?, ?>) value);
-            }
-            else {
-                configTab.put(name, value);
-            }
-        }
     }
 }

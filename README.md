@@ -23,7 +23,7 @@ $ ./gradlew clean build install
 ```
 
 ## Examples
-The [examples](https://github.com/flipkart-incubator/grpc-jexpress/tree/master/examples) requires https://github.com/grpc/grpc-java/tree/master/examples to already be built. 
+The [examples](https://github.com/flipkart-incubator/grpc-jexpress/tree/master/examples) requires https://github.com/grpc/grpc-java/tree/master/examples to already be built.
 
 To build the examples, run in the 'examples' directory:
 
@@ -44,4 +44,4 @@ $ ./build/install/examples/bin/hello-world-client
 ```
 
 ## Documentation
-Refer to the [wiki](https://github.com/flipkart-incubator/grpc-jexpress/wiki) for documentation. 
+Refer to the [wiki](https://github.com/flipkart-incubator/grpc-jexpress/wiki) for documentation.

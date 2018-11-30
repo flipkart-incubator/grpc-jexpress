@@ -18,6 +18,7 @@ package com.flipkart.gjex.examples.helloworld.guice;
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.examples.helloworld.HelloConfiguration;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 import com.flipkart.gjex.examples.helloworld.healthcheck.AllIsWellHealthCheck;
@@ -41,12 +42,15 @@ import io.grpc.examples.helloworld.GreeterGrpc;
  */
 public class HelloWorldModule extends AbstractModule {
 
-	public HelloWorldModule() {}
+	private HelloConfiguration configuration;
+
+	public HelloWorldModule(HelloConfiguration configuration) {
+		this.configuration = configuration;
+	}
 	
 	@Override
 	protected void configure() {
-		install(new ConfigModule("hello_world_config.yml")); // load custom module specific configurations that are injectable in gRPC implementations. See @GreeterService source for example
-		install(new ClientModule<>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
+		install(new ClientModule<>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",configuration.getGrpc().getApi().getService().getPort())));
 
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(Filter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);

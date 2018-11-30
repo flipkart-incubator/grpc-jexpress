@@ -1,0 +1,29 @@
+grpc:
+  server:
+    port: 50052
+  dashboard:
+    service:
+      port: 9999
+      acceptors: 5
+      selectors: 10
+      workers: 30
+  api:
+    service:
+      port: 9998
+      acceptors: 5
+      selectors: 10
+      workers: 30
+    scheduledexecutor:
+      threadpool:
+        size: 1
+  tracing:
+    collector:
+      endpoint: http://localhost:9411/api/v2/spans
+
+guiceBindableKeyVal:
+  hw.greeting: " Hello "
+  Task.hello.timeout: 200
+  Tracing.collector.endpoint: http://localhost:9411/api/v2/spans
+  Api.sayhello.deadline: 330
+
+
