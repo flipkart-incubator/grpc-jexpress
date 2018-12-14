@@ -55,13 +55,11 @@ public @interface ConcurrentTask {
      * Timeout configured as a Config property. Note that {@link ConcurrentTask#timeout()} overrides this value 
      */
     String timeoutConfig() default "";
-    
-    /** 
-     * The number of times GJEX can retry the task in case of runtime failures.
-     * Note: Runtime failures are failures encountered by GJEX - such as a task being timed out, or GJEX not receiving the response on time.
-     * If a task throws an exception, it means the task executed successfuly and passed a response to GJEX.
+
+    /**
+     * Indicates if requests may be hedged within the specified timeout duration. 
      */
-    long retries() default 0;    
+    boolean withRequestHedging() default false;
     
     /**
      * Indicates the maximum concurrency for this Task within a single GJEX JVM node.

@@ -21,6 +21,7 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommandMetrics;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import com.netflix.hystrix.HystrixThreadPoolKey;
@@ -44,8 +45,20 @@ public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 	
 	/** The completion BiConsumer*/
 	private BiConsumer<T, Throwable> completionConsumer;
+	
+	/** Indicates if requests may be hedged within the configured timeout duration*/
+	private boolean withRequestHedging;
+	
+	/** The rolling tail latency as seen by Hystrix*/
+	private long rollingTailLatency;
+	
+	/** Attributes stored for cloning*/
+	private String groupKey;
+	private String name;
+	private int concurrency;
+	private int timeout;
 		
-	public TaskExecutor(MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout) {
+	public TaskExecutor(MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout, boolean withRequestHedging) {
 		super(Setter
                 .withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
 		        .andCommandKey(HystrixCommandKey.Factory.asKey(name))
@@ -56,14 +69,38 @@ public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 	                .withExecutionTimeoutInMilliseconds(timeout)));
 		currentContext = Context.current(); // store the current gRPC Context
 		this.invocation = invocation;
+		this.timeout = timeout;
+		this.withRequestHedging = withRequestHedging;
+		this.rollingTailLatency = HystrixCommandMetrics.getInstance(HystrixCommandKey.Factory.asKey(name)).getTotalTimePercentile(95);
+		
+		// attributes copied for cloning, if needed
+		this.groupKey = groupKey;
+		this.name = name;
+		this.concurrency = concurrency;
 	}
 
 	public void setCompletionConsumer(BiConsumer<T, Throwable> completionConsumer) {
 		this.completionConsumer = completionConsumer;
 	}
-
 	public MethodInvocation getInvocation() {
 		return invocation;
+	}
+	public boolean isWithRequestHedging() {
+		return withRequestHedging;
+	}
+	public long getRollingTailLatency() {
+		return rollingTailLatency;
+	}
+	public int getTimeout() {
+		return timeout;
+	}
+
+	/**
+	 * Clone this TaskExecutor with values that were specified during instantiation
+	 */
+	public TaskExecutor<T> clone() {
+		TaskExecutor<T> clone = new TaskExecutor<T>(this.invocation, this.groupKey, this.name, this.concurrency, this.timeout, this.withRequestHedging);
+		return clone;
 	}
 
 	/**

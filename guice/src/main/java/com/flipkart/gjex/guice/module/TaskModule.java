@@ -71,7 +71,7 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 			}
 			return new FutureDecorator<T>(new TaskExecutor<T>(invocation,
 					invocation.getMethod().getDeclaringClass().getSimpleName(),
-					invocation.getMethod().getName(), concurrency, timeout),task.completion()) ; // we return the FutureDecorator and not wait for its completion. This enables responses to be composed in a reactive manner
+					invocation.getMethod().getName(), concurrency, timeout, task.withRequestHedging()),task.completion()) ; // we return the FutureDecorator and not wait for its completion. This enables responses to be composed in a reactive manner
 		}
 	}
 	

@@ -95,7 +95,10 @@ public class FutureDecorator<T> implements Future<T> {
 	public ConcurrentTask.Completion getCompletion() {
 		return completion;
 	}
-	
+	public TaskExecutor<T> getTaskExecutor() {
+		return taskExecutor;
+	}
+
 	/**
 	 * Registers the specified BiConsumer for callback when this FutureDecorator completes
 	 * @param action the callback BiConsumer action
@@ -140,10 +143,11 @@ public class FutureDecorator<T> implements Future<T> {
 	}
 	
 	/** Convenience method to get the response from completion of the specified FutureDecorator and evaluate completion as defined in the FutureDecorator*/
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static Object getResultFromFuture(FutureDecorator future) {
 		Object result = null;
 		Integer futureGetTimeout = null;
+		// check if a Deadline has been set. This will become the first timeout we consider
 		if (Context.current().getDeadline() != null) {
 			if (Context.current().getDeadline().isExpired()) {
 				LOGGER.error("Task execution evaluation failed.Deadline exceeded in server execution.");
@@ -152,13 +156,29 @@ public class FutureDecorator<T> implements Future<T> {
 			}
 			futureGetTimeout = (int)Context.current().getDeadline().timeRemaining(TimeUnit.MILLISECONDS);
 		}
+		// see if a Task timeout has been set, use the smaller of the Deadline and Task timeout
+		if (future.getTaskExecutor().getTimeout() > 0) {
+			futureGetTimeout = Math.min(futureGetTimeout, future.getTaskExecutor().getTimeout());
+		}
+		if (future.getTaskExecutor().isWithRequestHedging() && future.getTaskExecutor().getRollingTailLatency() > 0) {
+			// we'll take the minimum of deadline and rolling tail latency (if request hedging is enabled) as the timeout for the Future
+			futureGetTimeout = futureGetTimeout == null ? 
+					(int)future.getTaskExecutor().getRollingTailLatency() 
+					: Math.min(futureGetTimeout, (int)future.getTaskExecutor().getRollingTailLatency());
+		}
 		try {
 			if (futureGetTimeout != null) {
 				result = future.get(futureGetTimeout.longValue(), TimeUnit.MILLISECONDS);
 			} else {
 				result = future.get();
 			}
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (TimeoutException e) {
+			if (future.getTaskExecutor().isWithRequestHedging() && !Context.current().getDeadline().isExpired()) {
+				// we will reschedule the execution i.e. hedge the request and return the result
+				LOGGER.info("Sending hedged request for Task : " + future.getTaskExecutor().getInvocation().getMethod().getName());
+				result = FutureDecorator.getResultFromFuture(new FutureDecorator(future.getTaskExecutor().clone(), future.getCompletion()));
+			}
+		} catch (InterruptedException | ExecutionException e) {
 			String errorMessage =  e.getCause() == null ? e.getMessage() :  e.getCause().getMessage();
 			if (future.getCompletion().equals(ConcurrentTask.Completion.Mandatory)) {
 				if (TimeoutException.class.isAssignableFrom(e.getClass())) {
