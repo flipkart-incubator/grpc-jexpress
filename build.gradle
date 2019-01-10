@@ -1,12 +1,33 @@
 apply plugin: 'java'
-
+apply plugin: 'maven-publish'
 
 allprojects {
     repositories {
-    		mavenLocal()
-    		mavenCentral()
+    	mavenLocal()
+    	mavenCentral()
         jcenter()         
     }
+}
+
+publishing {
+	publications {
+    	maven(MavenPublication) {
+        	groupId = 'com.flipkart'
+            artifactId = 'grpc-jexpress'
+            version = '1.1-SNAPSHOT'
+            
+            from components.java
+        }
+    }    
+	repositories {
+	    maven {
+    	    url "https://repo.clojars.org"
+        	credentials {
+            	username = clojarsusername
+	            password = clojarspassword
+    	    }
+	    }
+	}
 }
 
 def grpcVersion = '1.10.0' 
@@ -14,7 +35,8 @@ def grpcVersion = '1.10.0'
 subprojects {
 	apply plugin: 'maven'
 	group = 'com.flipkart.grpc-jexpress'
-	version = '1.0'  
+	version = '1.1-SNAPSHOT'
+	
 	jar {
     		manifest.attributes provider: 'gradle'
     }    

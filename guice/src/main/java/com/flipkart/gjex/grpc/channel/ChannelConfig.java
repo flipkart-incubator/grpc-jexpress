@@ -15,20 +15,32 @@
  */
 package com.flipkart.gjex.grpc.channel;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
 /**
  * Created by rohit.k on 28/07/18.
  */
 
-@Data
-@RequiredArgsConstructor
 /** Configuration object of the  channel used by the grpc client **/
 //This class can be extended to more configurable parameters of the channel like keep alive time etc.
 public class ChannelConfig {
-    private final String hostname;
-    private final int port;
+    private String hostname;
+    private int port;
     private long deadlineInMs=Long.MAX_VALUE;
-
+	public String getHostname() {
+		return hostname;
+	}
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+	public int getPort() {
+		return port;
+	}
+	public void setPort(int port) {
+		this.port = port;
+	}
+	public long getDeadlineInMs() {
+		return deadlineInMs;
+	}
+	public void setDeadlineInMs(long deadlineInMs) {
+		this.deadlineInMs = deadlineInMs;
+	}
 }

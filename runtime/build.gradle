@@ -1,4 +1,23 @@
 apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			artifactId = 'runtime'
+			from components.java
+		}
+	}
+	repositories {
+	    maven {
+    	    		url "https://repo.clojars.org"
+        		credentials {
+            		username = clojarsusername
+				password = clojarspassword
+    	    		}
+    	    }
+	}	
+}
 
 dependencies {
 	implementation project(':core')
