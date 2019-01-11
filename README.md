@@ -16,6 +16,14 @@ Provides following features:
 * Task/Upstream request retries using [Hedged Requests as described here](https://cseweb.ucsd.edu/~gmporter/classes/fa17/cse124/post/schedule/p74-dean.pdf)
 * Tool recommendations for testing
 
+## Releases
+| Release | Date | Description |
+|:---------------------------------|:----------------|:------------|
+| Version 1.0                      | Jan 2019        |  Initial stable release
+
+## Changelog
+Changelog can be viewed in [CHANGELOG.md](https://github.com/flipkart-incubator/grpc-jexpress/blob/master/CHANGELOG.md) file
+
 ## Building
 To build GJEX, clone this repository and run:
 
