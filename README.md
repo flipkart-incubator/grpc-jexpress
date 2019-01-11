@@ -35,7 +35,7 @@ Add the following repository to your build system to access releases builds - e.
     <url>https://clojars.org/repo</url>
 </repository>
 ```
-More details on [[Distribution Binaries]]
+More details on [Distribution Binaries](https://github.com/flipkart-incubator/grpc-jexpress/wiki/Distribution-Binaries)
 
 ## Building
 You may also build GJEX from source. To build, clone this repository and run:
