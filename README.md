@@ -24,8 +24,21 @@ Provides following features:
 ## Changelog
 Changelog can be viewed in [CHANGELOG.md](https://github.com/flipkart-incubator/grpc-jexpress/blob/master/CHANGELOG.md) file
 
+## Distribution
+GJEX builds are distributed via the [Clojars](https://clojars.org/) community maintained repository for open source libraries. 
+Add the following repository to your build system to access releases builds - e.g for Maven :
+
+```xml
+<repository>
+    <id>clojars</id>
+    <name>Clojars repository</name>
+    <url>https://clojars.org/repo</url>
+</repository>
+```
+More details on [[Distribution Binaries]]
+
 ## Building
-To build GJEX, clone this repository and run:
+You may also build GJEX from source. To build, clone this repository and run:
 
 ```
 $ ./gradlew clean build install
