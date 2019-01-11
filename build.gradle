@@ -1,6 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+ext {
+	clojarsusername=project.properties['clojarsusername'] ?: ""
+	clojarspassword=project.properties['clojarspassword'] ?: ""
+}
+
 allprojects {
     repositories {
     		mavenLocal()
@@ -22,8 +27,8 @@ publishing {
 		maven {
 			url "https://repo.clojars.org"
 			credentials {
-				username = clojarsusername
-				password = clojarspassword
+				username = rootProject.ext.clojarsusername
+				password = rootProject.ext.clojarspassword
 			}
 		}
 	}
