@@ -90,12 +90,15 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,ServerCallHandler<ReqT, RespT> next) {
 		
 		List<Filter> filters = filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
-		for (Filter filter : filters) {
-			try {
-				filter.doFilterRequest(headers);
-			} catch (StatusRuntimeException se) {
-				call.close(se.getStatus(), se.getTrailers()); // Closing the call and not letting it to proceed further
-				return new ServerCall.Listener<ReqT>() {};
+		if(filters != null) {
+			for (Filter filter : filters) {
+				try {
+					filter.doFilterRequest(headers);
+				} catch (StatusRuntimeException se) {
+					call.close(se.getStatus(), se.getTrailers()); // Closing the call and not letting it to proceed further
+					return new ServerCall.Listener<ReqT>() {
+					};
+				}
 			}
 		}
 		
