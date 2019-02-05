@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.flipkart.grpc.jexpress";
+option java_outer_classname = "UserServiceProto";
+option objc_class_prefix = "HLW";
+import "google/api/annotations.proto";
+
+package service;
+
+service UserService {
+    rpc GetUser (GetRequest) returns (GetResponse) {
+        option (google.api.http) = {
+           get: "/v1/userservice/{id}"
+       };
+    }
+
+    rpc CreateUser (CreateRequest) returns (CreateResponse) {
+        option (google.api.http) = {
+           post: "/v1/userservice"
+           body: "*"
+       };
+    }
+}
+
+message GetRequest {
+    int32 id = 1;
+}
+
+message GetResponse {
+    int32 id = 1;
+    string user_name = 2;
+}
+
+message CreateRequest {
+    string user_name=1;
+}
+
+message CreateResponse {
+    bool is_created=1;
+    int32 id = 2 ;
+}
