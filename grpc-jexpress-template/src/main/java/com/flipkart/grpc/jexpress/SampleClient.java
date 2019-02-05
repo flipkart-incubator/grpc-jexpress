@@ -1,10 +1,7 @@
-import com.flipkart.grpc.jexpress.*;
-import com.flipkart.grpc.jexpress.CreateRequest;
-import com.flipkart.grpc.jexpress.CreateResponse;
-import com.flipkart.grpc.jexpress.GetRequest;
-import com.flipkart.grpc.jexpress.GetResponse;
-import com.flipkart.grpc.jexpress.UserServiceGrpc;
-import io.grpc.*;
+package com.flipkart.grpc.jexpress;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 
 import java.util.concurrent.TimeUnit;
 
