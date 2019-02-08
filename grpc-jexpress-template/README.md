@@ -1,2 +1,2 @@
 # grpc-jexpress-template
-jexpress Template 
+Template for creating a GJEX project, similar to Maven archetype projects
