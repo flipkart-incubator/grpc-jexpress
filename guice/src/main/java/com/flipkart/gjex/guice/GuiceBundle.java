@@ -15,11 +15,9 @@
  */
 package com.flipkart.gjex.guice;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.Bundle;
+import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
@@ -27,24 +25,18 @@ import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.service.GrpcServer;
-import com.flipkart.gjex.guice.module.ApiModule;
-import com.flipkart.gjex.guice.module.ConfigModule;
-import com.flipkart.gjex.guice.module.DashboardModule;
-import com.flipkart.gjex.guice.module.ServerModule;
-import com.flipkart.gjex.guice.module.TaskModule;
-import com.flipkart.gjex.guice.module.TracingModule;
+import com.flipkart.gjex.guice.module.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.inject.Binding;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
+import com.google.inject.*;
 import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
-
 import io.grpc.BindableService;
 import ru.vyarus.guice.validator.ImplicitValidationModule;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * A Guice GJEX Bundle implementation. Multiple Guice Modules may be added to this Bundle.
@@ -52,78 +44,100 @@ import ru.vyarus.guice.validator.ImplicitValidationModule;
  * @author regu.b
  *
  */
-public class GuiceBundle implements Bundle, Logging {
+public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements Bundle<T, U>, Logging {
 
-	private final List<Module> modules;
+	private List<Module> modules;
 	private Injector baseInjector;
 	private List<Service> services;
 	@SuppressWarnings("rawtypes")
 	private List<Filter> filters;
 	private List<HealthCheck> healthchecks;
 	private List<TracingSampler> tracingSamplers;
-	
-	public static class Builder {
+	private Optional<Class<T>> configurationClass;
+	private GJEXEnvironmentModule gjexEnvironmentModule;
+
+	public static class Builder<T extends GJEXConfiguration, U extends Map> {
+
 		private List<Module> modules = Lists.newArrayList();
-		public Builder addModules(Module... moreModules) {
+		private Optional<Class<T>> configurationClass = Optional.empty();
+
+		public Builder<T, U> addModules(Module... moreModules) {
 			for (Module module : moreModules) {
 				Preconditions.checkNotNull(module);
 				modules.add(module);
 			}
 			return this;
 		}
-		public GuiceBundle build() {
-            return new GuiceBundle(this.modules);
+
+		public Builder<T, U> setConfigClass(Class<T> clazz) {
+			configurationClass = Optional.ofNullable(clazz);
+			return this;
+		}
+
+		public GuiceBundle<T, U> build() {
+            return new GuiceBundle<>(modules, configurationClass);
         }
 	}
-	public static Builder newBuilder() {
-        return new Builder();
-    }		
-	
-	private GuiceBundle(List<Module> modules) {
+
+	private GuiceBundle(List<Module> modules, Optional<Class<T>> configurationClass) {
 		Preconditions.checkNotNull(modules);
         Preconditions.checkArgument(!modules.isEmpty());
         this.modules = modules;
+        this.configurationClass = configurationClass;
 	}
 	
-	@SuppressWarnings("rawtypes")
+//	@SuppressWarnings("rawtypes")
 	@Override
-	public void initialize(Bootstrap bootstrap) {
-		// add the Config and Metrics MetricsInstrumentationModule
-		this.modules.add( new ConfigModule());
-		this.modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
+	public void initialize(Bootstrap<?, ?> bootstrap) {
+		if (configurationClass.isPresent()) {
+			gjexEnvironmentModule = new GJEXEnvironmentModule<>(configurationClass.get(), Map.class);
+		} else {
+			gjexEnvironmentModule = new GJEXEnvironmentModule<>(GJEXConfiguration.class, Map.class);
+		}
+		modules.add(gjexEnvironmentModule);
+		// add Metrics MetricsInstrumentationModule
+		modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
 		// add the Validation module
-		this.modules.add(new ImplicitValidationModule());
+		modules.add(new ImplicitValidationModule());
 		// add the Api module before Tracing module so that APIs are timed from the start of execution
-		this.modules.add(new ApiModule());
+		modules.add(new ApiModule());
 		// add the Tracing module before Task module so that even Concurrent tasks can be traced
-		this.modules.add(new TracingModule());
+		modules.add(new TracingModule());
 		// add the Task module
-		this.modules.add(new TaskModule());
+		modules.add(new TaskModule());
 		// add the Dashboard module
-		this.modules.add(new DashboardModule(bootstrap));
+		modules.add(new DashboardModule(bootstrap));
 		// add the Grpc Server module
-		this.modules.add(new ServerModule());
-		this.baseInjector = Guice.createInjector(this.modules);
+		modules.add(new ServerModule());
+		baseInjector = Guice.createInjector(this.modules);
 	}
 
 	@Override
-	public void run(Environment environment) {
-		GrpcServer grpcServer = this.baseInjector.getInstance(GrpcServer.class);
+	public void run(T configuration, U configMap, Environment environment) {
+		setEnvironment(configuration, configMap, environment); // NOTE
+		GrpcServer grpcServer = baseInjector.getInstance(GrpcServer.class);
+
 		// Add all Grpc Services to the Grpc Server
-		List<BindableService> services = this.getInstances(this.baseInjector, BindableService.class);
-		grpcServer.registerServices(services);
+		List<BindableService> bindableServices = getInstances(baseInjector, BindableService.class);
+		grpcServer.registerServices(bindableServices);
+
 		// Add all Grpc Filters to the Grpc Server
-		this.filters = this.getInstances(this.baseInjector, Filter.class);
-		grpcServer.registerFilters(this.filters, services);
+		filters = getInstances(baseInjector, Filter.class);
+		grpcServer.registerFilters(filters, bindableServices);
+
 		// Add all Grpc Filters to the Grpc Server
-		this.tracingSamplers = this.getInstances(this.baseInjector, TracingSampler.class);
-		grpcServer.registerTracingSamplers(this.tracingSamplers, services);
-		
+		tracingSamplers = getInstances(baseInjector, TracingSampler.class);
+		grpcServer.registerTracingSamplers(tracingSamplers, bindableServices);
+
 		// Lookup all Service implementations
-		this.services = this.getInstances(this.baseInjector, Service.class);
+		services = getInstances(baseInjector, Service.class);
 		// Lookup all HealthCheck implementations
-		this.healthchecks = this.getInstances(this.baseInjector, HealthCheck.class);		
-	}	
+		healthchecks = getInstances(baseInjector, HealthCheck.class);
+	}
+
+	private void setEnvironment(final T configuration, final U configMap, final Environment environment) {
+		gjexEnvironmentModule.setEnvironmentData(configuration, configMap, environment);
+	}
 
 	@Override
 	public List<Service> getServices() {		

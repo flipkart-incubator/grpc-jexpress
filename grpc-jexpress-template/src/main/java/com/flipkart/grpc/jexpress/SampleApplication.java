@@ -1,12 +1,15 @@
 package com.flipkart.grpc.jexpress;
 
 import com.flipkart.gjex.core.Application;
+import com.flipkart.gjex.core.config.bundle.ConfigServiceBundle;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.guice.GuiceBundle;
 import com.flipkart.grpc.jexpress.module.SampleModule;
 
-public class SampleApplication extends Application {
+import java.util.Map;
+
+public class SampleApplication extends Application<SampleConfiguration, Map> {
 
     @Override
     public String getName() {
@@ -14,17 +17,18 @@ public class SampleApplication extends Application {
     }
 
     @Override
-    public void initialize(Bootstrap bootstrap) {
-        SampleModule sampleModule= new SampleModule();
-        GuiceBundle guiceBundle = GuiceBundle.newBuilder()
-                .addModules(sampleModule)
-                .build();
-        bootstrap.addBundle(guiceBundle);
+    public void run(SampleConfiguration configuration, Map configMap, Environment environment) throws Exception {
+
     }
 
     @Override
-    public void run(Environment environment) throws Exception {
-
+    public void initialize(Bootstrap<SampleConfiguration, Map> bootstrap) {
+//        bootstrap.addBundle(new ConfigServiceBundle<>());
+        GuiceBundle<SampleConfiguration, Map> guiceBundle = new GuiceBundle.Builder<SampleConfiguration, Map>()
+                .setConfigClass(SampleConfiguration.class)
+                .addModules(new SampleModule())
+                .build();
+        bootstrap.addBundle(guiceBundle);
     }
 
     public static void main(String [] args) throws Exception {

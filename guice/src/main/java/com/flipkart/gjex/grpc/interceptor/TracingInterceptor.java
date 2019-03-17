@@ -15,18 +15,6 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
 import com.flipkart.gjex.core.tracing.GJEXContextKey;
@@ -34,22 +22,26 @@ import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
-
-import io.grpc.BindableService;
-import io.grpc.Context;
-import io.grpc.Contexts;
+import io.grpc.*;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
-import io.grpc.Metadata;
-import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
-import io.grpc.ServerCallHandler;
-import io.grpc.ServerInterceptor;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * An implementation of the gRPC {@link ServerInterceptor} for Distributed Tracing that retrieves active traces initialized by clients and lets
@@ -65,9 +57,12 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 
 	/** Map of ConfigurableTracingSampler instance mapped to Service and its method*/
 	private Map<String, TracingSampler> samplerMap = new HashMap<String, TracingSampler>();
-	
-	@Inject @Named("Tracer")
-	Tracer tracer;
+	private final Tracer tracer;
+
+	@Inject
+	public TracingInterceptor(@Named("Tracer") Tracer tracer) {
+		this.tracer = tracer;
+	}
 
 	public void registerTracingSamplers(List<TracingSampler> samplers, List<BindableService> services) {
 		Map<Class<?>, TracingSampler> classToInstanceMap = samplers.stream()

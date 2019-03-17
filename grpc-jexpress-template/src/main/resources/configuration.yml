@@ -13,3 +13,6 @@ Api:
   scheduledexecutor.threadpool.size: 1
 Tracing:
   collector.endpoint: http://localhost:9411/api/v2/spans
+student:
+  name: Anand
+  age: 1234

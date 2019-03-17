@@ -15,12 +15,7 @@
  */
 package com.flipkart.gjex.grpc.service;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
+import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
@@ -28,11 +23,15 @@ import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
 import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
-
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptors;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.util.List;
 
 /**
  * <code>GrpcServer</code> is a {@link Service} implementation that manages the GJEX Grpc Server instance lifecycle
@@ -56,11 +55,13 @@ public class GrpcServer extends AbstractService implements Logging {
 	private TracingInterceptor tracingInterceptor;
 	
 	@Inject
-	public GrpcServer(@Named("Grpc.server.port") int port, 
-			@Named("FilterInterceptor") FilterInterceptor filterInterceptor,
-			@Named("TracingInterceptor") TracingInterceptor tracingInterceptor) {
-		info("Creating GrpcServer listening on port : " + port);
-		this.port = port;
+	public GrpcServer(GJEXConfiguration configuration,
+					  @Named("FilterInterceptor") FilterInterceptor filterInterceptor,
+					  @Named("TracingInterceptor") TracingInterceptor tracingInterceptor) {
+		if (configuration.getGrpc().getPort() > 0) {
+			info("Creating GrpcServer listening on port : " + port);
+			this.port = configuration.getGrpc().getPort();
+		}
 		this.grpcServerBuilder = ServerBuilder.forPort(this.port);
 		this.filterInterceptor = filterInterceptor;
 		this.tracingInterceptor = tracingInterceptor;

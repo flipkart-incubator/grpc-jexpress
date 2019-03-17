@@ -36,9 +36,18 @@ dependencies {
 	implementation libraries.hystrix_core
 	implementation libraries.hystrix_metrics_stream
 	implementation libraries.rxjava2
-    implementation 'io.dropwizard.metrics:metrics-jvm:4.0.2'
+	implementation libraries.object_mapper
+	implementation libraries.javax_validation
+	implementation libraries.guice
+	implementation libraries.commons_io
+	implementation libraries.junit4
+	implementation libraries.assertj
+
+	implementation 'net.sourceforge.argparse4j:argparse4j:0.8.1'
+	implementation 'com.github.wnameless:json-flattener:0.6.0'
+	implementation 'io.dropwizard.metrics:metrics-jvm:4.0.2'
     implementation 'io.dropwizard.metrics:metrics-jmx:4.0.2'
-    implementation 'org.yaml:snakeyaml:1.15'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.7'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

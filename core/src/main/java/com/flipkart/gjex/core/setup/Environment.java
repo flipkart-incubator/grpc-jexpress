@@ -15,11 +15,11 @@
  */
 package com.flipkart.gjex.core.setup;
 
+import com.codahale.metrics.MetricRegistry;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.codahale.metrics.MetricRegistry;
 
 /**
  * Represents a GJEX application environment 
@@ -32,10 +32,11 @@ public class Environment {
 	private final String name;
     private final MetricRegistry metricRegistry;
     private final HealthCheckRegistry healthCheckRegistry;
-    
+
     public Environment(String name, MetricRegistry metricRegistry) {
     		this.name = name;
     		this.metricRegistry = metricRegistry;
+
     		// Creating a cached threadpool as the number of HealthCheck instances are anyway unknown and hence no point in bounding it to a number
     		this.healthCheckRegistry = new HealthCheckRegistry(Executors.newCachedThreadPool(new NamedThreadFactory("GJEX-healthcheck-")));
     }

@@ -39,7 +39,7 @@ dependencies {
 	implementation libraries.javax_el
 	implementation libraries.opentracing
     implementation libraries.lombok
-    	implementation libraries.hystrix_core
+	implementation libraries.hystrix_core
 	implementation libraries.hystrix_metrics_stream
 	implementation libraries.rxjava2
     

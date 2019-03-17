@@ -15,29 +15,28 @@
  */
 package com.flipkart.gjex.guice.module;
 
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.service.Api;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
+import com.google.inject.Provides;
+import com.google.inject.matcher.AbstractMatcher;
+import com.google.inject.matcher.Matchers;
+import io.grpc.BindableService;
+import io.grpc.Context;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.configuration.Configuration;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.configuration.Configuration;
-
-import com.flipkart.gjex.core.logging.Logging;
-import com.flipkart.gjex.core.service.Api;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.matcher.AbstractMatcher;
-import com.google.inject.matcher.Matchers;
-
-import io.grpc.BindableService;
-import io.grpc.Context;
 
 /**
  * A Guice {@link AbstractModule} for managing interception of methods annotated with {@link Api}
@@ -56,17 +55,19 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 	@Named("ApiScheduledExecutor")
 	@Provides
 	@Singleton
-	ScheduledExecutorService getScheduledExecutorService(@Named("Api.scheduledexecutor.threadpool.size")int threadpoolSize) {
-		return Executors.newScheduledThreadPool(threadpoolSize);
+	ScheduledExecutorService getScheduledExecutorService(GJEXConfiguration configuration) {
+		return Executors.newScheduledThreadPool(configuration.getApiService().getScheduledExecutorThreadPoolSize());
 	}
 	
 	class ApiMethodInterceptor implements MethodInterceptor {
 		
-		@Inject @Named("GlobalConfig")
-		Configuration globalConfig;
+		@Inject
+		@Named("GlobalConfig")
+		private Provider<Configuration> globalConfigurationProvider;
 		
-		@Inject@Named("ApiScheduledExecutor")
-		ScheduledExecutorService scheduledExecutorService;
+		@Inject
+		@Named("ApiScheduledExecutor")
+		private Provider<ScheduledExecutorService> scheduledExecutorServiceProvider;
 		
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -86,10 +87,10 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 				}
 				int deadline = 0;
 				if (api.deadlineConfig().length() > 0) { // check if deadline is specified as a config property
-					deadline = globalConfig.getInt(api.deadlineConfig());
+					deadline = globalConfigurationProvider.get().getInt(api.deadlineConfig());
 				}
 				if (Context.current().getDeadline() == null) {
-					cancellableContext = Context.current().withDeadlineAfter(deadline, TimeUnit.MILLISECONDS, scheduledExecutorService);
+					cancellableContext = Context.current().withDeadlineAfter(deadline, TimeUnit.MILLISECONDS, scheduledExecutorServiceProvider.get());
 					previous = cancellableContext.attach(); // attach the CancellableContext and store the previous Context
 				} else {
 					info("Not setting API deadline as client has already specified a deadline");
@@ -110,7 +111,7 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 	}
 	
 	/**
-	 * The Matcher that matches methods with the {@link ConcurrentApi} annotation
+	 * The Matcher that matches methods with the {@link Api} annotation
 	 */
 	class ApiMethodMatcher extends AbstractMatcher<Method> {
 		@Override

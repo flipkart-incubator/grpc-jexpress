@@ -16,11 +16,11 @@ allprojects {
 
 publishing {
 	publications {
-    		maven(MavenPublication) {
-	    		groupId = 'com.flipkart'
-			artifactId = 'grpc-jexpress'
-			version = '1.1-SNAPSHOT'
-			from components.java
+    		maven(MavenPublication) { 
+				groupId = 'com.flipkart'
+			    artifactId = 'grpc-jexpress'
+			    version = '0.0.1-SNAPSHOT'
+			    from components.java
 		}
     }    
 	repositories {
@@ -35,11 +35,12 @@ publishing {
 }
 
 def grpcVersion = '1.17.0'
+def jacksonVersion = '2.9.7'
 
 subprojects {
 	apply plugin: 'maven'
 	group = 'com.flipkart.grpc-jexpress'
-	version = '1.1-SNAPSHOT'
+	version = '0.0.1-ANAND-SNAPSHOT'
 	
 	jar {
     		manifest.attributes provider: 'gradle'
@@ -51,25 +52,30 @@ subprojects {
 		    log4j: "org.apache.logging.log4j:log4j-core:2.5",
 		    log4j_slf4j: "org.apache.logging.log4j:log4j-slf4j-impl:2.5",
 		    commons_configuration: "commons-configuration:commons-configuration:1.10",
-		    guice: "com.google.inject:guice:4.2.0",
+		    guice: "com.google.inject:guice:4.2.2",
 		    yammer_metrics: "com.palominolabs.metrics:metrics-guice:4.0.0",
 		    yammer_healthchecks:"io.dropwizard.metrics:metrics-healthchecks:4.0.2",		    
 			grpc_netty: "io.grpc:grpc-netty:${grpcVersion}",
 			grpc_protobuf: "io.grpc:grpc-protobuf:${grpcVersion}",
-    			jersey: 'org.glassfish.jersey.containers:jersey-container-servlet:2.6',
-    			jersey_freemarker: 'org.glassfish.jersey.ext:jersey-mvc-freemarker:2.6',
-    			servlet: 'javax.servlet:javax.servlet-api:3.1.0',
-    			jackson: 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.4',
-    			jetty_metrics: 'com.codahale.metrics:metrics-jetty9:3.0.2',
+			jersey: 'org.glassfish.jersey.containers:jersey-container-servlet:2.6',
+    		jersey_freemarker: 'org.glassfish.jersey.ext:jersey-mvc-freemarker:2.6',
+    		servlet: 'javax.servlet:javax.servlet-api:3.1.0',
+    		jackson: "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${jacksonVersion}",
+			object_mapper: "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
+    		jetty_metrics: 'com.codahale.metrics:metrics-jetty9:3.0.2',
 			guice_validator: 'ru.vyarus:guice-validator:1.2.0',
-			hibernate_validator: 'org.hibernate:hibernate-validator:5.4.1.Final',
 			javax_el: 'org.glassfish:javax.el:3.0.1-b08',
 			opentracing: 'io.opentracing:opentracing-api:0.31.0',
 			lombok: 'org.projectlombok:lombok:1.18.2',
 			grpc_stub :"io.grpc:grpc-stub:${grpcVersion}",
 			hystrix_core: "com.netflix.hystrix:hystrix-core:1.5.12",
 			hystrix_metrics_stream: "com.netflix.hystrix:hystrix-metrics-event-stream:1.5.12",
-			rxjava2: "io.reactivex.rxjava2:rxjava:2.2.0"
+			rxjava2: "io.reactivex.rxjava2:rxjava:2.2.0",
+			hibernate_validator: 'org.hibernate:hibernate-validator:5.4.1.Final',
+			javax_validation: 'javax.validation:validation-api:1.1.0.Final',
+			commons_io: 'commons-io:commons-io:2.6',
+			junit4: 'junit:junit:4.12',
+			assertj: 'org.assertj:assertj-core:3.12.1'
 		]
 	}
 }
