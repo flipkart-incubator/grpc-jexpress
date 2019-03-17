@@ -9,7 +9,6 @@ import com.flipkart.gjex.core.config.BaseConfigurationFactory;
 import com.flipkart.gjex.core.config.ConfigurationException;
 import com.flipkart.gjex.core.config.ConfigurationParsingException;
 import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
-import com.github.wnameless.json.unflattener.JsonUnflattener;
 import javafx.util.Pair;
 import org.apache.commons.io.IOUtils;
 
@@ -37,9 +36,10 @@ public class ConfigServiceConfigurationFactory<T extends GJEXConfiguration, U ex
         try (InputStream input = provider.open(requireNonNull(path))) {
             String flattenedJson = IOUtils.toString(input, Charset.defaultCharset()); // returns json present in config service as String
             String unFlattenedJson = getUnFlattenedJson(flattenedJson, ConfigServiceBundle.JSON_FLATTEN_SEPARATOR); // returns Config service un-flattened json as Map
-            InputStream stream = new ByteArrayInputStream(unFlattenedJson.getBytes(StandardCharsets.UTF_8));
-            final JsonNode node = objectMapper.readTree(super.createParser(stream));
-            return super.build(node, path);
+            try (InputStream stream = new ByteArrayInputStream(unFlattenedJson.getBytes(StandardCharsets.UTF_8))) {
+                final JsonNode node = objectMapper.readTree(super.createParser(stream));
+                return super.build(node, path);
+            }
         } catch (JsonParseException e) {
             throw ConfigurationParsingException
                     .builder("Malformed Config service " + super.formatName)

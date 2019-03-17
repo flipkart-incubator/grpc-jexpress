@@ -12,7 +12,7 @@ import java.util.Map;
  * validating their constraints.
  *
  * @param <T> the type of the configuration objects to produce
- * @param <U> Flattened json config as a map using "." as separator
+ * @param <U> Flattened json config as a map using "-" (HYPHEN) as separator
  */
 public class YamlConfigurationFactory<T extends GJEXConfiguration, U extends Map> extends BaseConfigurationFactory<T, U> {
 

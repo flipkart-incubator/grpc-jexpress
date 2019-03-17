@@ -20,7 +20,6 @@ import com.flipkart.gjex.core.task.ConcurrentTask;
 import com.flipkart.gjex.core.task.FutureDecorator;
 import com.flipkart.gjex.core.task.TaskExecutor;
 import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -29,6 +28,7 @@ import org.apache.commons.configuration.Configuration;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 

@@ -73,12 +73,11 @@ public abstract class BaseConfigurationFactoryTest {
 
     }
 
-    protected final Validator validator = null; // Validation.buildDefaultValidatorFactory().getValidator();
+    protected final Validator validator = null; // Validation.buildDefaultValidatorFactory().getValidator(); does not work. TODO- fix this
 
     protected File malformedFile = new File("/");
     protected File emptyFile = new File("/");
     protected File validFile = new File("/");
-    protected File typoFile = new File("/");
     protected File wrongTypeFile = new File("/");
     protected File malformedAdvancedFile = new File("/");
 
@@ -133,7 +132,7 @@ public abstract class BaseConfigurationFactoryTest {
         assertThat(example.getAge()).isEqualTo(12);
         assertThat(example.getProperties())
                 .contains(MapEntry.entry("k1", "v1"),
-                        MapEntry.entry("settings.enabled", "true"));
+                        MapEntry.entry("settings.enabled", "true")); // boolean true
 
         Map<String, Object> configMap = (Map<String, Object>) result.getValue();
 
@@ -141,6 +140,8 @@ public abstract class BaseConfigurationFactoryTest {
         assertThat(configMap.get("Grpc-server.port")).isEqualTo(50051);
         assertThat(configMap.get("Dashboard-service.port")).isEqualTo(9999);
         assertThat(configMap.get("Dashboard-service.workers")).isEqualTo(30);
+        assertThat(configMap.get("properties-k1")).isEqualTo("v1");
+        assertThat(configMap.get("properties-settings.enabled")).isEqualTo(true);
     }
 
     @Test

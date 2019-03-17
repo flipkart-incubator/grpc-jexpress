@@ -86,7 +86,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
         this.configurationClass = configurationClass;
 	}
 	
-//	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void initialize(Bootstrap<?, ?> bootstrap) {
 		if (configurationClass.isPresent()) {

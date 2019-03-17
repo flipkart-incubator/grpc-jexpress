@@ -13,7 +13,6 @@ public class YamlConfigurationFactoryTest  extends BaseConfigurationFactoryTest 
         this.malformedFile = resourceFileName("factory-test-malformed.yml");
         this.emptyFile = resourceFileName("factory-test-empty.yml");
         this.validFile = resourceFileName("factory-test-valid.yml");
-        this.typoFile = resourceFileName("factory-test-typo.yml");
         this.wrongTypeFile = resourceFileName("factory-test-wrong-type.yml");
         this.malformedAdvancedFile = resourceFileName("factory-test-malformed-adv.yml");
     }

@@ -2,6 +2,7 @@ package com.flipkart.gjex.core.config;
 
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.github.wnameless.json.flattener.JsonFlattener;
+import com.github.wnameless.json.flattener.PrintMode;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import javafx.util.Pair;
 
@@ -51,7 +52,10 @@ public interface ConfigurationFactory<T extends GJEXConfiguration, U extends Map
      * This is used to generate flattened json from given config file
      */
     default String getFlattenedJson(String json) {
-        return new JsonFlattener(json).withSeparator('-').flatten();
+        return new JsonFlattener(json).
+                withPrintMode(PrintMode.PRETTY).
+                withSeparator('-').
+                flatten();
     }
 
     /**
@@ -61,7 +65,10 @@ public interface ConfigurationFactory<T extends GJEXConfiguration, U extends Map
      * @return Un-flattened json as string
      */
     default String getUnFlattenedJson(String flattenedJson, char separator) {
-        return new JsonUnflattener(flattenedJson).withSeparator(separator).unflatten();
+        return new JsonUnflattener(flattenedJson).
+                withPrintMode(PrintMode.PRETTY).
+                withSeparator(separator).
+                unflatten();
     }
 
 }

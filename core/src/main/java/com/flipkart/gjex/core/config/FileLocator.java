@@ -69,7 +69,7 @@ public class FileLocator {
 				errorMessage.append(" under path " + path);
 			}
 			LOGGER.error(errorMessage.toString());
-			throw new RuntimeException(errorMessage.toString()); // TODO - Anand fix it
+			throw new RuntimeException(errorMessage.toString());
 		} else if (files.length > 1) {
 			StringBuilder foundFiles = new StringBuilder();
 			for (int i = 0; i < files.length; i++) {
@@ -83,7 +83,7 @@ public class FileLocator {
 			errorMessage.append(" as: \n ");
 			errorMessage.append(foundFiles.toString());
 			LOGGER.error(errorMessage.toString());
-			throw new RuntimeException(errorMessage.toString()); // TODO - Anand Fix it
+			throw new RuntimeException(errorMessage.toString());
 		}
 		return files[0];
 	}
