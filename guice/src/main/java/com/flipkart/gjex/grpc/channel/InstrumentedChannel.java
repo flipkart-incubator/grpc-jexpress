@@ -43,7 +43,7 @@ public class InstrumentedChannel extends Channel {
 
     @Inject
     public InstrumentedChannel(ChannelConfig channelConfig){
-        _delegate = ManagedChannelBuilder.forAddress(channelConfig.getHostname(),channelConfig.getPort()).usePlaintext(true).build();
+        _delegate = ManagedChannelBuilder.forAddress(channelConfig.getHostname(),channelConfig.getPort()).build();
     }
     @Override
     public <RequestT, ResponseT> ClientCall<RequestT, ResponseT> newCall(MethodDescriptor<RequestT, ResponseT> methodDescriptor, CallOptions callOptions) {

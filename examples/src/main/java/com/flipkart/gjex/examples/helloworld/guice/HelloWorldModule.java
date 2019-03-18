@@ -46,7 +46,7 @@ public class HelloWorldModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		install(new ConfigModule("hello_world_config.yml")); // load custom module specific configurations that are injectable in gRPC implementations. See @GreeterService source for example
-		install(new ClientModule<>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
+		install(new ClientModule<GreeterGrpc.GreeterBlockingStub>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
 
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(Filter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
