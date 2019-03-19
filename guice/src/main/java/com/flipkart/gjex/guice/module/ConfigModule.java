@@ -1,116 +1,132 @@
 /*
  * Copyright (c) The original author or authors
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package com.flipkart.gjex.guice.module;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import com.flipkart.gjex.Constants;
-import com.flipkart.gjex.core.config.FileLocator;
-import com.flipkart.gjex.core.config.YamlConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.GJEXError;
+import com.flipkart.gjex.core.config.*;
+import com.flipkart.gjex.core.setup.Bootstrap;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.name.Names;
+import javafx.util.Pair;
+import org.apache.commons.configuration.Configuration;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.validation.Validator;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * <code>ConfigModule</code> is a Guice module for loading application configuration attributes 
- * 
- * @author regunath.balasubramanian
+ * This is the module that fetches configuration from provided source (either yml or some external service).
+ * It implicitly assumes that if you are using some external service for fetching configuration (example config service,
+ * see ConfigServiceBundle.java in contrib folder for example implementation), then that bundle must be added before GuiceBundle in your
+ * respective Application class.
  */
-public class ConfigModule extends AbstractModule {
+public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule {
 
-	/** Global config map*/
-	private static final YamlConfiguration GLOBAL_CONFIG = new YamlConfiguration();
-	
-	/** Yaml configurations loaded by this module*/
-    private final YamlConfiguration[] yamlConfigurations;
+    private final Bootstrap<T, U> bootstrap;
 
-    /**
-     * Constructor to load the GJEX application startup configuration from System property or classpath
-     */
-    public ConfigModule() {
+    private final T configuration;
+    private final U configMap;
+
+    public ConfigModule(Bootstrap<T, U> _bootstrap) {
+        this.bootstrap = _bootstrap;
         try {
-            URL configUrl = null;
-            String configFile = System.getProperty(Constants.CONFIG_FILE_PROPERTY);
-            if (configFile != null) {
-                configUrl = new File(configFile).toURI().toURL();
-            } else {
-                configUrl = this.getClass().getClassLoader().getResource(Constants.CONFIGURATION_YML);
-            }
-            yamlConfigurations = new YamlConfiguration[] {new YamlConfiguration(configUrl)};
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            Pair<T, U> pair = parseConfiguration(bootstrap.getConfigurationFactoryFactory(), bootstrap.getConfigurationSourceProvider(),
+                    bootstrap.getValidatorFactory().getValidator(), bootstrap.getConfigPath(), bootstrap.getConfigurationClass(),
+                    bootstrap.getObjectMapper());
+            configuration = pair.getKey();
+            configMap = pair.getValue();
+            this.bootstrap.setConfiguration(configuration); // NOTE
+            this.bootstrap.setConfigMap(configMap); // NOTE
+        } catch (ConfigurationException  | IOException e) {
+            throw new GJEXError(GJEXError.ErrorType.runtime, "Error occurred while reading/parsing configuration " +
+                    "from source " + bootstrap.getConfigPath(), e);
         }
     }
 
-    /**
-     * Constructor to load configuration information from files that match the specified file name
-     * @param configFileName the configuration file name
-     */
-    public ConfigModule(String configFileName) {
-    		List<YamlConfiguration> yamlConfigurationsList = new LinkedList<YamlConfiguration>();
-        try {
-        		for (File configFile : FileLocator.findFiles(configFileName)) {
-	            yamlConfigurationsList.add(new YamlConfiguration(configFile.toURI().toURL()));
-        		}
-        		yamlConfigurations = yamlConfigurationsList.toArray(new YamlConfiguration[0]);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    private Pair<T, U> parseConfiguration(ConfigurationFactoryFactory<T, U> configurationFactoryFactory,
+                                          ConfigurationSourceProvider provider,
+                                          Validator validator,
+                                          String configPath,
+                                          Class<T> klass,
+                                          ObjectMapper objectMapper) throws IOException, ConfigurationException {
+        final ConfigurationFactory<T, U> configurationFactory = configurationFactoryFactory
+                .create(klass, validator, objectMapper);
+        if (configPath != null) {
+            return configurationFactory.build(provider, configPath);
         }
+        return configurationFactory.build();
     }
-    
-    public static YamlConfiguration getGlobalConfig() {
-    		return GLOBAL_CONFIG;
-    }
-    
-    /**
-     * Performs concrete bindings for interfaces
-     *
-     * @see com.google.inject.AbstractModule#configure()
-     */
+
+
     @Override
     protected void configure() {
-        bindConfigProperties();
-        GLOBAL_CONFIG.addAll(this.yamlConfigurations); // add the loaded YamlConfigurationS to the GLOBAL_CONFIG
+        // bind config map instance
+        bind(Map.class).annotatedWith(Names.named("GlobalMapConfig")).toInstance(configMap);
+
+        // Flatten map and create named annotations for Flattened keys
+        Map<String, Object> flattenedMap = new HashMap<>();
+        flatten(flattenedMap, null, configMap);
+
+        /**
+         * Binds individual flattened key-value properties in the configuration yml
+         * file. So one can directly inject something like this:
+         *
+         * @Named("Hibernate.hibernate.jdbcDriver") String jdbcDriver OR
+         * @Named("Dashboard.service.port") int port
+         */
+        for (Map.Entry<String, Object> entry: flattenedMap.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            LinkedBindingBuilder annotatedWith = bind(value.getClass()).annotatedWith(Names.named(key));
+            annotatedWith.toInstance(value);
+        }
+    }
+
+    private void flatten(Map<String, Object> result, String prefix, Map<?, ?> map) {
+        Set<?> keys = map.keySet();
+        for(Object key : keys) {
+            String name = (prefix != null) ? (prefix + "." + key.toString()) : key.toString();
+            Object value = map.get(key);
+            if(value instanceof Map) {
+                flatten(result, name, (Map<?, ?>) value);
+            }
+            else {
+                result.put(name, value);
+            }
+        }
     }
 
     /**
-     * Binds individual flattened key-value properties in the configuration yml
-     * file. So one can directly inject something like this:
-     *
-     * @Named("Hibernate.hibernate.jdbcDriver") String jdbcDriver OR
-     * @Named("Dashboard.service.port") int port
+     * Returns the Global config of all flattened out properties loaded by instance of this class.
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private void bindConfigProperties() {
-    		for (YamlConfiguration yamlConfiguration: yamlConfigurations) {
-    			// we will not bind the entire YamlConfiguration but instead the individual properties that are injectable
-	        // bind(YamlConfiguration.class).toInstance(yamlConfiguration);
-	        Iterator<String> propertyKeys = yamlConfiguration.getKeys();
-	        while (propertyKeys.hasNext()) {
-	            String propertyKey = propertyKeys.next();
-	            Object propertyValue = yamlConfiguration.getProperty(propertyKey);
-	            LinkedBindingBuilder annotatedWith = bind(propertyValue.getClass()).annotatedWith(Names.named(propertyKey));
-	            annotatedWith.toInstance(propertyValue);
-	        }
-    		}
+    @Named("GlobalFlattenedConfig")
+    @Provides
+    @Singleton
+    public Configuration getGlobalConfiguration(@Named("GlobalMapConfig") Map globalMapConfig) {
+        Map<String, Object> flattenedMap = new HashMap<>();
+        flatten(flattenedMap, null, globalMapConfig);
+        Configuration configuration = new FlattenedConfiguration(flattenedMap);
+        return configuration;
     }
 }

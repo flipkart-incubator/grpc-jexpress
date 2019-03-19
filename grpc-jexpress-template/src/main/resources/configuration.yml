@@ -1,15 +1,41 @@
 Grpc:
   server.port: 50051
+
 Dashboard:
   service.port: 9999
   service.acceptors: 5
   service.selectors: 10
   service.workers: 30
+
 Api:
   service.port: 9998
   service.acceptors: 5
   service.selectors: 10
   service.workers: 30
   scheduledexecutor.threadpool.size: 1
+
 Tracing:
   collector.endpoint: http://localhost:9411/api/v2/spans
+
+database:
+  driverClass: com.mysql.jdbc.Driver
+  user: root
+  password: random
+  url: jdbc:mysql://your_database_url
+
+  initialSize: 8
+  # the minimum number of connections to keep open
+  minSize: 8
+
+  # the maximum number of connections to keep open
+  maxSize: 30
+
+  # whether or not idle connections should be validated
+  checkConnectionWhileIdle: true
+
+  # any properties specific to your JDBC driver:
+  properties:
+    charSet: UTF-8
+    hibernate.generate_statistics: false
+    hibernate.session.events.log: false
+

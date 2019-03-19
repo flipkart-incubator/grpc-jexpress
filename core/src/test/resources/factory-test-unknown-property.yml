@@ -1,0 +1,21 @@
+Grpc:
+  server.port: 50051
+Dashboard:
+  service.port: 9999
+  service.acceptors: 5
+  service.selectors: 10
+  service.workers: 30
+Api:
+  service.port: 9998
+  service.acceptors: 5
+  service.selectors: 10
+  service.workers: 30
+  scheduledexecutor.threadpool.size: 1
+Tracing:
+  collector.endpoint: "http://localhost:9411/api/v2/spans"
+name: "GJEX"
+age: 12
+properties:
+  k1: v1
+  settings.enabled: true
+howIsTheJosh: "high hai sir !"

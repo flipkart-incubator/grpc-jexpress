@@ -15,23 +15,33 @@
  */
 package com.flipkart.gjex.core.setup;
 
-import java.lang.management.ManagementFactory;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jmx.JmxReporter;
 import com.codahale.metrics.jvm.BufferPoolMetricSet;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.gjex.core.Application;
 import com.flipkart.gjex.core.Bundle;
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.GJEXObjectMapper;
+import com.flipkart.gjex.core.config.ConfigurationFactoryFactory;
+import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
+import com.flipkart.gjex.core.config.DefaultConfigurationFactoryFactory;
+import com.flipkart.gjex.core.config.FileConfigurationSourceProvider;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.google.common.collect.Lists;
+
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+import java.lang.management.ManagementFactory;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The pre-start application container, containing services required to bootstrap a GJEX application
@@ -39,42 +49,62 @@ import com.google.common.collect.Lists;
  * @author regu.b
  *
  */
-public class Bootstrap implements Logging {
+public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Logging {
 
-	private final Application application;
+	private final Application<T, U> application;
 	private final MetricRegistry metricRegistry;
-	private final List<Bundle> bundles;
+	private final List<Bundle<? super T, ? super U>> bundles;
+	private final ObjectMapper objectMapper;
+	private final String configPath;
+	private final Class<T> configurationClass;
+
 	private ClassLoader classLoader;
 
+	private ConfigurationFactoryFactory<T, U> configurationFactoryFactory;
+	private ConfigurationSourceProvider configurationSourceProvider;
+	private ValidatorFactory validatorFactory;
+
+	// these values are set in ConfigModule when GuiceBundle.initialize(this) gets called.
+	private T configuration;
+	private U configMap;
+
 	/** List of initialized Service instances*/
-	List<Service> services;
+	private List<Service> services;
+
 	/** List of initialized Filter instances*/
 	@SuppressWarnings("rawtypes")
-	List<Filter> filters;
+	private List<Filter> filters;
+
 	/** List of initialized ConfigurableTracingSampler instances*/
-	List<TracingSampler> tracingSamplers;
+	private List<TracingSampler> tracingSamplers;
 
 	/** The HealthCheckRegistry*/
 	private HealthCheckRegistry healthCheckRegistry;
 
-	public Bootstrap(Application application) {
+	public Bootstrap(Application<T, U> application, String configPath, Class<T> configurationClass) {
+		this.configurationClass = configurationClass;
+		this.configPath = configPath;
 		this.application = application;
 		this.metricRegistry = new MetricRegistry();
 		this.bundles = Lists.newArrayList();
+		this.objectMapper = GJEXObjectMapper.newObjectMapper();
+		this.classLoader = Thread.currentThread().getContextClassLoader();
+		this.configurationFactoryFactory = new DefaultConfigurationFactoryFactory<>();
+		this.configurationSourceProvider = new FileConfigurationSourceProvider();
+		this.validatorFactory = Validation.buildDefaultValidatorFactory();
+
 		getMetricRegistry().register("jvm.buffers", new BufferPoolMetricSet(ManagementFactory
                 .getPlatformMBeanServer()));
 		getMetricRegistry().register("jvm.gc", new GarbageCollectorMetricSet());
 		getMetricRegistry().register("jvm.memory", new MemoryUsageGaugeSet());
 		getMetricRegistry().register("jvm.threads", new ThreadStatesGaugeSet());
-
 		JmxReporter.forRegistry(getMetricRegistry()).build().start();
 	}
-	
 	
 	/**
 	 * Gets the bootstrap's Application
 	 */
-	public Application getApplication() {
+	public Application<T, U> getApplication() {
 		return application;
 	}
 
@@ -97,12 +127,16 @@ public class Bootstrap implements Logging {
      *
      * @param bundle a {@link Bundle}
      */
-    public void addBundle(Bundle bundle) {
+    public void addBundle(Bundle<? super T, ? super U> bundle) {
         bundle.initialize(this);
         bundles.add(bundle);
-    }    
-	
-    /**
+    }
+
+	public String getConfigPath() {
+		return configPath;
+	}
+
+	/**
      * Returns the application's metrics.
      */
     public MetricRegistry getMetricRegistry() {
@@ -122,6 +156,54 @@ public class Bootstrap implements Logging {
 		return tracingSamplers;
 	}
 
+	public ConfigurationFactoryFactory<T, U> getConfigurationFactoryFactory() {
+		return configurationFactoryFactory;
+	}
+
+	public void setConfigurationFactoryFactory(ConfigurationFactoryFactory<T, U> configurationFactoryFactory) {
+		this.configurationFactoryFactory = configurationFactoryFactory;
+	}
+
+	public ConfigurationSourceProvider getConfigurationSourceProvider() {
+		return configurationSourceProvider;
+	}
+
+	public void setConfigurationSourceProvider(ConfigurationSourceProvider configurationSourceProvider) {
+		this.configurationSourceProvider = configurationSourceProvider;
+	}
+
+	public ValidatorFactory getValidatorFactory() {
+		return validatorFactory;
+	}
+
+	public void setValidatorFactory(ValidatorFactory validatorFactory) {
+		this.validatorFactory = validatorFactory;
+	}
+
+	public ObjectMapper getObjectMapper() {
+		return objectMapper;
+	}
+
+	public Class<T> getConfigurationClass() {
+		return configurationClass;
+	}
+
+	public T getConfiguration() {
+		return configuration;
+	}
+
+	public void setConfiguration(T configuration) {
+		this.configuration = configuration;
+	}
+
+	public U getConfigMap() {
+		return configMap;
+	}
+
+	public void setConfigMap(U configMap) {
+		this.configMap = configMap;
+	}
+
 	/**
      * Runs this Bootstrap's bundles in the specified Environment
      * @param environment the Application Environment
@@ -130,19 +212,20 @@ public class Bootstrap implements Logging {
     @SuppressWarnings("rawtypes")
 	public void run(Environment environment) throws Exception {
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
-        this.services = new LinkedList<Service>();
-        this.filters = new LinkedList<Filter>();
+        services = new LinkedList<Service>();
+        filters = new LinkedList<Filter>();
         // Set the HealthCheckRegsitry to the one initialized by the Environment
-        this.healthCheckRegistry = environment.getHealthCheckRegistry();
-        for (Bundle bundle : bundles) {
-            bundle.run(environment);
+        healthCheckRegistry = environment.getHealthCheckRegistry();
+
+        for (Bundle<? super T, ? super U> bundle : bundles) {
+            bundle.run(configuration, configMap, environment);
             services.addAll(bundle.getServices());
             filters.addAll(bundle.getFilters());
-            this.tracingSamplers = bundle.getTracingSamplers();
+            tracingSamplers = bundle.getTracingSamplers();
             // Register all HealthChecks with the HealthCheckRegistry
             bundle.getHealthChecks().forEach(hc -> this.healthCheckRegistry.register(hc.getClass().getSimpleName(), hc));
         }
-		this.services.forEach(service -> {
+		services.forEach(service -> {
 			try {
 				service.start();
 			} catch (Exception e) {
@@ -150,7 +233,7 @@ public class Bootstrap implements Logging {
                 throw new RuntimeException(e);
 			}
 		});
-		this.filters.forEach(filter -> {
+		filters.forEach(filter -> {
 			try {
 				filter.init();
 			} catch (Exception e) {
@@ -158,7 +241,7 @@ public class Bootstrap implements Logging {
                 throw new RuntimeException(e);
 			}
 		});
-		this.registerServicesForShutdown();
+		registerServicesForShutdown();
     }
 
     public HealthCheckRegistry getHealthCheckRegistry() {		
@@ -177,5 +260,5 @@ public class Bootstrap implements Logging {
 	    		}
 	    	});    		
     }
-    
+
 }

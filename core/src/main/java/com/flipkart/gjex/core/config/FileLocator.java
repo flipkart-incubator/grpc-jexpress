@@ -15,19 +15,14 @@
  */
 package com.flipkart.gjex.core.config;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-
+import com.flipkart.gjex.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.flipkart.gjex.Constants;
+import java.io.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 /**
 *
@@ -68,27 +63,27 @@ public class FileLocator {
 	public static File findUniqueFile(String fileName, String path) throws ConfigurationException {
 		File[] files = findFiles(fileName, path);
 		if (files.length == 0) {
-			StringBuffer errorMessageBuffer = new StringBuffer("No file found that matches specified name : ");
-			errorMessageBuffer.append(fileName);
+			StringBuilder errorMessage = new StringBuilder("No file found that matches specified name : ");
+			errorMessage.append(fileName);
 			if (path != null) {
-				errorMessageBuffer.append(" under path " + path); 
+				errorMessage.append(" under path " + path);
 			}
-			LOGGER.error(errorMessageBuffer.toString());
-			throw new ConfigurationException(errorMessageBuffer.toString());
+			LOGGER.error(errorMessage.toString());
+			throw new RuntimeException(errorMessage.toString());
 		} else if (files.length > 1) {
-			StringBuffer foundFiles = new StringBuffer();
+			StringBuilder foundFiles = new StringBuilder();
 			for (int i = 0; i < files.length; i++) {
 				foundFiles.append(files[i].getAbsolutePath() + "\n");
 			}
-			StringBuffer errorMessageBuffer = new StringBuffer("Multiple files found that match specified name : ");
-			errorMessageBuffer.append(fileName);
+			StringBuffer errorMessage = new StringBuffer("Multiple files found that match specified name : ");
+			errorMessage.append(fileName);
 			if (path != null) {
-				errorMessageBuffer.append(" under path " + path); 
+				errorMessage.append(" under path " + path);
 			}
-			errorMessageBuffer.append(" as: \n ");
-			errorMessageBuffer.append(foundFiles.toString());
-			LOGGER.error(errorMessageBuffer.toString());
-			throw new ConfigurationException(errorMessageBuffer.toString());
+			errorMessage.append(" as: \n ");
+			errorMessage.append(foundFiles.toString());
+			LOGGER.error(errorMessage.toString());
+			throw new RuntimeException(errorMessage.toString());
 		}
 		return files[0];
 	}

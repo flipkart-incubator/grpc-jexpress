@@ -15,17 +15,9 @@
  */
 package com.flipkart.gjex.guice.module;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-
+import brave.Tracing;
+import brave.opentracing.BraveTracer;
+import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.task.FutureDecorator;
 import com.flipkart.gjex.core.task.TaskException;
@@ -37,9 +29,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
-
-import brave.Tracing;
-import brave.opentracing.BraveTracer;
 import io.grpc.BindableService;
 import io.grpc.Context;
 import io.opentracing.Scope;
@@ -47,9 +36,19 @@ import io.opentracing.Tracer;
 import io.opentracing.log.Fields;
 import io.opentracing.tag.Tags;
 import io.reactivex.functions.BiConsumer;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 /**
  * An implementation of Guice {@link AbstractModule} that initializes OpenTracing and intercepts methods annotated with {@link Traced}
@@ -61,9 +60,7 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 	
 	@Override
     protected void configure() {
-		TracedMethodInterceptor methodInterceptor = new TracedMethodInterceptor();
-		requestInjection(methodInterceptor);
-		bindInterceptor(Matchers.any(), new TracedMethodMatcher(), methodInterceptor);
+		bindInterceptor(Matchers.any(), new TracedMethodMatcher(), new TracedMethodInterceptor());
 	}
 	
 	/**
@@ -72,8 +69,9 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 	@Named("Tracer")
 	@Provides
 	@Singleton
-	Tracer getTracer(@Named("Tracing.collector.endpoint")String endpoint) {
-		AsyncReporter<Span> spanReporter = AsyncReporter.create(OkHttpSender.create(endpoint));
+	Tracer getTracer(GJEXConfiguration configuration) {
+		String endPoint = configuration.getTracing().getCollectorEndpoint();
+		AsyncReporter<Span> spanReporter = AsyncReporter.create(OkHttpSender.create(endPoint));
 		Tracing tracing = Tracing.newBuilder()
                  .localServiceName("GJEX")
                  .spanReporter(spanReporter)
@@ -87,8 +85,9 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 	class TracedMethodInterceptor implements MethodInterceptor {
 		
 		/** The OpenTracing Tracer instance*/
-		@Inject @Named("Tracer")
-		Tracer tracer;
+		@Inject
+		@Named("Tracer")
+		private Provider<Tracer> tracerProvider;
 		
 		/**
 		 * Starts a Trace(implicitly) or adds a Span for every method annotated with {@link Traced}. Nesting of spans is implicit
@@ -113,12 +112,13 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 				}
 				TracingSampler tracingSampler = GJEXContextKey.activeTracingSampler();
 				tracingSampler.initializeSamplerFor(methodInvoked, invocation.getMethod().getAnnotation(Traced.class).withSamplingRate());
+				Tracer tracer = tracerProvider.get();
 				if (tracingSampler.isSampled(methodInvoked)) {
 					/*
 					 * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor) 
 					 * but not activated because it has to be sampled here.
 					 */
-					if (tracer.scopeManager().active() == null || (tracer.scopeManager().active().span() != GJEXContextKey.activeSpan())) { 
+					if (tracer.scopeManager().active() == null || (tracer.scopeManager().active().span() != GJEXContextKey.activeSpan())) {
 						parentScope = tracer.scopeManager().activate(GJEXContextKey.activeSpan(), true);
 					} 
 					methodInvocationSpan = tracer.buildSpan(methodInvoked)

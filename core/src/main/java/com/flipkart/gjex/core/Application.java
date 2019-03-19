@@ -15,13 +15,16 @@
  */
 package com.flipkart.gjex.core;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.MessageFormat;
-
+import com.flipkart.gjex.core.config.ArgumentParserWrapper;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
+import net.sourceforge.argparse4j.inf.Namespace;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.MessageFormat;
+import java.util.Map;
 
 /**
  * The base class for a GJEX application
@@ -29,7 +32,7 @@ import com.flipkart.gjex.core.setup.Environment;
  * @author regu.b
  *
  */
-public abstract class Application implements Logging {
+public abstract class Application<T extends GJEXConfiguration, U extends Map> implements Logging {
 	
 	/** The GJEX startup display contents*/
 	private static final MessageFormat STARTUP_DISPLAY = new MessageFormat(
@@ -42,18 +45,18 @@ public abstract class Application implements Logging {
     
 	/** The machine name where this GJEX instance is running */
 	private String hostName;
-	
-	/*
-	
+
+	private final ArgumentParserWrapper argumentParser;
     /**
      * Constructor for this class
      */
     public Application() {
-	    	try {
-	    		this.hostName = InetAddress.getLocalHost().getHostName();
-	    	} catch (UnknownHostException e) {
+    	this.argumentParser = new ArgumentParserWrapper();
+    	try {
+    		this.hostName = InetAddress.getLocalHost().getHostName();
+    	} catch (UnknownHostException e) {
 	    		//ignore the exception, not critical information
-	    	}        
+    	}
     }
 	
 	/**
@@ -69,14 +72,17 @@ public abstract class Application implements Logging {
 	 * by implementing this method.
 	 * @param bootstrap the Bootstrap for this Application
 	 */
-	public abstract void initialize(Bootstrap bootstrap);
-	
+	public abstract void initialize(Bootstrap<T, U> bootstrap);
+
 	/**
-	 * Runs this Application in the specified Environment
-	 * @param environment the Environment to run in
-	 * @throws Exception in case of errors during run
+	 * When the application runs, this is called after the {@link Bundle}s are run. Override it to add
+	 * providers, resources, etc. for your application.
+	 *
+	 * @param configuration the parsed {@link GJEXConfiguration} object
+	 * @param environment   the application's {@link Environment}
+	 * @throws Exception if something goes wrong
 	 */
-	public abstract void run(Environment environment) throws Exception;
+	public abstract void run(T configuration, U configMap, Environment environment) throws Exception;
 	
 	/**
 	 * Parses command-line arguments and runs this Application. Usually called from a {@code public
@@ -85,28 +91,33 @@ public abstract class Application implements Logging {
 	 * @param arguments command-line arguments for starting this Application
 	 * @throws Exception in case of errors during run
 	 */
-	public final void run(String[] arguments) throws Exception {
+	public final void run(String... arguments) throws Exception {
 		info("** GJEX starting up... **");
 		long start = System.currentTimeMillis();
-		
-		final Bootstrap bootstrap = new Bootstrap(this);
+
+		Namespace namespace = argumentParser.parseArguments(arguments);
+		String configFilePath = namespace.getString("file");
+		final Bootstrap<T, U> bootstrap = new Bootstrap<>(this, configFilePath, getConfigurationClass());
+
 		/* Hook for applications to initialize their pre-start environment using bootstrap's properties */
         initialize(bootstrap);
-        /* Create Environment */
-        Environment environment = new Environment(getName(),bootstrap.getMetricRegistry());      
-        /* Run bundles etc */
-        bootstrap.run(environment);
-        /* Run this Application */        
-        run(environment);        
 
-	    final Object[] displayArgs = {
-	    			this.getName(),
-				(System.currentTimeMillis() - start),
-				this.hostName,
-	    };
+        /* Create Environment */
+        Environment environment = new Environment(getName(), bootstrap.getMetricRegistry());
+
+		/* Run bundles etc */
+		bootstrap.run(environment);
+
+        /* Run this Application */        
+        run(bootstrap.getConfiguration(), bootstrap.getConfigMap(), environment);
+
+	    final Object[] displayArgs = {this.getName(), (System.currentTimeMillis() - start), hostName};
 		info(STARTUP_DISPLAY.format(displayArgs));
 	    info("** GJEX startup complete **");
 	    
 	}
-	
+	public Class<T> getConfigurationClass() {
+		return Generics.getTypeParameter(getClass(), GJEXConfiguration.class);
+	}
+
 }
