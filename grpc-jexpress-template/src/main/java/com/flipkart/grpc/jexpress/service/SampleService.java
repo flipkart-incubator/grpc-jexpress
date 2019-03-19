@@ -23,14 +23,17 @@ public class SampleService extends UserServiceGrpc.UserServiceImplBase implement
     private final SampleConfiguration sampleConfiguration;
     private final Configuration flattenedConfig;
     private final Map mapConfig;
+    private String name;
 
     @Inject
     public SampleService(SampleConfiguration sampleConfiguration,
                          @Named("GlobalFlattenedConfig") Configuration flattenedConfig,
-                         @Named("GlobalMapConfig") Map mapConfig) {
+                         @Named("GlobalMapConfig") Map mapConfig,
+                         @Named("employee.name") String name) {
         this.sampleConfiguration = sampleConfiguration;
         this.flattenedConfig = flattenedConfig;
         this.mapConfig = mapConfig;
+        this.name = name;
     }
 
     @Override
@@ -44,6 +47,7 @@ public class SampleService extends UserServiceGrpc.UserServiceImplBase implement
         info(sampleConfiguration.toString());
         info(mapConfig.toString());
 
+        info("My name " + name);
         // Read values from Flattened config
         info("FlattenedConfig has employee.name = " + flattenedConfig.getString("employee.name"));
         info("FlattenedConfig has Grpc.server.port = " + flattenedConfig.getInt("Grpc.server.port"));

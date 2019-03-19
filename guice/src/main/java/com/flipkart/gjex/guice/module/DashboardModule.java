@@ -19,8 +19,6 @@ package com.flipkart.gjex.guice.module;
 import com.codahale.metrics.jetty9.InstrumentedHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.config.ApiService;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.HealthCheckRegistry;
@@ -29,7 +27,6 @@ import com.flipkart.gjex.core.web.HealthCheckResource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
-import org.apache.commons.configuration.Configuration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -44,7 +41,9 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 /**
  * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashboard components.
@@ -67,13 +66,12 @@ public class DashboardModule extends AbstractModule implements Logging {
 	@Named("DashboardJettyServer")
 	@Provides
 	@Singleton
-	Server getDashboardJettyServer(@Named("DashboardResourceConfig") ResourceConfig resourceConfig,
-								   ObjectMapper objectMapper,
-								   @Named("GlobalFlattenedConfig") Configuration configuration) {
-		int acceptorThreads = configuration.getInt("Dashboard.service.acceptors");
-		int port = configuration.getInt("Dashboard.service.port");
-		int selectorThreads = configuration.getInt("Dashboard.service.selectors");
-		int maxWorkerThreads = configuration.getInt("Dashboard.service.workers");
+	Server getDashboardJettyServer(@Named("Dashboard.service.port") int port,
+								   @Named("DashboardResourceConfig")ResourceConfig resourceConfig,
+								   @Named("Dashboard.service.acceptors") int acceptorThreads,
+								   @Named("Dashboard.service.selectors") int selectorThreads,
+								   @Named("Dashboard.service.workers") int maxWorkerThreads,
+								   ObjectMapper objectMapper) {
 		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
 		provider.setMapper(objectMapper);
 		resourceConfig.register(provider);
@@ -127,20 +125,18 @@ public class DashboardModule extends AbstractModule implements Logging {
 	@Named("APIJettyServer")
 	@Provides
 	@Singleton
-	Server getAPIJettyServer(@Named("HealthCheckResourceConfig") ResourceConfig resourceConfig, GJEXConfiguration configuration,
-							 ObjectMapper objectMapper) {
-		ApiService apiService = configuration.getApiService();
-		int acceptorThreads = apiService.getAcceptors();
-		int port = apiService.getPort();
-		int selectorThreads = apiService.getSelectors();
-		int maxWorkerThreads = apiService.getWorkers();
+	Server getAPIJettyServer(@Named("Api.service.port") int port,
+							 @Named("HealthCheckResourceConfig")ResourceConfig resourceConfig,
+							 @Named("Api.service.acceptors") int acceptorThreads,
+							 @Named("Api.service.selectors") int selectorThreads,
+							 @Named("Api.service.workers") int maxWorkerThreads,
+							 ObjectMapper objectMapper) throws URISyntaxException, UnknownHostException {
 		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
 		provider.setMapper(objectMapper);
 		resourceConfig.register(provider);
 		QueuedThreadPool threadPool = new QueuedThreadPool();
 		threadPool.setMaxThreads(maxWorkerThreads);
 		Server server = new Server(threadPool);
-
 		ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
 		http.setPort(port);
 		server.addConnector(http);

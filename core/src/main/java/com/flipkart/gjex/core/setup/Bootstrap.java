@@ -55,12 +55,18 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	private final MetricRegistry metricRegistry;
 	private final List<Bundle<? super T, ? super U>> bundles;
 	private final ObjectMapper objectMapper;
+	private final String configPath;
+	private final Class<T> configurationClass;
 
 	private ClassLoader classLoader;
 
 	private ConfigurationFactoryFactory<T, U> configurationFactoryFactory;
 	private ConfigurationSourceProvider configurationSourceProvider;
 	private ValidatorFactory validatorFactory;
+
+	// these values are set in ConfigModule when GuiceBundle.initialize(this) gets called.
+	private T configuration;
+	private U configMap;
 
 	/** List of initialized Service instances*/
 	private List<Service> services;
@@ -75,7 +81,9 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	/** The HealthCheckRegistry*/
 	private HealthCheckRegistry healthCheckRegistry;
 
-	public Bootstrap(Application<T, U> application) {
+	public Bootstrap(Application<T, U> application, String configPath, Class<T> configurationClass) {
+		this.configurationClass = configurationClass;
+		this.configPath = configPath;
 		this.application = application;
 		this.metricRegistry = new MetricRegistry();
 		this.bundles = Lists.newArrayList();
@@ -122,9 +130,13 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
     public void addBundle(Bundle<? super T, ? super U> bundle) {
         bundle.initialize(this);
         bundles.add(bundle);
-    }    
-	
-    /**
+    }
+
+	public String getConfigPath() {
+		return configPath;
+	}
+
+	/**
      * Returns the application's metrics.
      */
     public MetricRegistry getMetricRegistry() {
@@ -172,14 +184,33 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		return objectMapper;
 	}
 
+	public Class<T> getConfigurationClass() {
+		return configurationClass;
+	}
+
+	public T getConfiguration() {
+		return configuration;
+	}
+
+	public void setConfiguration(T configuration) {
+		this.configuration = configuration;
+	}
+
+	public U getConfigMap() {
+		return configMap;
+	}
+
+	public void setConfigMap(U configMap) {
+		this.configMap = configMap;
+	}
+
 	/**
      * Runs this Bootstrap's bundles in the specified Environment
-     * @param configuration configuration
      * @param environment the Application Environment
      * @throws Exception in case of errors during run
      */
     @SuppressWarnings("rawtypes")
-	public void run(T configuration, U configMap, Environment environment) throws Exception {
+	public void run(Environment environment) throws Exception {
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
         services = new LinkedList<Service>();
         filters = new LinkedList<Filter>();

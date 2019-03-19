@@ -15,16 +15,12 @@
  */
 package com.flipkart.gjex.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.gjex.core.config.*;
+import com.flipkart.gjex.core.config.ArgumentParserWrapper;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
-import javafx.util.Pair;
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import javax.validation.Validator;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
@@ -99,25 +95,21 @@ public abstract class Application<T extends GJEXConfiguration, U extends Map> im
 		info("** GJEX starting up... **");
 		long start = System.currentTimeMillis();
 
-		final Bootstrap<T, U> bootstrap = new Bootstrap<>(this);
+		Namespace namespace = argumentParser.parseArguments(arguments);
+		String configFilePath = namespace.getString("file");
+		final Bootstrap<T, U> bootstrap = new Bootstrap<>(this, configFilePath, getConfigurationClass());
+
 		/* Hook for applications to initialize their pre-start environment using bootstrap's properties */
         initialize(bootstrap);
 
         /* Create Environment */
         Environment environment = new Environment(getName(), bootstrap.getMetricRegistry());
 
-		Namespace namespace = argumentParser.parseArguments(arguments);
-		String configFilePath = namespace.getString("file");
-		Pair<T, U> pair = parseConfiguration(bootstrap.getConfigurationFactoryFactory(), bootstrap.getConfigurationSourceProvider(),
-				bootstrap.getValidatorFactory().getValidator(), configFilePath, getConfigurationClass(), bootstrap.getObjectMapper());
-		T configuration = pair.getKey();
-		U configMap = pair.getValue();
-
 		/* Run bundles etc */
-		bootstrap.run(configuration, configMap, environment);
+		bootstrap.run(environment);
 
         /* Run this Application */        
-        run(configuration, configMap, environment);
+        run(bootstrap.getConfiguration(), bootstrap.getConfigMap(), environment);
 
 	    final Object[] displayArgs = {this.getName(), (System.currentTimeMillis() - start), hostName};
 		info(STARTUP_DISPLAY.format(displayArgs));
@@ -128,17 +120,4 @@ public abstract class Application<T extends GJEXConfiguration, U extends Map> im
 		return Generics.getTypeParameter(getClass(), GJEXConfiguration.class);
 	}
 
-	private Pair<T, U> parseConfiguration(ConfigurationFactoryFactory<T, U> configurationFactoryFactory,
-								 ConfigurationSourceProvider provider,
-								 Validator validator,
-								 String configPath,
-								 Class<T> klass,
-								 ObjectMapper objectMapper) throws IOException, ConfigurationException {
-		final ConfigurationFactory<T, U> configurationFactory = configurationFactoryFactory
-				.create(klass, validator, objectMapper);
-		if (configPath != null) {
-			return configurationFactory.build(provider, configPath);
-		}
-		return configurationFactory.build();
-	}
 }
