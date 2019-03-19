@@ -69,11 +69,11 @@ public class DashboardModule extends AbstractModule implements Logging {
 	@Singleton
 	Server getDashboardJettyServer(@Named("DashboardResourceConfig") ResourceConfig resourceConfig,
 								   ObjectMapper objectMapper,
-								   @Named("GlobalConfig") Configuration configuration) {
-		int acceptorThreads = configuration.getInt("Dashboard-service.acceptors");
-		int port = configuration.getInt("Dashboard-service.port");
-		int selectorThreads = configuration.getInt("Dashboard-service.selectors");
-		int maxWorkerThreads = configuration.getInt("Dashboard-service.workers");
+								   @Named("GlobalFlattenedConfig") Configuration configuration) {
+		int acceptorThreads = configuration.getInt("Dashboard.service.acceptors");
+		int port = configuration.getInt("Dashboard.service.port");
+		int selectorThreads = configuration.getInt("Dashboard.service.selectors");
+		int maxWorkerThreads = configuration.getInt("Dashboard.service.workers");
 		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
 		provider.setMapper(objectMapper);
 		resourceConfig.register(provider);

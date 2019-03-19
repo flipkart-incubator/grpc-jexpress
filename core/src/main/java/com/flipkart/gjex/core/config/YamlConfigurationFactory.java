@@ -11,8 +11,6 @@ import java.util.Map;
  * A factory class for loading YAML configuration files, binding them to configuration objects, and
  * validating their constraints.
  *
- * @param <T> the type of the configuration objects to produce
- * @param <U> Flattened json config as a map using "-" (HYPHEN) as separator
  */
 public class YamlConfigurationFactory<T extends GJEXConfiguration, U extends Map> extends BaseConfigurationFactory<T, U> {
 

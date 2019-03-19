@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class SampleConfiguration extends GJEXConfiguration {
 
-    private Student student;
+    private Employee employee;
 
 }

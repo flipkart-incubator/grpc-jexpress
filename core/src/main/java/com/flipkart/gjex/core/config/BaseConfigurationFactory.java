@@ -28,8 +28,8 @@ import static java.util.Objects.requireNonNull;
  * A generic factory class for loading configuration files, binding them to configuration objects, and
  * validating their constraints.
  *
- * @param <T> the type of the configuration objects to produce
- * @param <U> Flattened json config as a map using "-" (HYPHEN) as separator
+ * @param <T> the type of the configuration object to produce
+ * @param <U> Given configuration as a simple plain map
  */
 public abstract class BaseConfigurationFactory<T extends GJEXConfiguration, U extends Map> implements ConfigurationFactory<T, U> {
 
@@ -94,11 +94,9 @@ public abstract class BaseConfigurationFactory<T extends GJEXConfiguration, U ex
     }
 
     protected Pair<T, U> build(JsonNode node, String path) throws IOException, ConfigurationException {
-        // Create flattened json string
-        String flattenedJson = getFlattenedJson(objectMapper.writeValueAsString(node));
         try {
             final T config = objectMapper.readValue(new TreeTraversingParser(node), klass);
-            final U configMap = objectMapper.readValue(flattenedJson, new TypeReference<U>() {});
+            final U configMap = objectMapper.readValue(objectMapper.writeValueAsString(node), new TypeReference<U>() {});
             validate(path, config);
             return new Pair<>(config, configMap);
         } catch (UnrecognizedPropertyException e) {

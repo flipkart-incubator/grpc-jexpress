@@ -47,9 +47,7 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 	
 	@Override
     protected void configure() {
-		ApiMethodInterceptor methodInterceptor = new ApiMethodInterceptor();
-		requestInjection(methodInterceptor);
-		bindInterceptor(Matchers.any(), new ApiMethodMatcher(), methodInterceptor);
+		bindInterceptor(Matchers.any(), new ApiMethodMatcher(), new ApiMethodInterceptor());
 	}
 	
 	@Named("ApiScheduledExecutor")
@@ -62,7 +60,7 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 	class ApiMethodInterceptor implements MethodInterceptor {
 		
 		@Inject
-		@Named("GlobalConfig")
+		@Named("GlobalFlattenedConfig")
 		private Provider<Configuration> globalConfigurationProvider;
 		
 		@Inject

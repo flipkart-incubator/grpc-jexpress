@@ -1,7 +1,7 @@
 package com.flipkart.gjex.guice.module;
 
 import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.config.FlattenedJsonConfiguration;
+import com.flipkart.gjex.core.config.FlattenedConfiguration;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Environment;
 import com.google.inject.AbstractModule;
@@ -13,7 +13,9 @@ import org.apache.commons.configuration.Configuration;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class GJEXEnvironmentModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule implements Logging {
 
@@ -41,20 +43,36 @@ public class GJEXEnvironmentModule<T extends GJEXConfiguration, U extends Map> e
             bind(GJEXConfiguration.class).toProvider(provider);
         }
 
-        // bind flattened json map using Provider
+        // bind config map using Provider
         Provider<U> configMapProvider = new CustomConfigMapProvider();
-        bind(configMapClass).annotatedWith(Names.named("FlattenedJsonConfig")).toProvider(configMapProvider);
+        bind(configMapClass).annotatedWith(Names.named("GlobalMapConfig")).toProvider(configMapProvider);
     }
 
     /**
-     * Returns the Global config of all flattened out properties loaded by instances of this class.
+     * Returns the Global config of all flattened out properties loaded by instance of this class.
      */
-    @Named("GlobalConfig")
+    @Named("GlobalFlattenedConfig")
     @Provides
     @Singleton
-    public Configuration getGlobalConfiguration(@Named("FlattenedJsonConfig") Map configMap) {
-        Configuration configuration = new FlattenedJsonConfiguration((Map<String, Object>) configMap);
+    public Configuration getGlobalConfiguration(@Named("GlobalMapConfig") Map globalMapConfig) {
+        Map<String, Object> flattenedMap = new HashMap<>();
+        flatten(flattenedMap, null, globalMapConfig);
+        Configuration configuration = new FlattenedConfiguration(flattenedMap);
         return configuration;
+    }
+
+    private void flatten(Map<String, Object> result, String prefix, Map<?, ?> dom) {
+        Set<?> keys = dom.keySet();
+        for(Object key : keys) {
+            String name = (prefix != null) ? (prefix + "." + key.toString()) : key.toString();
+            Object value = dom.get(key);
+            if(value instanceof Map) {
+                flatten(result, name, (Map<?, ?>) value);
+            }
+            else {
+                result.put(name, value);
+            }
+        }
     }
 
     /**

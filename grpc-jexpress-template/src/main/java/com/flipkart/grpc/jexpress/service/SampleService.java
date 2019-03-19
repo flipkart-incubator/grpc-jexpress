@@ -10,6 +10,7 @@ import org.apache.commons.configuration.Configuration;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,13 +21,16 @@ public class SampleService extends UserServiceGrpc.UserServiceImplBase implement
     private AtomicInteger lastId = new AtomicInteger(0);
 
     private final SampleConfiguration sampleConfiguration;
-    private final Configuration globalConfiguration;
+    private final Configuration flattenedConfig;
+    private final Map mapConfig;
 
     @Inject
     public SampleService(SampleConfiguration sampleConfiguration,
-                         @Named("GlobalConfig") Configuration globalConfiguration) {
+                         @Named("GlobalFlattenedConfig") Configuration flattenedConfig,
+                         @Named("GlobalMapConfig") Map mapConfig) {
         this.sampleConfiguration = sampleConfiguration;
-        this.globalConfiguration = globalConfiguration;
+        this.flattenedConfig = flattenedConfig;
+        this.mapConfig = mapConfig;
     }
 
     @Override
@@ -38,8 +42,20 @@ public class SampleService extends UserServiceGrpc.UserServiceImplBase implement
         responseObserver.onNext(response);
         responseObserver.onCompleted();
         info(sampleConfiguration.toString());
-        info("Getting Student name from global config - " + globalConfiguration.getString("student-name"));
-        info("Getting Grpc server port from global config - " + globalConfiguration.getInt("Grpc-server.port"));
+        info(mapConfig.toString());
+
+        // Read values from Flattened config
+        info("FlattenedConfig has employee.name = " + flattenedConfig.getString("employee.name"));
+        info("FlattenedConfig has Grpc.server.port = " + flattenedConfig.getInt("Grpc.server.port"));
+        info("FlattenedConfig has employee.properties.toys = " +flattenedConfig.getStringArray("employee.properties.toys").toString());
+        info("FlattenedConfig has employee.properties.foo = " + flattenedConfig.getString("employee.properties.foo"));
+        info("FlattenedConfig has employee.properties.bar = " + flattenedConfig.getStringArray("employee.properties.bar").toString());
+
+        // Read values from plain map
+        info("MapConfig of Dashboard = " + mapConfig.get("Dashboard").toString());
+        info("MapConfig of employee = " + mapConfig.get("employee").toString());
+        Object studentProperties = ((Map<String, Object>) mapConfig.get("employee")).get("properties");
+        info("MapConfig -> properties in employee = " + studentProperties);
     }
 
     @Override

@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class FlattenedJsonConfiguration extends AbstractConfiguration {
+public class FlattenedConfiguration extends AbstractConfiguration {
 
-    private final Map<String, Object> configTab;
+    private final Map<String, Object> flattenedConfig;
 
-    public FlattenedJsonConfiguration(Map<String, Object> map) {
-        this.configTab = new HashMap<>(map);
+    public FlattenedConfiguration(Map<String, Object> flattenedMap) {
+        this.flattenedConfig = new HashMap<>(flattenedMap);
     }
 
     @Override
@@ -20,22 +20,22 @@ public class FlattenedJsonConfiguration extends AbstractConfiguration {
 
     @Override
     public boolean isEmpty() {
-        return configTab.isEmpty();
+        return flattenedConfig.isEmpty();
     }
 
     @Override
     public boolean containsKey(String key) {
-        return configTab.containsKey(key);
+        return flattenedConfig.containsKey(key);
     }
 
     @Override
     public Object getProperty(String key) {
-        return configTab.get(key);
+        return flattenedConfig.get(key);
     }
 
     @Override
     public Iterator<String> getKeys() {
-        return configTab.keySet().iterator();
+        return flattenedConfig.keySet().iterator();
     }
 
 }

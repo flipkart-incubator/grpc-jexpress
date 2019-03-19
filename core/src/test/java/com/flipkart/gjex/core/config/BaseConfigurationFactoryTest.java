@@ -136,12 +136,7 @@ public abstract class BaseConfigurationFactoryTest {
 
         Map<String, Object> configMap = (Map<String, Object>) result.getValue();
 
-        assertThat(configMap.size()).isEqualTo(15);
-        assertThat(configMap.get("Grpc-server.port")).isEqualTo(50051);
-        assertThat(configMap.get("Dashboard-service.port")).isEqualTo(9999);
-        assertThat(configMap.get("Dashboard-service.workers")).isEqualTo(30);
-        assertThat(configMap.get("properties-k1")).isEqualTo("v1");
-        assertThat(configMap.get("properties-settings.enabled")).isEqualTo(true);
+        assertThat(configMap.size()).isEqualTo(7); // No. of keys
     }
 
     @Test

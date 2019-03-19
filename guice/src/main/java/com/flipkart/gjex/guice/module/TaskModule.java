@@ -41,15 +41,13 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 	
 	@Override
     protected void configure() {
-		TaskMethodInterceptor methodInterceptor = new TaskMethodInterceptor();
-		requestInjection(methodInterceptor);
-		bindInterceptor(Matchers.any(), new TaskMethodMatcher(), methodInterceptor);
+		bindInterceptor(Matchers.any(), new TaskMethodMatcher(), new TaskMethodInterceptor());
 	}
 	
 	class TaskMethodInterceptor implements MethodInterceptor {
 		
 		@Inject
-		@Named("GlobalConfig")
+		@Named("GlobalFlattenedConfig")
 		private Provider<Configuration> globalConfigurationProvider;
 		
 		@Override

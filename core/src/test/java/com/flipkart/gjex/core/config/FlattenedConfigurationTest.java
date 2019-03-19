@@ -11,22 +11,22 @@ import java.util.NoSuchElementException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class FlattenedJsonConfigurationTest {
+public class FlattenedConfigurationTest {
 
     private Configuration configuration;
 
     @Before
     public void setUp() throws Exception {
         Map<String, Object> configMap = Maps.newHashMap();
-        configMap.put("Grpc-server.port", 50051);
-        configMap.put("Dashboard-server.port", 9999);
-        configuration = new FlattenedJsonConfiguration(configMap);
+        configMap.put("Grpc.server.port", 50051);
+        configMap.put("Dashboard.server.port", 9999);
+        configuration = new FlattenedConfiguration(configMap);
     }
 
     @Test
     public void getKeySuccess() {
-        assertThat(configuration.getInt("Grpc-server.port")).isEqualTo(50051);
-        assertThat(configuration.getInt("Dashboard-server.port")).isEqualTo(9999);
+        assertThat(configuration.getInt("Grpc.server.port")).isEqualTo(50051);
+        assertThat(configuration.getInt("Dashboard.server.port")).isEqualTo(9999);
     }
 
     @Test
