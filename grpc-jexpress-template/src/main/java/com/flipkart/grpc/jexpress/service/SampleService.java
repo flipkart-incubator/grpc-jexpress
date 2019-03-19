@@ -23,17 +23,21 @@ public class SampleService extends UserServiceGrpc.UserServiceImplBase implement
     private final SampleConfiguration sampleConfiguration;
     private final Configuration flattenedConfig;
     private final Map mapConfig;
-    private String name;
+    private final String driverClass;
+    private final boolean hibernateGenerateEventLog;
 
     @Inject
     public SampleService(SampleConfiguration sampleConfiguration,
                          @Named("GlobalFlattenedConfig") Configuration flattenedConfig,
                          @Named("GlobalMapConfig") Map mapConfig,
-                         @Named("employee.name") String name) {
+                         @Named("database.driverClass") String driverClass,
+                         @Named("database.properties.hibernate.session.events.log") boolean hibernateGenerateEventLog)
+    {
         this.sampleConfiguration = sampleConfiguration;
         this.flattenedConfig = flattenedConfig;
         this.mapConfig = mapConfig;
-        this.name = name;
+        this.driverClass = driverClass;
+        this.hibernateGenerateEventLog = hibernateGenerateEventLog;
     }
 
     @Override
@@ -47,19 +51,19 @@ public class SampleService extends UserServiceGrpc.UserServiceImplBase implement
         info(sampleConfiguration.toString());
         info(mapConfig.toString());
 
-        info("My name " + name);
+        info("\"database.driverClass\" class in @Named annotation =  " + driverClass);
+        info("\"database.properties.hibernate.session.events.log\" in @Named annotation =  " + hibernateGenerateEventLog);
+
         // Read values from Flattened config
-        info("FlattenedConfig has employee.name = " + flattenedConfig.getString("employee.name"));
-        info("FlattenedConfig has Grpc.server.port = " + flattenedConfig.getInt("Grpc.server.port"));
-        info("FlattenedConfig has employee.properties.toys = " +flattenedConfig.getStringArray("employee.properties.toys").toString());
-        info("FlattenedConfig has employee.properties.foo = " + flattenedConfig.getString("employee.properties.foo"));
-        info("FlattenedConfig has employee.properties.bar = " + flattenedConfig.getStringArray("employee.properties.bar").toString());
+        info("FlattenedConfig has \"Grpc.server.port\" = " + flattenedConfig.getInt("Grpc.server.port"));
+        info("FlattenedConfig has \"database.properties.hibernate.session.events.log\" = " + flattenedConfig.getBoolean("database.properties.hibernate.session.events.log"));
+        info("FlattenedConfig has \"database.initialSize\" = " + flattenedConfig.getInt("database.initialSize"));
 
         // Read values from plain map
         info("MapConfig of Dashboard = " + mapConfig.get("Dashboard").toString());
-        info("MapConfig of employee = " + mapConfig.get("employee").toString());
-        Object studentProperties = ((Map<String, Object>) mapConfig.get("employee")).get("properties");
-        info("MapConfig -> properties in employee = " + studentProperties);
+        info("MapConfig of employee = " + mapConfig.get("database").toString());
+        Object properties = ((Map<String, Object>) mapConfig.get("database")).get("properties");
+        info("MapConfig -> properties in database = " + properties);
     }
 
     @Override

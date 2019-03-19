@@ -17,6 +17,7 @@ package com.flipkart.gjex.guice.module;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.GJEXError;
 import com.flipkart.gjex.core.config.*;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.google.inject.AbstractModule;
@@ -57,8 +58,9 @@ public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends Ab
             configMap = pair.getValue();
             this.bootstrap.setConfiguration(configuration); // NOTE
             this.bootstrap.setConfigMap(configMap); // NOTE
-        } catch (Exception e) {
-            throw new RuntimeException("Error while reading/parsing configuration. ", e);
+        } catch (ConfigurationException  | IOException e) {
+            throw new GJEXError(GJEXError.ErrorType.runtime, "Error occurred while reading/parsing configuration " +
+                    "from source " + bootstrap.getConfigPath(), e);
         }
     }
 
@@ -85,6 +87,14 @@ public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends Ab
         // Flatten map and create named annotations for Flattened keys
         Map<String, Object> flattenedMap = new HashMap<>();
         flatten(flattenedMap, null, configMap);
+
+        /**
+         * Binds individual flattened key-value properties in the configuration yml
+         * file. So one can directly inject something like this:
+         *
+         * @Named("Hibernate.hibernate.jdbcDriver") String jdbcDriver OR
+         * @Named("Dashboard.service.port") int port
+         */
         for (Map.Entry<String, Object> entry: flattenedMap.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
