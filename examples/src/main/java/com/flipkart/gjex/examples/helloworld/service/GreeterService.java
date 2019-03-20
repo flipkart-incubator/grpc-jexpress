@@ -68,7 +68,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	}
 
 	@Override
-	@Api(deadlineConfig = "Api.sayhello.deadline") // specify an API level Deadline that will cascade to all @ConcurrentTask invoked in serving this API
+	@Api(deadlineConfig = "apiProperties.sayhello.deadline") // specify an API level Deadline that will cascade to all @ConcurrentTask invoked in serving this API
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
 	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
 	@Traced(withTracingSampler=AllWhitelistTracingSampler.class, withSamplingRate=1.0f) // Start a new Trace or participate in a Client-initiated distributed trace

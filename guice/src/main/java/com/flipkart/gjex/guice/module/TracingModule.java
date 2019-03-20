@@ -60,7 +60,9 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 	
 	@Override
     protected void configure() {
-		bindInterceptor(Matchers.any(), new TracedMethodMatcher(), new TracedMethodInterceptor());
+		TracedMethodInterceptor methodInterceptor = new TracedMethodInterceptor();
+		requestInjection(methodInterceptor);
+		bindInterceptor(Matchers.any(), new TracedMethodMatcher(), methodInterceptor);
 	}
 	
 	/**

@@ -47,7 +47,9 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 	
 	@Override
     protected void configure() {
-		bindInterceptor(Matchers.any(), new ApiMethodMatcher(), new ApiMethodInterceptor());
+		ApiMethodInterceptor methodInterceptor = new ApiMethodInterceptor();
+		requestInjection(methodInterceptor);
+		bindInterceptor(Matchers.any(), new ApiMethodMatcher(), methodInterceptor);
 	}
 	
 	@Named("ApiScheduledExecutor")

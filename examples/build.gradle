@@ -17,6 +17,9 @@ dependencies {
 	compile 'org.hibernate:hibernate-validator:5.4.1.Final'
     compile 'org.glassfish:javax.el:3.0.1-b08'
     compile 'io.reactivex.rxjava2:rxjava:2.2.0'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
+    compile 'org.projectlombok:lombok:1.18.6'
+
 }
 
 apply plugin: 'application'
