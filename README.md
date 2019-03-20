@@ -46,6 +46,7 @@ $ ./gradlew clean build install
 
 ## Examples
 The [examples](https://github.com/flipkart-incubator/grpc-jexpress/tree/master/examples) requires https://github.com/grpc/grpc-java/tree/master/examples to already be built. 
+Use the Maven build option in order to have the built examples binaries in your local Maven repository (e.g ~/.m2/repository). grpc-java is in active development and the master branch is often in SNAPSHOT versions that are not published to central repositories. It is therefore advisable to edit the examples build file (pom.xml) to use a published gRPC version instead of SNAPSHOT version.
 
 To build the examples, run in the 'examples' directory:
 
