@@ -41,7 +41,9 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 	
 	@Override
     protected void configure() {
-		bindInterceptor(Matchers.any(), new TaskMethodMatcher(), new TaskMethodInterceptor());
+		TaskMethodInterceptor methodInterceptor = new TaskMethodInterceptor();
+		requestInjection(methodInterceptor);
+		bindInterceptor(Matchers.any(), new TaskMethodMatcher(), methodInterceptor);
 	}
 	
 	class TaskMethodInterceptor implements MethodInterceptor {

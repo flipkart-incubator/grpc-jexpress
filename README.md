@@ -55,7 +55,7 @@ $ ../gradlew installDist
 To run the hello world example with GJEX extensions, run:
 
 ```
-$ ./build/install/examples/bin/hello-world-server
+$ ./build/install/examples/bin/hello-world-server server ./src/main/resources/hello_world_config.yml
 ```
 The gRPC Server, hosted gRPC services and the Jetty server status will be displayed in the console. By attaching an MBeans explorer like JConsole, one can inspect method-level execution metrics for the gRPC services.
 

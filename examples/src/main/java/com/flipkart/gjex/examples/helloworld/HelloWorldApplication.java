@@ -18,37 +18,40 @@ package com.flipkart.gjex.examples.helloworld;
 import com.flipkart.gjex.core.Application;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
+import com.flipkart.gjex.examples.helloworld.config.HelloWorldConfiguration;
 import com.flipkart.gjex.examples.helloworld.guice.HelloWorldModule;
 import com.flipkart.gjex.guice.GuiceBundle;
 
+import java.util.Map;
+
 /**
  * The GJEX HelloWorld sample Application
- * @author regu.b
  *
+ * @author regu.b
  */
-public class HelloWorldApplication extends Application {
+public class HelloWorldApplication extends Application<HelloWorldConfiguration, Map> {
 
-	@Override
+    @Override
     public String getName() {
         return "GJEX HelloWorld Application";
     }
-	
-	@Override
-	public void initialize(Bootstrap bootstrap) {
-		GuiceBundle guiceBundle = GuiceBundle.newBuilder()
-				.addModules(new HelloWorldModule())
-				.build();
-		bootstrap.addBundle(guiceBundle);
-	}
 
-	@Override
-	public void run(Environment environment) throws Exception {
-		// doing nothing additionally
-	}
-	
-	public static void main(String[] args) throws Exception {
-		HelloWorldApplication app = new HelloWorldApplication();
-		app.run(args);
-	}
+    @Override
+    public void initialize(Bootstrap<HelloWorldConfiguration, Map> bootstrap) {
+        GuiceBundle<HelloWorldConfiguration, Map> guiceBundle = new GuiceBundle.Builder<HelloWorldConfiguration, Map>()
+                .setConfigClass(HelloWorldConfiguration.class)
+                .addModules(new HelloWorldModule())
+                .build();
+        bootstrap.addBundle(guiceBundle);
+    }
 
+    @Override
+    public void run(HelloWorldConfiguration configuration, Map configMap, Environment environment) throws Exception {
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        HelloWorldApplication app = new HelloWorldApplication();
+        app.run(args);
+    }
 }
