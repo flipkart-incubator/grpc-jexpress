@@ -27,6 +27,7 @@ import java.util.Map;
  * validating their constraints.
  *
  */
+@SuppressWarnings("rawtypes")
 public class YamlConfigurationFactory<T extends GJEXConfiguration, U extends Map> extends BaseConfigurationFactory<T, U> {
 
     /**

@@ -30,10 +30,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class ConfigurationFactoryFactoryTest {
 
-    private final ConfigurationFactoryFactory<BaseConfigurationFactoryTest.ExampleConfig, Map> factoryFactory = new DefaultConfigurationFactoryFactory<>();
+    @SuppressWarnings("rawtypes")
+	private final ConfigurationFactoryFactory<BaseConfigurationFactoryTest.ExampleConfig, Map> factoryFactory = new DefaultConfigurationFactoryFactory<>();
     private final Validator validator = null;
 
-    @Test
+    @SuppressWarnings("rawtypes")
+	@Test
     public void createDefaultFactory() throws Exception {
         File validFile = new File(Resources.getResource("factory-test-valid.yml").toURI());
         ConfigurationFactory<BaseConfigurationFactoryTest.ExampleConfig, Map> factory =
@@ -43,7 +45,8 @@ public class ConfigurationFactoryFactoryTest {
         assertThat(example.getName()).isEqualTo("GJEX");
     }
 
-    @Test
+    @SuppressWarnings("rawtypes")
+	@Test
     public void createDefaultFactoryFailsUnknownProperty() throws Exception {
         File validFileWithUnknownProp = new File(
                 Resources.getResource("factory-test-unknown-property.yml").toURI());
@@ -57,7 +60,8 @@ public class ConfigurationFactoryFactoryTest {
                 .withMessageContaining("Unrecognized field at: howIsTheJosh");
     }
 
-    @Test
+    @SuppressWarnings("rawtypes")
+	@Test
     public void createFactoryAllowingUnknownProperties() throws Exception {
         ConfigurationFactoryFactory<BaseConfigurationFactoryTest.ExampleConfig, Map> customFactory = new PassThroughConfigurationFactoryFactory();
 
@@ -74,7 +78,8 @@ public class ConfigurationFactoryFactoryTest {
     }
 
 
-    private static final class PassThroughConfigurationFactoryFactory
+    @SuppressWarnings("rawtypes")
+	private static final class PassThroughConfigurationFactoryFactory
             extends DefaultConfigurationFactoryFactory<BaseConfigurationFactoryTest.ExampleConfig, Map> {
         @Override
         protected ObjectMapper configureObjectMapper(ObjectMapper objectMapper) {

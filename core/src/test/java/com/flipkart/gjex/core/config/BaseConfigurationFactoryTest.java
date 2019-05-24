@@ -15,17 +15,10 @@
  */
 package com.flipkart.gjex.core.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.util.Maps;
-import com.google.common.io.Resources;
-import javafx.util.Pair;
-import org.assertj.core.data.MapEntry;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
-import javax.validation.Validator;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,7 +26,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
+import javax.validation.Validator;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.util.Maps;
+import com.flipkart.gjex.core.util.Pair;
+import com.google.common.io.Resources;
 
 public abstract class BaseConfigurationFactoryTest {
 
@@ -79,9 +83,10 @@ public abstract class BaseConfigurationFactoryTest {
 
     public static class ExampleConfigWithDefaults extends GJEXConfiguration {
 
+    		/*
         private String name = "GJEX";
-
         private int age = 12;
+        */
 
         private @JsonProperty
         Map<String, String> properties = Maps.of("k1", "v1", "k2", "v2");
@@ -96,7 +101,8 @@ public abstract class BaseConfigurationFactoryTest {
     protected File wrongTypeFile = new File("/");
     protected File malformedAdvancedFile = new File("/");
 
-    protected ConfigurationFactory<ExampleConfig, Map> factory = new ConfigurationFactory<ExampleConfig, Map>() {
+    @SuppressWarnings("rawtypes")
+	protected ConfigurationFactory<ExampleConfig, Map> factory = new ConfigurationFactory<ExampleConfig, Map>() {
 
         @Override
         public Pair<ExampleConfig, Map> build(ConfigurationSourceProvider provider, String path) throws IOException, ConfigurationException {
@@ -139,7 +145,8 @@ public abstract class BaseConfigurationFactoryTest {
                         "  * Incorrect type of value at: age; is of type: String, expected: int" + NEWLINE, wrongTypeFile));
     }
 
-    @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
     public void loadsValidConfigFiles() throws Exception {
         final Pair<ExampleConfig, Map> result = factory.build(validFile);
         ExampleConfig example = result.getKey();

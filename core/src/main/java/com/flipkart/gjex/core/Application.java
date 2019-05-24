@@ -32,6 +32,7 @@ import java.util.Map;
  * @author regu.b
  *
  */
+@SuppressWarnings("rawtypes")
 public abstract class Application<T extends GJEXConfiguration, U extends Map> implements Logging {
 	
 	/** The GJEX startup display contents*/

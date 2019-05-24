@@ -25,7 +25,10 @@ import java.util.Set;
  */
 public class ConfigurationValidationException extends ConfigurationException {
 
-    private final ImmutableSet<ConstraintViolation<?>> constraintViolations;
+    /** Default */
+	private static final long serialVersionUID = 1L;
+
+	private final ImmutableSet<ConstraintViolation<?>> constraintViolations;
 
     /**
      * Creates a new ConfigurationException for the given path with the given errors.

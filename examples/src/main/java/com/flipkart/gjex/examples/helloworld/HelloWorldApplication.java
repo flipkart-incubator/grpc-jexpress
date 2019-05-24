@@ -29,6 +29,7 @@ import java.util.Map;
  *
  * @author regu.b
  */
+@SuppressWarnings("rawtypes")
 public class HelloWorldApplication extends Application<HelloWorldConfiguration, Map> {
 
     @Override

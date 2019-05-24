@@ -29,6 +29,7 @@ import java.util.Map;
 /**
  * A reusable bundle of functionality, used to define blocks of application behavior.
  */
+@SuppressWarnings("rawtypes")
 public interface Bundle<T extends GJEXConfiguration, U extends Map> {
 	
     /**
@@ -55,7 +56,6 @@ public interface Bundle<T extends GJEXConfiguration, U extends Map> {
      * Returns Filter instances loaded by this Bundle
      * @return List containing Filter instances
      */
-    @SuppressWarnings("rawtypes")
 	List<Filter> getFilters();
     
     /**

@@ -49,6 +49,7 @@ import java.util.Map;
  * @author regu.b
  *
  */
+@SuppressWarnings("rawtypes")
 public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Logging {
 
 	private final Application<T, U> application;
@@ -72,7 +73,6 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	private List<Service> services;
 
 	/** List of initialized Filter instances*/
-	@SuppressWarnings("rawtypes")
 	private List<Filter> filters;
 
 	/** List of initialized ConfigurableTracingSampler instances*/
@@ -147,7 +147,6 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		return services;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public List<Filter> getFilters() {
 		return filters;
 	}
@@ -209,7 +208,6 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
      * @param environment the Application Environment
      * @throws Exception in case of errors during run
      */
-    @SuppressWarnings("rawtypes")
 	public void run(Environment environment) throws Exception {
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
         services = new LinkedList<Service>();

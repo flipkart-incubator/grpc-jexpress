@@ -1,13 +1,17 @@
 package com.flipkart.gjex.examples.helloworld.config;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.gjex.core.GJEXConfiguration;
-import lombok.Data;
 
-import java.util.Map;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 
 @Data
+@EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HelloWorldConfiguration extends GJEXConfiguration {
 

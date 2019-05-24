@@ -15,6 +15,18 @@
  */
 package com.flipkart.gjex.core.config;
 
+import static java.util.Objects.requireNonNull;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -26,18 +38,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.flipkart.gjex.core.GJEXConfiguration;
-import javafx.util.Pair;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import com.flipkart.gjex.core.util.Pair;
 
 /**
  * A generic factory class for loading configuration files, binding them to configuration objects, and
@@ -46,6 +47,7 @@ import static java.util.Objects.requireNonNull;
  * @param <T> the type of the configuration object to produce
  * @param <U> Given configuration as a simple plain map
  */
+@SuppressWarnings("rawtypes")
 public abstract class BaseConfigurationFactory<T extends GJEXConfiguration, U extends Map> implements ConfigurationFactory<T, U> {
 
     protected final Class<T> klass;

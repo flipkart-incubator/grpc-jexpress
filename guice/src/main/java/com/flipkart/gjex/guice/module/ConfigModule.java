@@ -15,25 +15,31 @@
  */
 package com.flipkart.gjex.guice.module;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.GJEXError;
-import com.flipkart.gjex.core.config.*;
-import com.flipkart.gjex.core.setup.Bootstrap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.name.Names;
-import javafx.util.Pair;
-import org.apache.commons.configuration.Configuration;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.validation.Validator;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.validation.Validator;
+
+import org.apache.commons.configuration.Configuration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.GJEXError;
+import com.flipkart.gjex.core.config.ConfigurationException;
+import com.flipkart.gjex.core.config.ConfigurationFactory;
+import com.flipkart.gjex.core.config.ConfigurationFactoryFactory;
+import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
+import com.flipkart.gjex.core.config.FlattenedConfiguration;
+import com.flipkart.gjex.core.setup.Bootstrap;
+import com.flipkart.gjex.core.util.Pair;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.binder.LinkedBindingBuilder;
+import com.google.inject.name.Names;
 
 /**
  * This is the module that fetches configuration from provided source (either yml or some external service).
@@ -41,6 +47,7 @@ import java.util.Set;
  * see ConfigServiceBundle.java in contrib folder for example implementation), then that bundle must be added before GuiceBundle in your
  * respective Application class.
  */
+@SuppressWarnings("rawtypes")
 public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule {
 
     private final Bootstrap<T, U> bootstrap;
@@ -79,7 +86,8 @@ public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends Ab
     }
 
 
-    @Override
+    @SuppressWarnings({"unchecked" })
+	@Override
     protected void configure() {
         // bind config map instance
         bind(Map.class).annotatedWith(Names.named("GlobalMapConfig")).toInstance(configMap);

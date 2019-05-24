@@ -30,6 +30,7 @@ import java.util.Map;
  * @param <T>
  * @param <U>
  */
+@SuppressWarnings("rawtypes")
 public class GJEXEnvironmentModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule implements Logging {
 
     private static final String ILLEGAL_GJEX_MODULE_STATE = "The GJEX environment has not been set yet. " +

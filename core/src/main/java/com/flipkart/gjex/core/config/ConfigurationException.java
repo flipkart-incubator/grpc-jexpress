@@ -30,6 +30,9 @@ import java.util.Collection;
  */
 public abstract class ConfigurationException extends Exception {
 
+    /** Default */
+	private static final long serialVersionUID = 1L;
+	
     protected static final String NEWLINE = String.format("%n");
 
     private final Collection<String> errors;

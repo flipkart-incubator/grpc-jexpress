@@ -15,15 +15,16 @@
  */
 package com.flipkart.gjex.core.config;
 
-import com.flipkart.gjex.core.GJEXConfiguration;
-import com.github.wnameless.json.flattener.PrintMode;
-import com.github.wnameless.json.unflattener.JsonUnflattener;
-import javafx.util.Pair;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.util.Pair;
+import com.github.wnameless.json.flattener.PrintMode;
+import com.github.wnameless.json.unflattener.JsonUnflattener;
+
+@SuppressWarnings("rawtypes")
 public interface ConfigurationFactory<T extends GJEXConfiguration, U extends Map> {
 
     /**

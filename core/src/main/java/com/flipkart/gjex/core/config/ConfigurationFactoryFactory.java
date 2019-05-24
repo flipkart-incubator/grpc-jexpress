@@ -21,6 +21,7 @@ import com.flipkart.gjex.core.GJEXConfiguration;
 import javax.validation.Validator;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 public interface ConfigurationFactoryFactory<T extends GJEXConfiguration, U extends Map> {
 
     ConfigurationFactory<T, U> create(Class<T> klass,

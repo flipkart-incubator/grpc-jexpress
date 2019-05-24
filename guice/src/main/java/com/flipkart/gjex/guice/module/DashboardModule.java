@@ -19,6 +19,7 @@ package com.flipkart.gjex.guice.module;
 import com.codahale.metrics.jetty9.InstrumentedHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.HealthCheckRegistry;
@@ -44,17 +45,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashboard components.
  * 
  * @author regunath.balasubramanian
  */
-public class DashboardModule extends AbstractModule implements Logging {
+@SuppressWarnings("rawtypes")
+public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule implements Logging {
 
-	private final Bootstrap bootstrap;
+	private final Bootstrap<T,U> bootstrap;
 
-	public DashboardModule(Bootstrap bootstrap) {
+	public DashboardModule(Bootstrap<T,U> bootstrap) {
 		this.bootstrap = bootstrap;
 	}
 

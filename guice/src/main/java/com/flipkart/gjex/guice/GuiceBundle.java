@@ -44,12 +44,12 @@ import java.util.Optional;
  * @author regu.b
  *
  */
+@SuppressWarnings("rawtypes")
 public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements Bundle<T, U>, Logging {
 
 	private List<Module> modules;
 	private Injector baseInjector;
 	private List<Service> services;
-	@SuppressWarnings("rawtypes")
 	private List<Filter> filters;
 	private List<HealthCheck> healthchecks;
 	private List<TracingSampler> tracingSamplers;
@@ -86,7 +86,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
         this.configurationClass = configurationClass;
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(Bootstrap<?, ?> bootstrap) {
 		// adding config module first
@@ -137,6 +137,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		healthchecks = getInstances(baseInjector, HealthCheck.class);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void setEnvironment(final T configuration, final Environment environment) {
 		gjexEnvironmentModule.setEnvironmentData(configuration, environment);
 	}
@@ -148,7 +149,6 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		return this.services;
 	} 
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public List<Filter> getFilters() {		
         Preconditions.checkState(baseInjector != null,

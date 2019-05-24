@@ -17,7 +17,6 @@ package com.flipkart.gjex.core.config;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.dataformat.yaml.snakeyaml.error.Mark;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
 
@@ -32,7 +31,10 @@ import java.util.*;
  */
 public class ConfigurationParsingException extends ConfigurationException {
 
-    public static class Builder {
+    /** Default */
+	private static final long serialVersionUID = 1L;
+
+	public static class Builder {
 
         private static final int MAX_SUGGESTIONS = 5;
         private String summary;
@@ -217,12 +219,6 @@ public class ConfigurationParsingException extends ConfigurationException {
             return location == null
                     ? this
                     : setLocation(location.getLineNr(), location.getColumnNr());
-        }
-
-        public Builder setLocation(Mark mark) {
-            return mark == null
-                    ? this
-                    : setLocation(mark.getLine(), mark.getColumn());
         }
 
         public Builder setLocation(int line, int column) {
