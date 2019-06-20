@@ -7,9 +7,9 @@ repositories {
 }
 
 dependencies {
-	compile "com.flipkart.grpc-jexpress:core:1.+"    
-	compile "com.flipkart.grpc-jexpress:runtime:1.+"
-	compile "com.flipkart.grpc-jexpress:guice:1.+"
+	compile "com.flipkart.grpc-jexpress:core:1.3-SNAPSHOT"    
+	compile "com.flipkart.grpc-jexpress:runtime:1.3-SNAPSHOT"
+	compile "com.flipkart.grpc-jexpress:guice:1.3-SNAPSHOT"
     compile "io.grpc:examples:1.+"
     compile "io.dropwizard.metrics:metrics-healthchecks:4.0.2"
     compile	"com.palominolabs.metrics:metrics-guice:4.0.0"

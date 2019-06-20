@@ -94,32 +94,31 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 	@Override
 	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,ServerCallHandler<ReqT, RespT> next) {
 		TracingSampler tracingSampler = this.samplerMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
-		if (tracingSampler != null) {
-			Map<String, String> headerMap = new HashMap<String, String>();
-			for (String key : headers.keys()) {
-				if (!key.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-					String value = headers.get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER));
-					headerMap.put(key, value);
-				}
-			}
-			
-			final Span span = getSpanFromHeaders(call,headerMap);
-			/*
-			 *  Set the client side initiated Trace and Span in the Context.
-			 *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
-			 */
-			Context ctxWithSpan = Context.current().withValues(GJEXContextKey.getKeyRoot(), span, // root span and active span are the same
-					GJEXContextKey.getKey(), span,
-			        GJEXContextKey.getSpanContextKey(), span.context(),
-			        GJEXContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
-			    ServerCall.Listener<ReqT> listenerWithContext = Contexts
-			        .interceptCall(ctxWithSpan, call, headers, next);
-			    
-			return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {};
-		} else {
+		if (tracingSampler == null) {
 			return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
 					new SimpleForwardingServerCall<ReqT, RespT>(call){},headers)){};
 		}
+		Map<String, String> headerMap = new HashMap<String, String>();
+		for (String key : headers.keys()) {
+			if (!key.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
+				String value = headers.get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER));
+				headerMap.put(key, value);
+			}
+		}
+		
+		final Span span = getSpanFromHeaders(call,headerMap);
+		/*
+		 *  Set the client side initiated Trace and Span in the Context.
+		 *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
+		 */
+		Context ctxWithSpan = Context.current().withValues(GJEXContextKey.getKeyRoot(), span, // root span and active span are the same
+				GJEXContextKey.getKey(), span,
+		        GJEXContextKey.getSpanContextKey(), span.context(),
+		        GJEXContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
+		    ServerCall.Listener<ReqT> listenerWithContext = Contexts
+		        .interceptCall(ctxWithSpan, call, headers, next);
+		    
+		return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {};
 	}
 	
 	/**
