@@ -15,6 +15,8 @@
  */
 package com.flipkart.gjex.examples.helloworld.guice;
 
+import org.glassfish.jersey.server.ResourceConfig;
+
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.tracing.TracingSampler;
@@ -23,6 +25,7 @@ import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 import com.flipkart.gjex.examples.helloworld.healthcheck.AllIsWellHealthCheck;
 import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
+import com.flipkart.gjex.examples.helloworld.web.HelloWorldResourceConfig;
 import com.flipkart.gjex.grpc.channel.ChannelConfig;
 import com.flipkart.gjex.guice.module.ClientModule;
 import com.google.inject.AbstractModule;
@@ -51,6 +54,7 @@ public class HelloWorldModule extends AbstractModule {
 		bind(Filter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
 		bind(HealthCheck.class).to(AllIsWellHealthCheck.class);
+		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
 	}
 	
 }
