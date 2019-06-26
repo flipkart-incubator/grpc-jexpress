@@ -16,18 +16,15 @@
 
 package com.flipkart.gjex.guice.module;
 
-import com.codahale.metrics.jetty9.InstrumentedHandler;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.logging.Logging;
-import com.flipkart.gjex.core.setup.Bootstrap;
-import com.flipkart.gjex.core.setup.HealthCheckRegistry;
-import com.flipkart.gjex.core.web.DashboardResource;
-import com.flipkart.gjex.core.web.HealthCheckResource;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Map;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -39,13 +36,19 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.mvc.freemarker.FreemarkerMvcFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.Map;
+import com.codahale.metrics.jetty9.InstrumentedHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.flipkart.gjex.Constants;
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.setup.Bootstrap;
+import com.flipkart.gjex.core.setup.HealthCheckRegistry;
+import com.flipkart.gjex.core.web.DashboardResource;
+import com.flipkart.gjex.core.web.HealthCheckResource;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 
 /**
  * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashboard components.
@@ -54,7 +57,7 @@ import java.util.Map;
  */
 @SuppressWarnings("rawtypes")
 public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule implements Logging {
-
+	
 	private final Bootstrap<T,U> bootstrap;
 
 	public DashboardModule(Bootstrap<T,U> bootstrap) {
@@ -74,9 +77,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 								   @Named("Dashboard.service.acceptors") int acceptorThreads,
 								   @Named("Dashboard.service.selectors") int selectorThreads,
 								   @Named("Dashboard.service.workers") int maxWorkerThreads,
-								   ObjectMapper objectMapper) {
-		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
-		provider.setMapper(objectMapper);
+								   @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) {
 		resourceConfig.register(provider);
 		QueuedThreadPool threadPool = new QueuedThreadPool();
 		threadPool.setMaxThreads(maxWorkerThreads);
@@ -128,49 +129,77 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Named("APIJettyServer")
 	@Provides
 	@Singleton
-	Server getAPIJettyServer(@Named("Api.service.port") int port,
-							 @Named("HealthCheckResourceConfig")ResourceConfig resourceConfig,
-							 @Named("Api.service.acceptors") int acceptorThreads,
-							 @Named("Api.service.selectors") int selectorThreads,
-							 @Named("Api.service.workers") int maxWorkerThreads,
-							 ObjectMapper objectMapper) throws URISyntaxException, UnknownHostException {
-		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
-		provider.setMapper(objectMapper);
+	Server getAPIJettyServer(@Named("APIVanillaJettyServer")Server server,
+							@Named("ApiServletContext") ServletContextHandler context,
+							@Named("HealthCheckResourceConfig")ResourceConfig resourceConfig,
+							@Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) throws URISyntaxException, UnknownHostException {
 		resourceConfig.register(provider);
-		QueuedThreadPool threadPool = new QueuedThreadPool();
-		threadPool.setMaxThreads(maxWorkerThreads);
-		Server server = new Server(threadPool);
-		ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
-		http.setPort(port);
-		server.addConnector(http);
-		ServletContextHandler context = new ServletContextHandler(server, "/*");
 		ServletHolder servlet = new ServletHolder(new ServletContainer(resourceConfig));
-		context.addServlet(servlet, "/*");
+		context.addServlet(servlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
+		
 		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
 
 		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
 		handler.setHandler(context);
 		server.setHandler(handler);
 
+		return server;
+	}
+
+	/**
+	 * Creates the vanilla Jetty server instance for the GJEX API endpoint.
+	 * @return Jetty Server instance
+	 */
+	@Named("APIVanillaJettyServer")
+	@Provides
+	@Singleton
+	Server getAPIVanillaJettyServer(@Named("Api.service.port") int port,
+							 @Named("Api.service.acceptors") int acceptorThreads,
+							 @Named("Api.service.selectors") int selectorThreads,
+							 @Named("Api.service.workers") int maxWorkerThreads) throws URISyntaxException, UnknownHostException {
+		QueuedThreadPool threadPool = new QueuedThreadPool();
+		threadPool.setMaxThreads(maxWorkerThreads);
+		Server server = new Server(threadPool);
+		ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
+		http.setPort(port);
+		server.addConnector(http);
 		server.setStopAtShutdown(true);
 		return server;
 	}
 
+	@Named("JSONMarshallingProvider")
+	@Singleton
+	@Provides
+	JacksonJaxbJsonProvider getJSONMarshallingProvider(ObjectMapper objectMapper) {
+		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
+		provider.setMapper(objectMapper);
+		return provider;
+	}
+	
+	@Named("ApiServletContext")
+	@Singleton
+	@Provides
+	public ServletContextHandler getApiServletContext(@Named("APIVanillaJettyServer")Server server) {
+		return new ServletContextHandler(server, "/");
+	}
+	
 	@Named("HealthCheckResourceConfig")
 	@Singleton
 	@Provides
-	public ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
+	ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(healthCheckResource);
+		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
 		return resourceConfig;
 	}
 
 	@Named("DashboardResourceConfig")
 	@Singleton
 	@Provides
-	public ResourceConfig getDashboardResourceConfig(DashboardResource dashboardResource) {
+	ResourceConfig getDashboardResourceConfig(DashboardResource dashboardResource) {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(dashboardResource);
+		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
 		resourceConfig.property(FreemarkerMvcFeature.TEMPLATES_BASE_PATH, "webroot/pages");
 		resourceConfig.register(FreemarkerMvcFeature.class);
 		return resourceConfig;

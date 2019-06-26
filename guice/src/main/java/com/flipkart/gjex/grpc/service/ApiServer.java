@@ -15,15 +15,20 @@
  */
 package com.flipkart.gjex.grpc.service;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.eclipse.jetty.server.Server;
+import org.glassfish.jersey.server.ResourceConfig;
 
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
+import com.flipkart.gjex.web.ResourceRegistrar;
 
 /**
  * <code>ApiServer</code> is a {@link Service} implementation that manages the GJEX API Jetty Server instance lifecycle
@@ -32,17 +37,26 @@ import com.flipkart.gjex.core.service.Service;
  */
 
 @Singleton
+@Named("APIServer")
 public class ApiServer extends AbstractService implements Logging {
 
     private final Server apiServer;
+    private final ResourceRegistrar resourceRegistrar;
+	private List<ResourceConfig> resourceConfigs = new LinkedList<ResourceConfig>();
 
 	@Inject
-	public ApiServer(@Named("APIJettyServer") Server apiServer) {
+	public ApiServer(@Named("APIJettyServer") Server apiServer, ResourceRegistrar resourceRegistrar) {
 		this.apiServer = apiServer;
+		this.resourceRegistrar = resourceRegistrar;
+	}
+	
+	public void registerResources(List<ResourceConfig> resourceConfigs) {
+		this.resourceConfigs.addAll(resourceConfigs);
 	}
 	
 	@Override
 	public void doStart() throws Exception {
+		this.resourceRegistrar.registerResources(this.resourceConfigs); // register any custom web resources added by the GJEX application
 		this.apiServer.start();
 		info("API Server started and listening on port : " + this.apiServer.getURI().getPort());
 	}

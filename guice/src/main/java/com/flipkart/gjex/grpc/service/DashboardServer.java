@@ -32,6 +32,7 @@ import com.flipkart.gjex.core.service.Service;
  */
 
 @Singleton
+@Named("DashboardServer")
 public class DashboardServer extends AbstractService implements Logging {
 
     private final Server dashboardServer;
