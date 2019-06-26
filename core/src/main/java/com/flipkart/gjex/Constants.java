@@ -46,4 +46,7 @@ public interface Constants {
      */
     String GRPC_MODULE_NAMES = "GJEX.grpc.module.names";
     
+	/** Static name for GJEX core application name used to distinguish Resources added by the framework with custom ones added by the GJEX applications */
+	String GJEX_CORE_APPLICATION = "@@GJEXCoreApplication@@";
+    
 }

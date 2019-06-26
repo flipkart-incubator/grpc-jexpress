@@ -16,15 +16,17 @@
 
 package com.flipkart.gjex.core;
 
+import java.util.List;
+import java.util.Map;
+
+import org.glassfish.jersey.server.ResourceConfig;
+
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * A reusable bundle of functionality, used to define blocks of application behavior.
@@ -69,4 +71,10 @@ public interface Bundle<T extends GJEXConfiguration, U extends Map> {
      * @return the TracingSampler instances
      */
     List<TracingSampler> getTracingSamplers();
+    
+    /**
+     * Returns list of custom {@link ResourceConfig} instances configured by the GJEX application
+     * @return ResourceConfig instances
+     */
+    List<ResourceConfig> getResourceConfigs();
 }

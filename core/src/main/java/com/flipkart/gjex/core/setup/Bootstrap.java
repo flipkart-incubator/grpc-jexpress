@@ -15,6 +15,14 @@
  */
 package com.flipkart.gjex.core.setup;
 
+import java.lang.management.ManagementFactory;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jmx.JmxReporter;
 import com.codahale.metrics.jvm.BufferPoolMetricSet;
@@ -35,13 +43,6 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.google.common.collect.Lists;
-
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-import java.lang.management.ManagementFactory;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The pre-start application container, containing services required to bootstrap a GJEX application
@@ -74,13 +75,13 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 
 	/** List of initialized Filter instances*/
 	private List<Filter> filters;
-
+	
 	/** List of initialized ConfigurableTracingSampler instances*/
 	private List<TracingSampler> tracingSamplers;
 
 	/** The HealthCheckRegistry*/
 	private HealthCheckRegistry healthCheckRegistry;
-
+	
 	public Bootstrap(Application<T, U> application, String configPath, Class<T> configurationClass) {
 		this.configurationClass = configurationClass;
 		this.configPath = configPath;
@@ -212,6 +213,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
         services = new LinkedList<Service>();
         filters = new LinkedList<Filter>();
+        tracingSamplers = new LinkedList<TracingSampler>();
         // Set the HealthCheckRegsitry to the one initialized by the Environment
         healthCheckRegistry = environment.getHealthCheckRegistry();
 
@@ -219,7 +221,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
             bundle.run(configuration, configMap, environment);
             services.addAll(bundle.getServices());
             filters.addAll(bundle.getFilters());
-            tracingSamplers = bundle.getTracingSamplers();
+            tracingSamplers.addAll(bundle.getTracingSamplers());
             // Register all HealthChecks with the HealthCheckRegistry
             bundle.getHealthChecks().forEach(hc -> this.healthCheckRegistry.register(hc.getClass().getSimpleName(), hc));
         }

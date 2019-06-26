@@ -37,7 +37,7 @@ import com.flipkart.gjex.core.setup.HealthCheckRegistry;
  */
 
 @Singleton
-@Path("/api")
+@Path("/")
 @Named
 public class HealthCheckResource {
 
@@ -45,7 +45,6 @@ public class HealthCheckResource {
 	private ServletContext servletContext;
 
 	@GET
-	@Path("/healthcheck")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response performHealthChecks() {
 		HealthCheckRegistry registry = (HealthCheckRegistry) servletContext
