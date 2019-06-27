@@ -65,6 +65,9 @@ public class ResourceRegistrar implements Logging {
 				}
 			}
 		}
+		if (uniqueResourceConfig == null) {
+			return;
+		}
 		uniqueResourceConfig.register(jaxbProvider);
 		ServletHolder servlet = new ServletHolder(new ServletContainer(uniqueResourceConfig));
 		context.addServlet(servlet, "/*");
