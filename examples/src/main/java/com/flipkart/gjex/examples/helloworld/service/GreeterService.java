@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.codahale.metrics.annotation.Timed;
+import com.flipkart.gjex.core.filter.ApplicationHeaders;
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Api;
@@ -75,6 +76,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		
 		info("Saying hello in Greeter service");
+		info("Headers in service : " + ApplicationHeaders.getHeaders());
 		
 		try {
 			// invoke business logic implemented in a separate injected class

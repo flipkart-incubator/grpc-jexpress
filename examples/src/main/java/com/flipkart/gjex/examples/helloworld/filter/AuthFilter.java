@@ -48,6 +48,12 @@ public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
 		info("Headers found in the request : " + requestHeaders.toString());
 		this.checkAuth(requestHeaders);
 	}
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Metadata.Key[] getForwardHeaderKeys() {
+		return new  Metadata.Key[] {AUTH_KEY};
+	}
 
 	@SuppressWarnings("unchecked")
 	private void checkAuth(Metadata requestHeaders) throws StatusRuntimeException {

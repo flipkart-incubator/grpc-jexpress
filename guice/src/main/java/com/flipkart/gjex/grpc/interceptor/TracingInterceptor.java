@@ -15,26 +15,6 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
-import com.flipkart.gjex.core.logging.Logging;
-import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
-import com.flipkart.gjex.core.tracing.GJEXContextKey;
-import com.flipkart.gjex.core.tracing.Traced;
-import com.flipkart.gjex.core.tracing.TracingSampler;
-import com.flipkart.gjex.core.util.Pair;
-import com.flipkart.gjex.grpc.utils.AnnotationUtils;
-import io.grpc.*;
-import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
-import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
-import io.grpc.ServerCall.Listener;
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMapExtractAdapter;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,6 +22,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+import com.flipkart.gjex.core.context.GJEXContext;
+import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
+import com.flipkart.gjex.core.tracing.Traced;
+import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.core.util.Pair;
+import com.flipkart.gjex.grpc.utils.AnnotationUtils;
+
+import io.grpc.BindableService;
+import io.grpc.Context;
+import io.grpc.Contexts;
+import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
+import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCall.Listener;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapExtractAdapter;
 
 /**
  * An implementation of the gRPC {@link ServerInterceptor} for Distributed Tracing that retrieves active traces initialized by clients and lets
@@ -111,12 +119,12 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 		 *  Set the client side initiated Trace and Span in the Context.
 		 *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
 		 */
-		Context ctxWithSpan = Context.current().withValues(GJEXContextKey.getKeyRoot(), span, // root span and active span are the same
-				GJEXContextKey.getKey(), span,
-		        GJEXContextKey.getSpanContextKey(), span.context(),
-		        GJEXContextKey.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
-		    ServerCall.Listener<ReqT> listenerWithContext = Contexts
-		        .interceptCall(ctxWithSpan, call, headers, next);
+		Context ctxWithSpan = Context.current().withValues(GJEXContext.getKeyRoot(), span, // root span and active span are the same
+				GJEXContext.getKeyActiveSpan(), span,
+				GJEXContext.getSpanContextKey(), span.context(),
+				GJEXContext.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
+		
+		ServerCall.Listener<ReqT> listenerWithContext = Contexts.interceptCall(ctxWithSpan, call, headers, next);
 		    
 		return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {};
 	}

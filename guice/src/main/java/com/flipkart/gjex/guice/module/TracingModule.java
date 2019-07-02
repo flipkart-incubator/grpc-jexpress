@@ -15,13 +15,23 @@
  */
 package com.flipkart.gjex.guice.module;
 
-import brave.Tracing;
-import brave.opentracing.BraveTracer;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.task.FutureDecorator;
 import com.flipkart.gjex.core.task.TaskException;
-import com.flipkart.gjex.core.tracing.GJEXContextKey;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.google.common.collect.ImmutableMap;
@@ -29,6 +39,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
+
+import brave.Tracing;
+import brave.opentracing.BraveTracer;
 import io.grpc.BindableService;
 import io.grpc.Context;
 import io.opentracing.Scope;
@@ -36,19 +49,9 @@ import io.opentracing.Tracer;
 import io.opentracing.log.Fields;
 import io.opentracing.tag.Tags;
 import io.reactivex.functions.BiConsumer;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
 
 /**
  * An implementation of Guice {@link AbstractModule} that initializes OpenTracing and intercepts methods annotated with {@link Traced}
@@ -105,14 +108,14 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 			 */
 			io.opentracing.Span methodInvocationSpan = null;  
 			Callable<Object> methodCallable = new MethodCallable(invocation);
-			if (GJEXContextKey.activeSpan() != null) {
+			if (GJEXContext.activeSpan() != null) {
 				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
 				// check and warn if TracingSampler is used for non BindableService classes
 				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass()) && invocation.getMethod().getAnnotation(Traced.class).withTracingSampler() != TracingSampler.class) {
 					warn("TracingSampler declarations are interpreted only for sub-types of gRPC BindableService. TracingSampler declared for : " 
 							+ methodInvoked + " will not be interpreted/honored");
 				}
-				TracingSampler tracingSampler = GJEXContextKey.activeTracingSampler();
+				TracingSampler tracingSampler = GJEXContext.activeTracingSampler();
 				tracingSampler.initializeSamplerFor(methodInvoked, invocation.getMethod().getAnnotation(Traced.class).withSamplingRate());
 				Tracer tracer = tracerProvider.get();
 				if (tracingSampler.isSampled(methodInvoked)) {
@@ -120,16 +123,16 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 					 * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor) 
 					 * but not activated because it has to be sampled here.
 					 */
-					if (tracer.scopeManager().active() == null || (tracer.scopeManager().active().span() != GJEXContextKey.activeSpan())) {
-						parentScope = tracer.scopeManager().activate(GJEXContextKey.activeSpan(), true);
+					if (tracer.scopeManager().active() == null || (tracer.scopeManager().active().span() != GJEXContext.activeSpan())) {
+						parentScope = tracer.scopeManager().activate(GJEXContext.activeSpan(), true);
 					} 
 					methodInvocationSpan = tracer.buildSpan(methodInvoked)
-							.asChildOf(GJEXContextKey.activeSpan())
+							.asChildOf(GJEXContext.activeSpan())
 							.start();
 					scope = tracer.scopeManager().activate(methodInvocationSpan, true);					
 				}
 				// Set the Method invocation Span as the current span - may be null too and this means subsequent methods will not get traced
-				methodCallable = Context.current().withValue(GJEXContextKey.getKey(), methodInvocationSpan).wrap(methodCallable);
+				methodCallable = Context.current().withValue(GJEXContext.getKeyActiveSpan(), methodInvocationSpan).wrap(methodCallable);
 			}
 			Object result = null;
 			try  {
@@ -213,7 +216,7 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 		if (scope != null) {
 			scope.close();
 		}		
-		if (parentScope != null && parentScope.span() == GJEXContextKey.activeRootSpan()) { // close the parent span only if it is the root span
+		if (parentScope != null && parentScope.span() == GJEXContext.activeRootSpan()) { // close the parent span only if it is the root span
 			parentScope.close(); 
 		}		
 	}	

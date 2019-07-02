@@ -20,6 +20,7 @@ import java.util.concurrent.Future;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.flipkart.gjex.core.filter.ApplicationHeaders;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.task.AsyncResult;
 import com.flipkart.gjex.core.task.ConcurrentTask;
@@ -49,8 +50,8 @@ public class HelloBeanService implements Logging {
 	
 	/** Traced method with serial invocation of next method*/
 	@Traced
-	public void tracedMethod1() {
-		info("Invoked trace method1");
+	public void tracedMethod1() {		
+		info("Invoked trace method1");		
 		this.tracedMethod2();
 	}
 	
@@ -95,6 +96,7 @@ public class HelloBeanService implements Logging {
             @Override
             public ResponseEntity invoke() {
             		sleep(200);
+            		info("Headers in method3 : " + ApplicationHeaders.getHeaders());
             		info("Invoked trace method3");
             		entity.method3 = "InvokedMethod3";
             		return entity;

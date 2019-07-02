@@ -15,6 +15,8 @@
  */
 package com.flipkart.gjex.core.tracing;
 
+import com.flipkart.gjex.core.context.GJEXContext;
+
 import io.opentracing.Span;
 
 /**
@@ -42,7 +44,7 @@ public interface ActiveSpanSource {
     public static ActiveSpanSource GRPC_CONTEXT = new ActiveSpanSource() {
         @Override 
         public Span getActiveSpan() {
-            return GJEXContextKey.activeSpan();
+            return GJEXContext.activeSpan();
         }
     };
 

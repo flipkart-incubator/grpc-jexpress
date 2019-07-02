@@ -28,6 +28,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
 
+import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
@@ -36,6 +37,7 @@ import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 import com.google.protobuf.GeneratedMessageV3;
 
 import io.grpc.BindableService;
+import io.grpc.Context;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
 import io.grpc.Metadata;
@@ -85,10 +87,11 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		});
 	}
 		
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,ServerCallHandler<ReqT, RespT> next) {		
 		List<Filter> filters = filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
+		Metadata forwardHeaders = new Metadata();
 		if(filters == null) {
 			return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
 					new SimpleForwardingServerCall<ReqT, RespT>(call){},headers)){};
@@ -96,25 +99,41 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 		for (Filter filter : filters) {
 			try {
 				filter.doFilterRequest(headers);
+				for (Metadata.Key key : filter.getForwardHeaderKeys()) {
+					Object value = headers.get(key);
+					if (value != null) {
+						forwardHeaders.put(key, value);
+					}
+				}
 			} catch (StatusRuntimeException se) {
 				call.close(se.getStatus(), se.getTrailers()); // Closing the call and not letting it to proceed further
 				return new ServerCall.Listener<ReqT>() {
 				};
 			}
 		}
-		ServerCall.Listener<ReqT> listener = next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
-			@Override
-			@SuppressWarnings("unchecked")
-			public void sendMessage(final RespT response) {
-				filters.forEach(filter -> filter.doProcessResponse((GeneratedMessageV3) response));
-				super.sendMessage(response);
+		
+		Context contextWithHeaders = forwardHeaders.keys().isEmpty() ? null : Context.current().withValue(GJEXContext.getHeadersKey(), forwardHeaders);
+		Context previous = contextWithHeaders == null ? null : contextWithHeaders.attach(); // attach the gRPC context with headers as current Context
+		
+		ServerCall.Listener<ReqT> listener = null;
+		try {
+			listener = next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
+				@Override
+				public void sendMessage(final RespT response) {
+					filters.forEach(filter -> filter.doProcessResponse((GeneratedMessageV3) response));
+					super.sendMessage(response);
+				}
+				@Override
+				public void sendHeaders(final Metadata responseHeaders) {
+					filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
+					super.sendHeaders(headers);
+				}
+			}, headers);
+		} finally {
+			if (contextWithHeaders != null) {
+				contextWithHeaders.detach(previous); // unset the gRPC context with headers
 			}
-			@Override
-			public void sendHeaders(final Metadata responseHeaders) {
-				filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
-				super.sendHeaders(headers);
-			}
-		}, headers);			
+		}
 		return new SimpleForwardingServerCallListener<ReqT>(listener) {
 			@Override public void onHalfClose() {
 			    try {
@@ -123,7 +142,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 			    		handleException(call, ex);
 			    }
 		    }			
-			@SuppressWarnings("unchecked")
 			@Override
 			public void onMessage(ReqT request) {
 				filters.forEach(filter -> filter.doProcessRequest((GeneratedMessageV3) request));

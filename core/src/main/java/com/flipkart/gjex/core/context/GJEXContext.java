@@ -13,72 +13,88 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.flipkart.gjex.core.tracing;
+package com.flipkart.gjex.core.context;
+
+import com.flipkart.gjex.core.tracing.TracingSampler;
 
 import io.grpc.Context;
+import io.grpc.Metadata;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 
 /**
  * Code ported from {@linkplain https://github.com/opentracing-contrib/java-grpc/blob/master/src/main/java/io/opentracing/contrib/grpc/OpenTracingContextKey.java}
  * 
- * Supports storing {@link io.grpc.Context} key for the current OpenTracing trace state
+ * Supports storing and propagating useful per-execution data such as current OpenTracing trace state using the gRPC {@link io.grpc.Context}
  *
  */
-public class GJEXContextKey {
+public class GJEXContext {
 
-	public static final String KEY_ROOT_SPAN = "io.opentracing.root-span";
-	public static final String KEY_NAME = "io.opentracing.active-span";
+	public static final String KEY_ROOT_SPAN_NAME = "io.opentracing.root-span";
+	public static final String KEY_ACTIVE_SPAN_NAME = "io.opentracing.active-span";
 	public static final String KEY_CONTEXT_NAME = "io.opentracing.active-span-context";
 	public static final String KEY_TRACING_SAMPLER_NAME = "io.opentracing.active-tracing-sampler";
-	private static final Context.Key<Span> keyRoot = Context.key(KEY_ROOT_SPAN);
-	private static final Context.Key<Span> key = Context.key(KEY_NAME);
-	private static final Context.Key<SpanContext> keyContext = Context.key(KEY_CONTEXT_NAME);
-	private static final Context.Key<TracingSampler> keyTracingSampler = Context.key(KEY_TRACING_SAMPLER_NAME);	
+	public static final String KEY_HEADERS_NAME = "com.flipkart.gjex.headers";
+	
+	private static final Context.Key<Span> KEY_ROOT_SPAN = Context.key(KEY_ROOT_SPAN_NAME);
+	private static final Context.Key<Span> KEY_ACTIVE_SPAN = Context.key(KEY_ACTIVE_SPAN_NAME);
+	private static final Context.Key<SpanContext> KEY_CONTEXT = Context.key(KEY_CONTEXT_NAME);
+	private static final Context.Key<TracingSampler> KEY_TRACING_SAMPLER = Context.key(KEY_TRACING_SAMPLER_NAME);	
+	private static final Context.Key<Metadata> KEY_HEADERS = Context.key(KEY_HEADERS_NAME);	
 
 	/**
 	 * @return the OpenTracing context key for Root span
 	 */
 	public static Context.Key<Span> getKeyRoot() {
-		return keyRoot;
+		return KEY_ROOT_SPAN;
 	}
 	/**
 	 * @return the active root span for the current request
 	 */
 	public static Span activeRootSpan() {
-		return keyRoot.get();
+		return KEY_ROOT_SPAN.get();
 	}
 	/**
 	 * @return the OpenTracing context key for Active span
 	 */
-	public static Context.Key<Span> getKey() {
-		return key;
+	public static Context.Key<Span> getKeyActiveSpan() {
+		return KEY_ACTIVE_SPAN;
 	}
 	/**
 	 * @return the active span for the current request
 	 */
 	public static Span activeSpan() {
-		return key.get();
+		return KEY_ACTIVE_SPAN.get();
 	}
 
 	/**
 	 * @return the OpenTracing context key for span context
 	 */
 	public static Context.Key<SpanContext> getSpanContextKey() {
-		return keyContext;
+		return KEY_CONTEXT;
 	}
 	public static SpanContext activeSpanContext() {
-		return keyContext.get();
+		return KEY_CONTEXT.get();
 	}
 
 	/**
 	 * @return the GJEX TracingSampler key and active sampler
 	 */
 	public static Context.Key<TracingSampler> getTracingSamplerKey() {
-		return keyTracingSampler;
+		return KEY_TRACING_SAMPLER;
 	}
 	public static TracingSampler activeTracingSampler() {
-		return keyTracingSampler.get();
+		return KEY_TRACING_SAMPLER.get();
+	}
+
+	/**
+	 * @return the GJEX headers key and forwarded headers
+	 */
+	public static Context.Key<Metadata> getHeadersKey() {
+		return KEY_HEADERS;
+	}
+	public static Metadata activeHeaders() {
+		return KEY_HEADERS.get();
 	}
 	
 }
