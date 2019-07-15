@@ -51,9 +51,9 @@ public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMes
 	
 	/**
 	 * Call-back to decorate or inspect the Response headers. Implementations may use this method to set additional headers in the response.
-	 * @param reponseHeaders the Response Headers
+	 * @param responseHeaders the Response Headers
 	 */
-	default void doProcessResponseHeaders(Metadata reponseHeaders) {}
+	default void doProcessResponseHeaders(Metadata responseHeaders) {}
 	
 	/**
 	 * Call-back to decorate or inspect the Response Proto V3 body/message. This Filter cannot fail processing of the Response body and hence there is no support for indicating failure.
