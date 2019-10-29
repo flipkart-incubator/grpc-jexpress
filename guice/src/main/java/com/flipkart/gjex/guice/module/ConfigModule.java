@@ -50,41 +50,13 @@ import com.google.inject.name.Names;
 @SuppressWarnings("rawtypes")
 public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule {
 
-    private final Bootstrap<T, U> bootstrap;
-
     private final T configuration;
     private final U configMap;
 
-    public ConfigModule(Bootstrap<T, U> _bootstrap) {
-        this.bootstrap = _bootstrap;
-        try {
-            Pair<T, U> pair = parseConfiguration(bootstrap.getConfigurationFactoryFactory(), bootstrap.getConfigurationSourceProvider(),
-                    bootstrap.getValidatorFactory().getValidator(), bootstrap.getConfigPath(), bootstrap.getConfigurationClass(),
-                    bootstrap.getObjectMapper());
-            configuration = pair.getKey();
-            configMap = pair.getValue();
-            this.bootstrap.setConfiguration(configuration); // NOTE
-            this.bootstrap.setConfigMap(configMap); // NOTE
-        } catch (ConfigurationException  | IOException e) {
-            throw new GJEXError(GJEXError.ErrorType.runtime, "Error occurred while reading/parsing configuration " +
-                    "from source " + bootstrap.getConfigPath(), e);
-        }
+    public ConfigModule(Bootstrap<T, U> bootstrap) {
+        this.configMap = bootstrap.getConfigMap();
+        this.configuration = bootstrap.getConfiguration();
     }
-
-    private Pair<T, U> parseConfiguration(ConfigurationFactoryFactory<T, U> configurationFactoryFactory,
-                                          ConfigurationSourceProvider provider,
-                                          Validator validator,
-                                          String configPath,
-                                          Class<T> klass,
-                                          ObjectMapper objectMapper) throws IOException, ConfigurationException {
-        final ConfigurationFactory<T, U> configurationFactory = configurationFactoryFactory
-                .create(klass, validator, objectMapper);
-        if (configPath != null) {
-            return configurationFactory.build(provider, configPath);
-        }
-        return configurationFactory.build();
-    }
-
 
     @SuppressWarnings({"unchecked" })
 	@Override
