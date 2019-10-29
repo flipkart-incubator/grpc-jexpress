@@ -15,12 +15,14 @@
  */
 package com.flipkart.gjex.core.setup;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Validation;
+import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import com.codahale.metrics.MetricRegistry;
@@ -33,7 +35,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.gjex.core.Application;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.GJEXError;
 import com.flipkart.gjex.core.GJEXObjectMapper;
+import com.flipkart.gjex.core.config.ConfigurationException;
+import com.flipkart.gjex.core.config.ConfigurationFactory;
 import com.flipkart.gjex.core.config.ConfigurationFactoryFactory;
 import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
 import com.flipkart.gjex.core.config.DefaultConfigurationFactoryFactory;
@@ -42,6 +47,8 @@ import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.core.util.Pair;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
@@ -93,6 +100,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		this.configurationFactoryFactory = new DefaultConfigurationFactoryFactory<>();
 		this.configurationSourceProvider = new FileConfigurationSourceProvider();
 		this.validatorFactory = Validation.buildDefaultValidatorFactory();
+		this.initializeConfig();
 
 		getMetricRegistry().register("jvm.buffers", new BufferPoolMetricSet(ManagementFactory
                 .getPlatformMBeanServer()));
@@ -129,6 +137,8 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
      * @param bundle a {@link Bundle}
      */
     public void addBundle(Bundle<? super T, ? super U> bundle) {
+		Preconditions.checkState(bundles.isEmpty(),
+				"bundles can be initialized only once");
         bundle.initialize(this);
         bundles.add(bundle);
     }
@@ -261,4 +271,30 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	    	});    		
     }
 
+    private void initializeConfig() {
+		try {
+			Pair<T, U> pair = parseConfiguration(this.getConfigurationFactoryFactory(), this.getConfigurationSourceProvider(),
+					this.getValidatorFactory().getValidator(), this.getConfigPath(), this.getConfigurationClass(),
+					this.getObjectMapper());
+			this.setConfiguration(pair.getKey()); // NOTE
+			this.setConfigMap(pair.getValue()); // NOTE
+		} catch (ConfigurationException | IOException e) {
+			throw new GJEXError(GJEXError.ErrorType.runtime, "Error occurred while reading/parsing configuration " +
+					"from source " + this.getConfigPath(), e);
+		}
+	}
+
+	private Pair<T, U> parseConfiguration(ConfigurationFactoryFactory<T, U> configurationFactoryFactory,
+										  ConfigurationSourceProvider provider,
+										  Validator validator,
+										  String configPath,
+										  Class<T> klass,
+										  ObjectMapper objectMapper) throws IOException, ConfigurationException {
+		final ConfigurationFactory<T, U> configurationFactory = configurationFactoryFactory
+				.create(klass, validator, objectMapper);
+		if (configPath != null) {
+			return configurationFactory.build(provider, configPath);
+		}
+		return configurationFactory.build();
+	}
 }
