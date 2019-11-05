@@ -20,6 +20,7 @@ Provides following features:
 ## Releases
 | Release | Date | Description |
 |:---------------------------------|:----------------|:------------|
+| Version 1.33                     | Nov 2019        |  Bug fixes, feature enhahncements
 | Version 1.0                      | Jan 2019        |  Initial stable release
 
 ## Changelog
