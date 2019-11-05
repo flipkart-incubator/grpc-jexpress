@@ -15,3 +15,7 @@
   - Task/Upstream request retries using Hedged Requests 
   - Tool recommendations for testing
   
+## 1.33 (Nov 9, 2019)
+- Bug fixes
+- Enhanced configuration support
+- Support for carrying forward gRPC headers to service implementations
