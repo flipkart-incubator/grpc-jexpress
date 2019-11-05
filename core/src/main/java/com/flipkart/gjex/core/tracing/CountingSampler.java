@@ -35,11 +35,15 @@ public class CountingSampler {
 	private final BitSet sampleDecisions;
 	
 	public CountingSampler (float rate) {
-		if (rate < 0.01f || rate > 1) {
-			throw new IllegalArgumentException("rate should be between 0.01 and 1: was " + rate);
+		if (rate < 0.0f || rate > 1) {
+			throw new IllegalArgumentException("rate should be between 0.0 and 1: was " + rate);
 		}
-		int outOf100 = (int) (rate * 100.0f);
-	    this.sampleDecisions = this.randomBitSet(100, outOf100, new Random());		
+		if (rate == 0.0f) {
+			this.sampleDecisions = new BitSet(100); // empty bitset to denote nothing is sampled
+		} else {
+			int outOf100 = (int) (rate * 100.0f);
+		    this.sampleDecisions = this.randomBitSet(100, outOf100, new Random());
+		}
 	}
 	
 	public boolean isSampled() {

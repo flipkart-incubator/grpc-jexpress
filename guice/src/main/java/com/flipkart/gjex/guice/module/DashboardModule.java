@@ -44,8 +44,10 @@ import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.HealthCheckRegistry;
+import com.flipkart.gjex.core.tracing.TracingSamplerHolder;
 import com.flipkart.gjex.core.web.DashboardResource;
 import com.flipkart.gjex.core.web.HealthCheckResource;
+import com.flipkart.gjex.core.web.TracingResource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
@@ -131,13 +133,20 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Singleton
 	Server getAPIJettyServer(@Named("APIVanillaJettyServer")Server server,
 							@Named("ApiServletContext") ServletContextHandler context,
-							@Named("HealthCheckResourceConfig")ResourceConfig resourceConfig,
+							@Named("HealthCheckResourceConfig")ResourceConfig healthcheckResourceConfig,
+							@Named("TracingResourceConfig")ResourceConfig tracingResourceConfig,
+							@Named("TracingSamplerHolder")TracingSamplerHolder tracingSamplerHolder,
 							@Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) throws URISyntaxException, UnknownHostException {
-		resourceConfig.register(provider);
-		ServletHolder servlet = new ServletHolder(new ServletContainer(resourceConfig));
-		context.addServlet(servlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
+		healthcheckResourceConfig.register(provider);
+		ServletHolder healthcheckServlet = new ServletHolder(new ServletContainer(healthcheckResourceConfig));
+		context.addServlet(healthcheckServlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
+
+		tracingResourceConfig.register(provider);
+		ServletHolder tracingServlet = new ServletHolder(new ServletContainer(tracingResourceConfig));
+		context.addServlet(tracingServlet, "/tracingconfig"); // registering Tracing config servlet under the /tracingconfig path
 		
 		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
+		context.setAttribute(TracingSamplerHolder.TRACING_SAMPLER_HOLDER_NAME, tracingSamplerHolder);
 
 		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
 		handler.setHandler(context);
@@ -193,6 +202,16 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		return resourceConfig;
 	}
 
+	@Named("TracingResourceConfig")
+	@Singleton
+	@Provides
+	ResourceConfig getTracingResourceConfig(TracingResource tracingResource) {
+		ResourceConfig resourceConfig = new ResourceConfig();
+		resourceConfig.register(tracingResource);
+		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+		return resourceConfig;
+	}
+	
 	@Named("DashboardResourceConfig")
 	@Singleton
 	@Provides

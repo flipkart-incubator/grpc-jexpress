@@ -34,11 +34,13 @@ import com.flipkart.gjex.core.task.FutureDecorator;
 import com.flipkart.gjex.core.task.TaskException;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.core.tracing.TracingSamplerHolder;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
+import com.google.inject.name.Names;
 
 import brave.Tracing;
 import brave.opentracing.BraveTracer;
@@ -66,6 +68,7 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 		TracedMethodInterceptor methodInterceptor = new TracedMethodInterceptor();
 		requestInjection(methodInterceptor);
 		bindInterceptor(Matchers.any(), new TracedMethodMatcher(), methodInterceptor);
+		bind(TracingSamplerHolder.class).annotatedWith(Names.named("TracingSamplerHolder")).to(TracingSamplerHolder.class);
 	}
 	
 	/**

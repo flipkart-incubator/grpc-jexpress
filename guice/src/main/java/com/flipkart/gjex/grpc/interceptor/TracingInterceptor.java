@@ -32,6 +32,7 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.core.tracing.TracingSamplerHolder;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 
@@ -64,11 +65,13 @@ import io.opentracing.propagation.TextMapExtractAdapter;
 public class TracingInterceptor implements ServerInterceptor, Logging {
 
 	/** Map of ConfigurableTracingSampler instance mapped to Service and its method*/
-	private Map<String, TracingSampler> samplerMap = new HashMap<String, TracingSampler>();
+	private final TracingSamplerHolder samplerMap;
 	private final Tracer tracer;
 
 	@Inject
-	public TracingInterceptor(@Named("Tracer") Tracer tracer) {
+	public TracingInterceptor(@Named("Tracer")Tracer tracer, 
+			@Named("TracingSamplerHolder")TracingSamplerHolder samplerMap) {
+		this.samplerMap = samplerMap;
 		this.tracer = tracer;
 	}
 
@@ -84,7 +87,7 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 						// reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
 						String samplerComponentName = (service.bindService().getServiceDescriptor().getName() + "/"
 								+ pair.getValue().getName()).toLowerCase();
-						if (samplerClass == null) {
+						if (samplerClass == TracingSampler.class) {
 							samplerMap.put(samplerComponentName, new ConfigurableTracingSampler());
 						} else {
 							if (!classToInstanceMap.containsKey(samplerClass)) {
