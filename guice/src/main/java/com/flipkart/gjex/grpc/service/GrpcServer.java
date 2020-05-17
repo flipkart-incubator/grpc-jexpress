@@ -27,6 +27,7 @@ import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptors;
+import io.grpc.internal.GrpcUtil;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -45,7 +46,10 @@ public class GrpcServer extends AbstractService implements Logging {
 
 	/** Default port number if none is specified*/
 	private int port = 50051;
-	
+
+	/** Default maximum message size allowed to be received on the server*/
+	private int maxMessageSize = GrpcUtil.DEFAULT_MAX_MESSAGE_SIZE;
+
 	/** The core Grpc Server instance and its builder*/
 	private ServerBuilder<?> grpcServerBuilder;
 	private Server grpcServer;
@@ -62,7 +66,12 @@ public class GrpcServer extends AbstractService implements Logging {
 			info("Creating GrpcServer listening on port : " + port);
 			this.port = configuration.getGrpc().getPort();
 		}
-		this.grpcServerBuilder = ServerBuilder.forPort(this.port);
+
+		if (configuration.getGrpc().getMaxMessageSize() > 0) {
+			info("Creating GrpcServer with maximum message size allowed : " + maxMessageSize);
+			this.maxMessageSize = configuration.getGrpc().getMaxMessageSize();
+		}
+		this.grpcServerBuilder = ServerBuilder.forPort(this.port).maxInboundMessageSize(this.maxMessageSize);
 		this.filterInterceptor = filterInterceptor;
 		this.tracingInterceptor = tracingInterceptor;
 	}
