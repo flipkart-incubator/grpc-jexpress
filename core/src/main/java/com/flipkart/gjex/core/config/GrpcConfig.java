@@ -22,7 +22,7 @@ public class GrpcConfig {
     @JsonProperty("server.port")
     private int port;
 
-    @JsonProperty("server.max_message_size")
+    @JsonProperty("server.maxMessageSize")
     private int maxMessageSize;
 
     public int getPort() {

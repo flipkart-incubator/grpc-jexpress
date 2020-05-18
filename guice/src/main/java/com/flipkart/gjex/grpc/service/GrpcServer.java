@@ -63,13 +63,13 @@ public class GrpcServer extends AbstractService implements Logging {
 					  @Named("FilterInterceptor") FilterInterceptor filterInterceptor,
 					  @Named("TracingInterceptor") TracingInterceptor tracingInterceptor) {
 		if (configuration.getGrpc().getPort() > 0) {
-			info("Creating GrpcServer listening on port : " + port);
 			this.port = configuration.getGrpc().getPort();
+			info("Creating GrpcServer listening on port : " + port);
 		}
 
 		if (configuration.getGrpc().getMaxMessageSize() > 0) {
-			info("Creating GrpcServer with maximum message size allowed : " + maxMessageSize);
 			this.maxMessageSize = configuration.getGrpc().getMaxMessageSize();
+			info("Creating GrpcServer with maximum message size allowed : " + maxMessageSize);
 		}
 		this.grpcServerBuilder = ServerBuilder.forPort(this.port).maxInboundMessageSize(this.maxMessageSize);
 		this.filterInterceptor = filterInterceptor;
