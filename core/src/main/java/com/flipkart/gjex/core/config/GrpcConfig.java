@@ -22,11 +22,22 @@ public class GrpcConfig {
     @JsonProperty("server.port")
     private int port;
 
+    @JsonProperty("server.maxMessageSize")
+    private int maxMessageSize;
+
     public int getPort() {
         return port;
     }
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public int getMaxMessageSize() {
+        return maxMessageSize;
+    }
+
+    public void setMaxMessageSize(int maxMessageSize) {
+        this.maxMessageSize = maxMessageSize;
     }
 }
