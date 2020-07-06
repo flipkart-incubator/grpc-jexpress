@@ -175,7 +175,13 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
             returnStatus = Status.INVALID_ARGUMENT;
         }
-        call.close(returnStatus.withDescription(e.getMessage()), new Metadata());
+
+        try {
+            call.close(returnStatus.withDescription(e.getMessage()), new Metadata());
+        } catch (IllegalStateException ie) {
+            // Simply log the exception as this is already handling the runtime-exception
+            warn("Exception while attempting to close ServerCall stream: " + ie.getMessage());
+        }
     }
 
     /* Helper method to attach a context */
