@@ -133,7 +133,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
                     filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
-                    super.sendHeaders(headers);
+                    super.sendHeaders(responseHeaders);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
