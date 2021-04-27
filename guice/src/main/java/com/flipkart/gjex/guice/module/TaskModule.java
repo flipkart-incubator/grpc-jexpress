@@ -22,6 +22,7 @@ import com.flipkart.gjex.core.task.TaskExecutor;
 import com.google.inject.AbstractModule;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
+import io.grpc.Context;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.configuration.Configuration;
@@ -31,6 +32,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Guice {@link AbstractModule} for managing interception of methods annotated with {@link ConcurrentTask}
@@ -60,8 +62,11 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 			if (task.timeoutConfig().length() > 0) { // check if timeout is specified as a config property
 				timeout = globalConfig.getInt(task.timeoutConfig());
 			}
-			if (task.timeout() > 0) { // we take the method level annotation value as the final override
+			if (task.timeout() > 0) { // we take the method level annotation value as an override
 				timeout = task.timeout();
+			}
+			if (task.respectDeadline() && Context.current().getDeadline() != null) { // if this task is in the context of a deadlined grpc call, timeout is bound by the deadline
+				timeout = Math.min(timeout, (int)Context.current().getDeadline().timeRemaining(TimeUnit.MILLISECONDS));
 			}
 			int concurrency = 0;
 			if (task.concurrencyConfig().length() > 0) { // check if concurrency is specified as a config property

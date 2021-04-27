@@ -71,5 +71,10 @@ public @interface ConcurrentTask {
      */
     String concurrencyConfig() default "";
 
+    /**
+     * Indicates whether timeout should take into consideration the deadline specified by {@link com.flipkart.gjex.core.service.Api} if any
+     */
+    boolean respectDeadline() default false;
+
 }
 
