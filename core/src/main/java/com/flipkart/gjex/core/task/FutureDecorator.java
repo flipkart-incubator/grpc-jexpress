@@ -144,7 +144,7 @@ public class FutureDecorator<T> implements Future<T> {
 	
 	/** Convenience method to get the response from completion of the specified FutureDecorator and evaluate completion as defined in the FutureDecorator*/
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static Object getResultFromFuture(FutureDecorator future) {
+	public static Object getResultFromFuture(FutureDecorator future) {
 		Object result = null;
 		Integer futureGetTimeout = null;
 		// check if a Deadline has been set. This will become the first timeout we consider
