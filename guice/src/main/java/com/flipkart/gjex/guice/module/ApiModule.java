@@ -89,6 +89,9 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 				if (api.deadlineConfig().length() > 0) { // check if deadline is specified as a config property
 					deadline = globalConfigurationProvider.get().getInt(api.deadlineConfig());
 				}
+				if (api.deadline() > 0) { // finally override with method level annotation if present
+					deadline = api.deadline();
+				}
 				if (Context.current().getDeadline() == null) {
 					cancellableContext = Context.current().withDeadlineAfter(deadline, TimeUnit.MILLISECONDS, scheduledExecutorServiceProvider.get());
 					previous = cancellableContext.attach(); // attach the CancellableContext and store the previous Context
