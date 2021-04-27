@@ -158,7 +158,9 @@ public class FutureDecorator<T> implements Future<T> {
 		}
 		// see if a Task timeout has been set, use the smaller of the Deadline and Task timeout
 		if (future.getTaskExecutor().getTimeout() > 0) {
-			futureGetTimeout = Math.min(futureGetTimeout, future.getTaskExecutor().getTimeout());
+			futureGetTimeout = futureGetTimeout == null ?
+					future.getTaskExecutor().getTimeout() :
+					Math.min(futureGetTimeout, future.getTaskExecutor().getTimeout());
 		}
 		if (future.getTaskExecutor().isWithRequestHedging() && future.getTaskExecutor().getRollingTailLatency() > 0) {
 			// we'll take the minimum of deadline and rolling tail latency (if request hedging is enabled) as the timeout for the Future
