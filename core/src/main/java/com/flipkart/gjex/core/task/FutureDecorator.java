@@ -180,13 +180,15 @@ public class FutureDecorator<T> implements Future<T> {
 				LOGGER.info("Sending hedged request for Task : " + future.getTaskExecutor().getInvocation().getMethod().getName());
 				result = FutureDecorator.getResultFromFuture(new FutureDecorator(future.getTaskExecutor().clone(), future.getCompletion()));
 			}
+			if (future.getCompletion().equals(ConcurrentTask.Completion.Mandatory)) {
+				throw new TaskException("Task execution results not available due to timeout.",
+						new StatusException(Status.DEADLINE_EXCEEDED.withDescription("Deadline exceeded waiting for results :" + e.getMessage())));
+			} else {
+				LOGGER.warn("Timeout in optional task. Not failing the execution and proceeding.");
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			String errorMessage =  e.getCause() == null ? e.getMessage() :  e.getCause().getMessage();
 			if (future.getCompletion().equals(ConcurrentTask.Completion.Mandatory)) {
-				if (TimeoutException.class.isAssignableFrom(e.getClass())) {
-					throw new TaskException("Task execution results not available.", 
-							new StatusException(Status.DEADLINE_EXCEEDED.withDescription("Deadline exceeded waiting for results :" + e.getMessage())));
-				}
 				throw new TaskException("Error executing mandatory Task : " + errorMessage, e);
 			} else {
 				LOGGER.warn("Execution exception in optional task :" + errorMessage + " . Not failing the execution and proceeding.");
