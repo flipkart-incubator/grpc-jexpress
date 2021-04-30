@@ -22,6 +22,7 @@ import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.config.Tracing;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 public class GJEXConfiguration {
@@ -45,6 +46,10 @@ public class GJEXConfiguration {
     @NotNull
     @JsonProperty("Tracing")
     private Tracing tracing;
+
+    @Min(0)
+    @JsonProperty("ScheduledJobs.executorThreads")
+    private int scheduledJobExecutorThreads;
 
     public GrpcConfig getGrpc() {
         return grpc;
@@ -78,6 +83,14 @@ public class GJEXConfiguration {
         this.tracing = tracing;
     }
 
+    public int getScheduledJobExecutorThreads() {
+        return scheduledJobExecutorThreads;
+    }
+
+    public void setScheduledJobExecutorThreads(int scheduledJobExecutorThreads) {
+        this.scheduledJobExecutorThreads = scheduledJobExecutorThreads;
+    }
+
     @Override
     public String toString() {
         return "GJEXConfiguration{" +
@@ -85,6 +98,7 @@ public class GJEXConfiguration {
                 ", apiService=" + apiService +
                 ", dashboardService=" + dashboardService +
                 ", tracing=" + tracing +
+                ", scheduledJobExecutorThreads=" + scheduledJobExecutorThreads +
                 '}';
     }
 }

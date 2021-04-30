@@ -19,6 +19,7 @@ package com.flipkart.gjex.core;
 import java.util.List;
 import java.util.Map;
 
+import com.flipkart.gjex.core.job.ScheduledJob;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import com.codahale.metrics.health.HealthCheck;
@@ -71,7 +72,13 @@ public interface Bundle<T extends GJEXConfiguration, U extends Map> {
      * @return the TracingSampler instances
      */
     List<TracingSampler> getTracingSamplers();
-    
+
+    /**
+     * Returns the ScheduledJob instances loaded by this Bundle
+     * @return the ScheduledJob instances
+     */
+    List<ScheduledJob> getScheduledJobs();
+
     /**
      * Returns list of custom {@link ResourceConfig} instances configured by the GJEX application
      * @return ResourceConfig instances
