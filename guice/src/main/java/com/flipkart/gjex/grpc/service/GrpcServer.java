@@ -77,6 +77,7 @@ public class GrpcServer extends AbstractService implements Logging {
 		this.grpcServerBuilder = ServerBuilder.forPort(this.port).maxInboundMessageSize(this.maxMessageSize);
 		this.filterInterceptor = filterInterceptor;
 		this.tracingInterceptor = tracingInterceptor;
+		this.statusMetricInterceptor = statusMetricInterceptor;
 	}
 	
 	@Override
