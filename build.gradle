@@ -19,7 +19,7 @@ publishing {
     		maven(MavenPublication) { 
 				groupId = 'com.flipkart'
 			    artifactId = 'grpc-jexpress'
-			    version = '1.4-SNAPSHOT'
+			    version = '1.5-SNAPSHOT'
 			    from components.java
 		}
     }    
@@ -41,7 +41,7 @@ def guiceVersion = '4.2.2'
 subprojects {
 	apply plugin: 'maven'
 	group = 'com.flipkart.grpc-jexpress'
-	version = '1.4-SNAPSHOT'
+	version = '1.5-SNAPSHOT'
 	
 	jar {
     		manifest.attributes provider: 'gradle'

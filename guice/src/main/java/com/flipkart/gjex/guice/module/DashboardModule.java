@@ -117,7 +117,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 
 		/** Add the Metrics instrumentation */
 		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
-		handler.setName("dashboard");
+		handler.setName("gjex-dashboard");
 		handler.setHandler(context);
 		server.setHandler(handler);
 
@@ -150,7 +150,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		context.setAttribute(TracingSamplerHolder.TRACING_SAMPLER_HOLDER_NAME, tracingSamplerHolder);
 
 		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
-		handler.setName("api");
+		handler.setName("gjex-api");
 		handler.setHandler(context);
 		server.setHandler(handler);
 
