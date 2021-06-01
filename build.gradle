@@ -19,7 +19,7 @@ publishing {
     		maven(MavenPublication) { 
 				groupId = 'com.flipkart'
 			    artifactId = 'grpc-jexpress'
-			    version = '1.4-SNAPSHOT'
+			    version = '1.36-SNAPSHOT'
 			    from components.java
 		}
     }    
