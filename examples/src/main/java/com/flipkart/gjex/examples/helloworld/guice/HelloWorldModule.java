@@ -15,6 +15,9 @@
  */
 package com.flipkart.gjex.examples.helloworld.guice;
 
+import io.grpc.Channel;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import com.codahale.metrics.health.HealthCheck;
@@ -47,8 +50,11 @@ public class HelloWorldModule extends AbstractModule {
 	
 	@Override
 	protected void configure() {
-		install(new ClientModule<GreeterGrpc.GreeterBlockingStub>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
-
+		ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",50051)
+				.usePlaintext()
+				.build();
+//		install(new ClientModule<GreeterGrpc.GreeterBlockingStub>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
+		bind(GreeterGrpc.GreeterBlockingStub.class).toInstance(GreeterGrpc.newBlockingStub(channel));
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(Filter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
 		bind(Filter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
