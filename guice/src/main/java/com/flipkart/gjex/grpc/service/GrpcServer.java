@@ -22,6 +22,7 @@ import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
+import com.flipkart.gjex.grpc.interceptor.StatusMetricInterceptor;
 import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
 import io.grpc.BindableService;
 import io.grpc.Server;
@@ -57,11 +58,13 @@ public class GrpcServer extends AbstractService implements Logging {
 	/** The ServerInterceptors*/
 	private FilterInterceptor filterInterceptor;
 	private TracingInterceptor tracingInterceptor;
+	private StatusMetricInterceptor statusMetricInterceptor;
 	
 	@Inject
 	public GrpcServer(GJEXConfiguration configuration,
 					  @Named("FilterInterceptor") FilterInterceptor filterInterceptor,
-					  @Named("TracingInterceptor") TracingInterceptor tracingInterceptor) {
+					  @Named("TracingInterceptor") TracingInterceptor tracingInterceptor,
+                      @Named("StatusMetricInterceptor") StatusMetricInterceptor statusMetricInterceptor) {
 		if (configuration.getGrpc().getPort() > 0) {
 			this.port = configuration.getGrpc().getPort();
 			info("Creating GrpcServer listening on port : " + port);
@@ -74,6 +77,7 @@ public class GrpcServer extends AbstractService implements Logging {
 		this.grpcServerBuilder = ServerBuilder.forPort(this.port).maxInboundMessageSize(this.maxMessageSize);
 		this.filterInterceptor = filterInterceptor;
 		this.tracingInterceptor = tracingInterceptor;
+		this.statusMetricInterceptor = statusMetricInterceptor;
 	}
 	
 	@Override
@@ -103,9 +107,13 @@ public class GrpcServer extends AbstractService implements Logging {
 		this.tracingInterceptor.registerTracingSamplers(samplers, services);
 	}
 
-	public void registerServices(List<BindableService> services) {
-		services.forEach(service -> this.grpcServerBuilder.addService(ServerInterceptors.intercept(service, 
-				this.tracingInterceptor, this.filterInterceptor)));
-	}
+    public void registerResponseMeteredMethods(List<BindableService> services) {
+        this.statusMetricInterceptor.registerMeteredMethods(services);
+    }
+
+    public void registerServices(List<BindableService> services) {
+        services.forEach(service -> this.grpcServerBuilder.addService(ServerInterceptors.intercept(service,
+                this.statusMetricInterceptor, this.tracingInterceptor, this.filterInterceptor)));
+    }
 
 }
