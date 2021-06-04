@@ -89,7 +89,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
 		
 		// invoke external gRPC call
-		this.invokeGrpcCall(req, reply);
+		//this.invokeGrpcCall(req, reply);
 		
 		responseObserver.onNext(reply);
 		responseObserver.onCompleted();
