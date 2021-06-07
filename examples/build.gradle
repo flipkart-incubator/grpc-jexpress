@@ -1,55 +1,91 @@
-apply plugin: 'java'
+plugins {
+    // Provide convenience executables for trying out the examples.
+    id 'application'
+    // ASSUMES GRADLE 5.6 OR HIGHER. Use plugin version 0.8.10 with earlier gradle versions
+    id 'com.google.protobuf' version '0.8.15'
+    // Generate IntelliJ IDEA's .idea & .iml project files
+    id 'idea'
+}
+
+group = 'com.flipkart.grpc-jexpress.example'
+version = '1.0-SNAPSHOT'
 
 repositories {
-	mavenLocal()
-	mavenCentral()
-    jcenter()         
+    maven { // The google mirror is less flaky than mavenCentral()
+        url "https://maven-central.storage-download.googleapis.com/maven2/"
+    }
+    mavenCentral()
+    mavenLocal()
+    jcenter()
 }
+
+def jexpressVersion = '1.37-SNAPSHOT'
+def grpcVersion = '1.38.0'
+def protobufVersion = '3.12.0'
+def protocVersion = protobufVersion
 
 dependencies {
-	compile "com.flipkart.grpc-jexpress:core:1.3-SNAPSHOT"    
-	compile "com.flipkart.grpc-jexpress:runtime:1.3-SNAPSHOT"
-	compile "com.flipkart.grpc-jexpress:guice:1.3-SNAPSHOT"
-    compile "io.grpc:examples:1.+"
-    compile "io.dropwizard.metrics:metrics-healthchecks:4.0.2"
-    compile	"com.palominolabs.metrics:metrics-guice:4.0.0"
-	compile 'ru.vyarus:guice-validator:1.2.0'
-	compile 'org.hibernate:hibernate-validator:5.4.1.Final'
-    compile 'org.glassfish:javax.el:3.0.1-b08'
-    compile 'io.reactivex.rxjava2:rxjava:2.2.0'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
-    compile 'org.projectlombok:lombok:1.18.6'
-	compile 	'org.glassfish.jersey.containers:jersey-container-servlet:2.6'
-	compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.7'	
+    implementation "com.flipkart.grpc-jexpress:core:${jexpressVersion}"
+    implementation "com.flipkart.grpc-jexpress:runtime:${jexpressVersion}"
+    implementation "com.flipkart.grpc-jexpress:guice:${jexpressVersion}"
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation "io.dropwizard.metrics:metrics-healthchecks:4.0.2"
+    implementation "com.palominolabs.metrics:metrics-guice:4.0.0"
+    implementation 'ru.vyarus:guice-validator:1.2.0'
+    implementation 'org.hibernate:hibernate-validator:5.4.1.Final'
+    implementation 'org.glassfish:javax.el:3.0.1-b08'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
+    implementation 'org.projectlombok:lombok:1.18.6'
+    implementation 'org.glassfish.jersey.containers:jersey-container-servlet:2.6'
+    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.7'
 }
 
-apply plugin: 'application'
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:${protocVersion}" }
+    plugins {
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" }
+    }
+    generateProtoTasks {
+        all()*.plugins { grpc {} }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
+}
 startScripts.enabled = false
 
 task helloWorldServer(type: CreateStartScripts) {
-  mainClassName = 'com.flipkart.gjex.examples.helloworld.HelloWorldApplication'
-  applicationName = 'hello-world-server'
-  outputDir = new File(project.buildDir, 'tmp')
-  classpath = jar.outputs.files + project.configurations.runtime
+    mainClassName = 'com.flipkart.gjex.examples.helloworld.HelloWorldApplication'
+    applicationName = 'hello-world-server'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = startScripts.classpath
 }
 
+
 task helloWorldClient(type: CreateStartScripts) {
-  mainClassName = 'com.flipkart.gjex.examples.helloworld.client.HelloWorldClient'
-  applicationName = 'hello-world-client'
-  outputDir = new File(project.buildDir, 'tmp')
-  classpath = jar.outputs.files + project.configurations.runtime
+    mainClassName = 'com.flipkart.gjex.examples.helloworld.client.HelloWorldClient'
+    applicationName = 'hello-world-client'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = startScripts.classpath
 }
 
 applicationDistribution.into('bin') {
-  from(helloWorldServer)
-  from(helloWorldClient)
-  fileMode = 0755
+    from(helloWorldServer)
+    from(helloWorldClient)
+    fileMode = 0755
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-artifacts {
-    archives sourcesJar
-}	

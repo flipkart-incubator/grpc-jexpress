@@ -1,3 +1,7 @@
+## 1.36
+- Bug fixes: Fixed headers being sent in RPC response
+- Adding prefix to dashboard & api instrumentation 
+
 ## 1.33 (Nov 9, 2019)
 - Bug fixes
 - Enhanced configuration support
