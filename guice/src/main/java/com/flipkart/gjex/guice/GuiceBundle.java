@@ -149,8 +149,8 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		// Add all Grpc Filters to the Grpc Server
 		tracingSamplers = getInstances(baseInjector, TracingSampler.class);
 		grpcServer.registerTracingSamplers(tracingSamplers, bindableServices);
-    
-    // Register all ResponseMetered methods to publish metrics
+
+		// Register all ResponseMetered methods to publish metrics
 		grpcServer.registerResponseMeteredMethods(bindableServices);
 
 		ScheduledJobManager scheduledJobManager = baseInjector.getInstance(ScheduledJobManager.class);
