@@ -44,6 +44,7 @@ import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
 import com.flipkart.gjex.core.config.DefaultConfigurationFactoryFactory;
 import com.flipkart.gjex.core.config.FileConfigurationSourceProvider;
 import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.tracing.TracingSampler;
@@ -85,6 +86,9 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	
 	/** List of initialized ConfigurableTracingSampler instances*/
 	private List<TracingSampler> tracingSamplers;
+
+	/** List of initialized ScheduledJob instances*/
+	private List<ScheduledJob> scheduledJobs;
 
 	/** The HealthCheckRegistry*/
 	private HealthCheckRegistry healthCheckRegistry;
@@ -224,6 +228,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
         services = new LinkedList<Service>();
         filters = new LinkedList<Filter>();
         tracingSamplers = new LinkedList<TracingSampler>();
+        scheduledJobs = new LinkedList<ScheduledJob>();
         // Set the HealthCheckRegsitry to the one initialized by the Environment
         healthCheckRegistry = environment.getHealthCheckRegistry();
 
@@ -232,6 +237,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
             services.addAll(bundle.getServices());
             filters.addAll(bundle.getFilters());
             tracingSamplers.addAll(bundle.getTracingSamplers());
+            scheduledJobs.addAll(bundle.getScheduledJobs());
             // Register all HealthChecks with the HealthCheckRegistry
             bundle.getHealthChecks().forEach(hc -> this.healthCheckRegistry.register(hc.getClass().getSimpleName(), hc));
         }

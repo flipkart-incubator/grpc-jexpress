@@ -23,6 +23,7 @@ import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
 import com.flipkart.gjex.grpc.service.ApiServer;
 import com.flipkart.gjex.grpc.service.DashboardServer;
 import com.flipkart.gjex.grpc.service.GrpcServer;
+import com.flipkart.gjex.grpc.service.ScheduledJobManager;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
@@ -42,5 +43,6 @@ public class ServerModule extends AbstractModule {
 		bind(Service.class).annotatedWith(Names.named("GrpcServer")).to(GrpcServer.class);
 		bind(Service.class).annotatedWith(Names.named("DashboardServer")).to(DashboardServer.class);
 		bind(Service.class).annotatedWith(Names.named("APIServer")).to(ApiServer.class);
+		bind(Service.class).annotatedWith(Names.named("ScheduleJobManager")).to(ScheduledJobManager.class);
 	}
 }

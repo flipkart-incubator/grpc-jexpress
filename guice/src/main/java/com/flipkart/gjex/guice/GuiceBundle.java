@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.flipkart.gjex.core.job.ScheduledJob;
+import com.flipkart.gjex.grpc.service.ScheduledJobManager;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import com.codahale.metrics.health.HealthCheck;
@@ -68,6 +70,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	private List<Filter> filters;
 	private List<HealthCheck> healthchecks;
 	private List<TracingSampler> tracingSamplers;
+	private List<ScheduledJob> scheduledJobs;
 	private List<ResourceConfig> resourceConfigs;
 	private Optional<Class<T>> configurationClass;
 	private GJEXEnvironmentModule gjexEnvironmentModule;
@@ -150,6 +153,11 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		// Register all ResponseMetered methods to publish metrics
 		grpcServer.registerResponseMeteredMethods(bindableServices);
 
+		ScheduledJobManager scheduledJobManager = baseInjector.getInstance(ScheduledJobManager.class);
+		// Add all ScheduledJobs to the ScheduleJobManager
+		scheduledJobs = getInstances(baseInjector, ScheduledJob.class);
+		scheduledJobManager.registerScheduledJobs(scheduledJobs);
+
 		// Lookup all Service implementations
 		services = getInstances(baseInjector, Service.class);
 		// Lookup all HealthCheck implementations
@@ -192,6 +200,13 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
         Preconditions.checkState(baseInjector != null,
                 "TracingSampler(s) is only available after GuiceBundle.run() is called");
         return this.tracingSamplers;
+	}
+
+	@Override
+	public List<ScheduledJob> getScheduledJobs() {
+		Preconditions.checkState(baseInjector != null,
+				"ScheduledJob(s) are only available after GuiceBundle.run() is called");
+		return this.scheduledJobs;
 	}
 
 	@Override
