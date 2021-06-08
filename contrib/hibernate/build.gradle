@@ -1,15 +1,14 @@
 apply plugin: 'java'
 
 repositories {
-	mavenLocal()
-	mavenCentral()
-    jcenter()         
+    mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
-	compile "com.flipkart.grpc-jexpress:core:1.+"    
-	compile "com.flipkart.grpc-jexpress:runtime:1.+"
-	compile "com.flipkart.grpc-jexpress:guice:1.+"
+    compile "com.flipkart.grpc-jexpress:core:1.+"
+    compile "com.flipkart.grpc-jexpress:runtime:1.+"
+    compile "com.flipkart.grpc-jexpress:guice:1.+"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
