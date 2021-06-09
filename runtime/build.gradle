@@ -2,36 +2,36 @@ apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
 publishing {
-	publications {
-		maven(MavenPublication) {
-			artifactId = 'runtime'
-			from components.java
-		}
-	}
-	repositories {
-	    maven {
-    	    		url "https://repo.clojars.org"
-        		credentials {
-            		username = rootProject.ext.clojarsusername
-				password = rootProject.ext.clojarspassword
-    	    		}
-    	    }
-	}	
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'runtime'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "https://repo.clojars.org"
+            credentials {
+                username = rootProject.ext.clojarsusername
+                password = rootProject.ext.clojarspassword
+            }
+        }
+    }
 }
 
 dependencies {
-	implementation project(':core')
-	implementation project(':guice')
+    implementation project(':core')
+    implementation project(':guice')
     api libraries.slf4j_api
     api libraries.log4j_api
     implementation libraries.log4j
-    
-	implementation libraries.guice
+
+    implementation libraries.guice
     implementation libraries.commons_configuration
     implementation libraries.yammer_metrics
-	implementation libraries.grpc_netty
-	implementation libraries.grpc_protobuf
-    
+    implementation libraries.grpc_netty
+    implementation libraries.grpc_protobuf
+
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

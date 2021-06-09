@@ -1,9 +1,11 @@
-plugins {
+    plugins {
     id 'java'
     // Generate IntelliJ IDEA's .idea & .iml project files
     id 'idea'
     id 'maven-publish'
 }
+
+
 
 ext {
     clojarsusername = project.properties['clojarsusername'] ?: ""
@@ -16,7 +18,6 @@ allprojects {
         }
         mavenCentral()
         mavenLocal()
-        jcenter()
     }
 }
 
@@ -25,7 +26,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'com.flipkart'
             artifactId = 'grpc-jexpress'
-            version = '1.36-SNAPSHOT'
+            version = '1.38_0.1'
             from components.java
         }
     }
@@ -46,9 +47,8 @@ def jacksonVersion = '2.9.7'
 def guiceVersion = '4.2.2'
 
 subprojects {
-    apply plugin: 'maven'
     group = 'com.flipkart.grpc-jexpress'
-    version = '1.37-SNAPSHOT'
+    version = '1.38_0.1-SNAPSHOT'
 
     jar {
         manifest.attributes provider: 'gradle'
@@ -88,4 +88,6 @@ subprojects {
         ]
     }
 }
+
+
 

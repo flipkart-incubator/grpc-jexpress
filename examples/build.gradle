@@ -16,10 +16,9 @@ repositories {
     }
     mavenCentral()
     mavenLocal()
-    jcenter()
 }
 
-def jexpressVersion = '1.37-SNAPSHOT'
+def jexpressVersion = '1.38_0.1-SNAPSHOT'
 def grpcVersion = '1.38.0'
 def protobufVersion = '3.12.0'
 def protocVersion = protobufVersion
