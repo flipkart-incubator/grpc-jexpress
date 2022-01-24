@@ -116,6 +116,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	}
 	
 	/** Invoke an external gRPC call as a client*/
+	@SuppressWarnings("unused")
 	private void invokeGrpcCall(HelloRequest req, HelloReply reply) {
 		info("Saying hello to an external grpc service");
 		try {

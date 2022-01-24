@@ -15,9 +15,6 @@
  */
 package com.flipkart.gjex.examples.helloworld.guice;
 
-import io.grpc.Channel;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import com.codahale.metrics.health.HealthCheck;
@@ -29,12 +26,12 @@ import com.flipkart.gjex.examples.helloworld.healthcheck.AllIsWellHealthCheck;
 import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 import com.flipkart.gjex.examples.helloworld.web.HelloWorldResourceConfig;
-import com.flipkart.gjex.grpc.channel.ChannelConfig;
-import com.flipkart.gjex.guice.module.ClientModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
 import io.grpc.BindableService;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.examples.helloworld.GreeterGrpc;
 
 
