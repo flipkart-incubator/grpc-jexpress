@@ -43,7 +43,7 @@ More details on [Distribution Binaries](https://github.com/flipkart-incubator/gr
 You may also build GJEX from source. To build, clone this repository and run:
 
 ```
-$ ./gradlew clean build install
+$ ./gradlew clean build publishToMavenLocal
 ```
 
 ## Examples
