@@ -18,7 +18,7 @@ repositories {
     mavenLocal()
 }
 
-def jexpressVersion = '1.38_0.1-SNAPSHOT'
+def jexpressVersion = '1.38_0.1'
 def grpcVersion = '1.38.0'
 def protobufVersion = '3.12.0'
 def protocVersion = protobufVersion
@@ -30,8 +30,8 @@ dependencies {
     implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
     implementation "io.grpc:grpc-stub:${grpcVersion}"
-    implementation "io.dropwizard.metrics:metrics-healthchecks:4.0.2"
-    implementation "com.palominolabs.metrics:metrics-guice:4.0.0"
+    implementation "io.dropwizard.metrics:metrics-healthchecks:3.2.2"
+    implementation "com.palominolabs.metrics:metrics-guice:3.2.2"
     implementation 'ru.vyarus:guice-validator:1.2.0'
     implementation 'org.hibernate:hibernate-validator:5.4.1.Final'
     implementation 'org.glassfish:javax.el:3.0.1-b08'
