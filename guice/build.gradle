@@ -28,6 +28,7 @@ dependencies {
     implementation libraries.guice
     implementation libraries.yammer_metrics
     implementation libraries.yammer_healthchecks
+    implementation libraries.metrics_annotation
     implementation libraries.jersey
     implementation libraries.jersey_freemarker
     implementation libraries.servlet
