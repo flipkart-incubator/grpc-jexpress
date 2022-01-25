@@ -66,6 +66,11 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		this.bootstrap = bootstrap;
 	}
 
+	@Override
+	protected void configure() {
+		// do nothing
+	}
+	
 	/**
 	 * Creates the Jetty server instance for the admin Dashboard and configures it with the @Named("DashboardContext").
 	 *

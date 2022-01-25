@@ -45,7 +45,7 @@ publishing {
 
 def grpcVersion = '1.38.0'
 def jacksonVersion = '2.9.7'
-def guiceVersion = '4.2.2'
+def guiceVersion = '4.1.0'
 
 subprojects {
     group = 'com.flipkart.grpc-jexpress'
