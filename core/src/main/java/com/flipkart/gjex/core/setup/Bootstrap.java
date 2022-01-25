@@ -141,7 +141,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
      * @param bundle a {@link Bundle}
      */
     public void addBundle(Bundle<? super T, ? super U> bundle) {
-		Preconditions.checkState(bundles.isEmpty(),
+		Preconditions.checkState(!bundles.contains(bundle),
 				"bundles can be initialized only once");
         bundle.initialize(this);
         bundles.add(bundle);
