@@ -1,6 +1,10 @@
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
+tasks.withType(GenerateModuleMetadata) {
+	enabled = false
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
@@ -10,7 +14,7 @@ publishing {
     }
     repositories {
         maven {
-            url "https://repo.clojars.org"
+            url "https://clojars.org/repo"
             credentials {
                 username = rootProject.ext.clojarsusername
                 password = rootProject.ext.clojarspassword

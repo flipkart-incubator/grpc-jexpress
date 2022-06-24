@@ -22,18 +22,22 @@ allprojects {
     }
 }
 
+tasks.withType(GenerateModuleMetadata) {
+	enabled = false
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.flipkart'
             artifactId = 'grpc-jexpress'
-            version = '1.38_0.1'
+            version = '1.39-SNAPSHOT'
             from components.java
         }
     }
     repositories {
         maven {
-            url "https://repo.clojars.org"
+            url "https://clojars.org/repo"
             credentials {
                 username = rootProject.ext.clojarsusername
                 password = rootProject.ext.clojarspassword
@@ -49,7 +53,7 @@ def guiceVersion = '4.1.0'
 
 subprojects {
     group = 'com.flipkart.grpc-jexpress'
-    version = '1.38_0.1'
+    version = '1.39-SNAPSHOT'
 
     jar {
         manifest.attributes provider: 'gradle'
