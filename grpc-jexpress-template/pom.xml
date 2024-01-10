@@ -10,7 +10,7 @@
 
     <properties>
         <jetty.version>9.4.38.v20210224</jetty.version>
-        <grpc.version>1.17.0</grpc.version>
+        <grpc.version>1.53.0</grpc.version>
         <protoc.version>3.5.1-1</protoc.version>
         <metrics-guice.version>3.2.2</metrics-guice.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
