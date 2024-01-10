@@ -27,7 +27,7 @@ tasks.withType(GenerateModuleMetadata) {
 }
 
 def gJEXVersion = '1.40-SNAPSHOT'
-def grpcVersion = '1.60.0'
+def grpcVersion = '1.60.1'
 def jacksonVersion = '2.16.1'
 def guiceVersion = '5.1.0'
 
@@ -50,7 +50,6 @@ publishing {
         }
     }
 }
-
 
 
 subprojects {
