@@ -55,13 +55,6 @@ public abstract class AbstractService implements Service, Logging {
 				setStarting();
 				doStart();
 				setStarted();
-				AbstractService self = this;
-				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                    // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-                    System.err.println("*** shutting down since JVM is shutting down");
-                    self.stop();
-                    System.err.println("*** server shut down");
-                }));
 			} catch (Throwable e) {
 				setFailed(e);
 				throw e;
