@@ -21,12 +21,18 @@ repositories {
 def jexpressVersion = '1.39-SNAPSHOT'
 def grpcVersion = '1.38.0'
 def protobufVersion = '3.12.0'
-def protocVersion = protobufVersion
+def protocVersion = protobufVersion+":osx-x86_64"
 
 dependencies {
-    implementation "com.flipkart.grpc-jexpress:core:${jexpressVersion}"
-    implementation "com.flipkart.grpc-jexpress:runtime:${jexpressVersion}"
-    implementation "com.flipkart.grpc-jexpress:guice:${jexpressVersion}"
+//    implementation "com.flipkart.grpc-jexpress:core:${jexpressVersion}"
+//    implementation "com.flipkart.grpc-jexpress:runtime:${jexpressVersion}"
+//    implementation "com.flipkart.grpc-jexpress:guice:${jexpressVersion}"
+
+    implementation project(':core')
+    implementation project(':runtime')
+    implementation project(':guice')
+
+
     implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
     implementation "io.grpc:grpc-stub:${grpcVersion}"
@@ -74,12 +80,29 @@ task helloWorldServer(type: CreateStartScripts) {
     classpath = startScripts.classpath
 }
 
+task runHelloWorldServer(type: JavaExec) {
+    group = "Execution"
+    description = "run hello-world-server"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.flipkart.gjex.examples.helloworld.HelloWorldApplication'
+    args "server", "./src/main/resources/hello_world_config.yml"
+    jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
+}
+
 
 task helloWorldClient(type: CreateStartScripts) {
     mainClassName = 'com.flipkart.gjex.examples.helloworld.client.HelloWorldClient'
     applicationName = 'hello-world-client'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = startScripts.classpath
+}
+
+task runHelloWorldClient(type: JavaExec) {
+    group = "Execution"
+    description = "run hello-world-client"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.flipkart.gjex.examples.helloworld.client.HelloWorldClient'
+    jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
 }
 
 applicationDistribution.into('bin') {
