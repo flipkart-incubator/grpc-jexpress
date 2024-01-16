@@ -22,7 +22,7 @@ import java.util.Map;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import com.codahale.metrics.health.HealthCheck;
+import io.dropwizard.metrics5.health.HealthCheck;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;

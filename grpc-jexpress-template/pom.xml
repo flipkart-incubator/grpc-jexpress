@@ -139,7 +139,7 @@
             <version>${javax.servlet.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
+            <groupId>io.dropwizard.metrics5</groupId>
             <artifactId>metrics-healthchecks</artifactId>
             <version>${metrics-healthchecks.version}</version>
         </dependency>

@@ -25,12 +25,12 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jmx.JmxReporter;
-import com.codahale.metrics.jvm.BufferPoolMetricSet;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import io.dropwizard.metrics5.MetricRegistry;
+import io.dropwizard.metrics5.jmx.JmxReporter;
+import io.dropwizard.metrics5.jvm.BufferPoolMetricSet;
+import io.dropwizard.metrics5.jvm.GarbageCollectorMetricSet;
+import io.dropwizard.metrics5.jvm.MemoryUsageGaugeSet;
+import io.dropwizard.metrics5.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.gjex.core.Application;
 import com.flipkart.gjex.core.Bundle;

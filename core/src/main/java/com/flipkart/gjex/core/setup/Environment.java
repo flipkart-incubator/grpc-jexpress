@@ -15,7 +15,7 @@
  */
 package com.flipkart.gjex.core.setup;
 
-import com.codahale.metrics.MetricRegistry;
+import io.dropwizard.metrics5.MetricRegistry;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;

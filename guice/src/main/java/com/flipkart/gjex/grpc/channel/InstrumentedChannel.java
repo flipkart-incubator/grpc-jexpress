@@ -17,8 +17,8 @@ package com.flipkart.gjex.grpc.channel;
 
 import javax.inject.Inject;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
+import io.dropwizard.metrics5.MetricRegistry;
+import io.dropwizard.metrics5.Timer;
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;

@@ -18,7 +18,7 @@ package com.flipkart.gjex.examples.helloworld.service;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.codahale.metrics.annotation.Timed;
+import io.dropwizard.metrics5.annotation.Timed;
 import com.flipkart.gjex.core.filter.ApplicationHeaders;
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
