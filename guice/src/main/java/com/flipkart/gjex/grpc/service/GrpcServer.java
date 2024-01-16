@@ -24,16 +24,14 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
 import com.flipkart.gjex.grpc.interceptor.StatusMetricInterceptor;
 import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
-import io.grpc.BindableService;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.ServerInterceptors;
+import io.grpc.*;
 import io.grpc.internal.GrpcUtil;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 /**
  * <code>GrpcServer</code> is a {@link Service} implementation that manages the GJEX Grpc Server instance lifecycle
@@ -74,7 +72,16 @@ public class GrpcServer extends AbstractService implements Logging {
 			this.maxMessageSize = configuration.getGrpc().getMaxMessageSize();
 			info("Creating GrpcServer with maximum message size allowed : " + maxMessageSize);
 		}
-		this.grpcServerBuilder = ServerBuilder.forPort(this.port).maxInboundMessageSize(this.maxMessageSize);
+		this.grpcServerBuilder =  Grpc.newServerBuilderForPort(this.port,  InsecureServerCredentials.create()).maxInboundMessageSize(this.maxMessageSize);
+
+		if (configuration.getGrpc().getExecutorThreads() > 0) {
+			this.grpcServerBuilder.executor(
+					Executors.newFixedThreadPool(
+							configuration.getGrpc().getExecutorThreads(),
+							GrpcUtil.getThreadFactory("grpc-executor-%d", true)));
+		}
+
+
 		this.filterInterceptor = filterInterceptor;
 		this.tracingInterceptor = tracingInterceptor;
 		this.statusMetricInterceptor = statusMetricInterceptor;

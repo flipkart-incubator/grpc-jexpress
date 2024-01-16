@@ -25,6 +25,9 @@ public class GrpcConfig {
     @JsonProperty("server.maxMessageSize")
     private int maxMessageSize;
 
+    @JsonProperty("server.executorThreads")
+    private int executorThreads = 0;
+
     public int getPort() {
         return port;
     }
@@ -39,5 +42,13 @@ public class GrpcConfig {
 
     public void setMaxMessageSize(int maxMessageSize) {
         this.maxMessageSize = maxMessageSize;
+    }
+
+    public int getExecutorThreads() {
+        return executorThreads;
+    }
+
+    public void setExecutorThreads(int executorThreads) {
+        this.executorThreads = executorThreads;
     }
 }
