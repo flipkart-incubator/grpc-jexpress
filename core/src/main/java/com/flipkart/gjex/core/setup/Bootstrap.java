@@ -63,7 +63,7 @@ import com.google.common.collect.Lists;
 public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Logging {
 
 	private final Application<T, U> application;
-	private final MetricRegistry metricRegistry;
+	private final AppMetricsRegistry appMetricsRegistry;
 	private final List<Bundle<? super T, ? super U>> bundles;
 	private final ObjectMapper objectMapper;
 	private final String configPath;
@@ -98,7 +98,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		this.configurationClass = configurationClass;
 		this.configPath = configPath;
 		this.application = application;
-		this.metricRegistry = new MetricRegistry();
+		this.appMetricsRegistry = new AppMetricsRegistry(new MetricRegistry());
 		this.bundles = Lists.newArrayList();
 		this.objectMapper = GJEXObjectMapper.newObjectMapper();
 		this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -156,10 +156,15 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
      * Returns the application's metrics.
      */
     public MetricRegistry getMetricRegistry() {
-        return metricRegistry;
+        return appMetricsRegistry.getMetricRegistry();
     }
-    
-    public List<Service> getServices() {
+
+
+	public AppMetricsRegistry getAppMetricsRegistry() {
+		return appMetricsRegistry;
+	}
+
+	public List<Service> getServices() {
 		return services;
 	}
 

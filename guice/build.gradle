@@ -67,7 +67,8 @@ dependencies {
     implementation 'io.opentracing.brave:brave-opentracing:0.31.3'
     implementation 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.7'
 
-
+    implementation 'io.prometheus:prometheus-metrics-instrumentation-dropwizard:1.2.0-SNAPSHOT'
+    implementation 'io.prometheus:prometheus-metrics-exporter-common:1.2.0-SNAPSHOT'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
