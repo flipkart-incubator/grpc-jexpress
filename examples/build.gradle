@@ -24,6 +24,7 @@ def protobufVersion = '3.12.0'
 def protocVersion = protobufVersion 
 
 dependencies {
+
     //For Development
     implementation project(':core')
     implementation project(':runtime')
