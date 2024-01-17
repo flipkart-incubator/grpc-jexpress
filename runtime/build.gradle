@@ -32,7 +32,7 @@ dependencies {
 
     implementation libraries.guice
     implementation libraries.commons_configuration
-    implementation libraries.yammer_metrics
+    implementation libraries.dw_metrics
     implementation libraries.grpc_netty
     implementation libraries.grpc_protobuf
 

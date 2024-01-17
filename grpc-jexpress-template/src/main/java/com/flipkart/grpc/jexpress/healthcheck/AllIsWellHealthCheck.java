@@ -15,7 +15,7 @@
  */
 package com.flipkart.grpc.jexpress.healthcheck;
 
-import com.codahale.metrics.health.HealthCheck;
+import io.dropwizard.metrics5.health.HealthCheck;
 import com.flipkart.gjex.core.logging.Logging;
 
 public class AllIsWellHealthCheck extends HealthCheck implements Logging {

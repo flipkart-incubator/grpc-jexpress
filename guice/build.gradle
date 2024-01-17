@@ -30,9 +30,9 @@ dependencies {
     implementation project(':core')
     implementation libraries.commons_configuration
     implementation libraries.guice
-    implementation libraries.yammer_metrics
-    implementation libraries.yammer_healthchecks
-    implementation libraries.metrics_annotation
+    implementation libraries.dw_metrics
+    implementation libraries.dw_metrics_healthchecks
+    implementation libraries.dw_metrics_annotation
     implementation libraries.jersey
     implementation libraries.jersey_freemarker
     implementation libraries.servlet

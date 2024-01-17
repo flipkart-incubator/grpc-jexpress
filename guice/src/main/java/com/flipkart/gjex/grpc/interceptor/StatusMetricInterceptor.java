@@ -1,7 +1,7 @@
 package com.flipkart.gjex.grpc.interceptor;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.annotation.ResponseMetered;
+import io.dropwizard.metrics5.MetricRegistry;
+import io.dropwizard.metrics5.annotation.ResponseMetered;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 import com.google.inject.Inject;

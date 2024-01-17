@@ -31,8 +31,8 @@ dependencies {
     implementation libraries.log4j
     implementation libraries.log4j_slf4j
     implementation libraries.commons_configuration
-    implementation libraries.yammer_metrics
-    implementation libraries.yammer_healthchecks
+    implementation libraries.dw_metrics
+    implementation libraries.dw_metrics_healthchecks
     implementation libraries.grpc_netty
     implementation libraries.grpc_protobuf
     implementation libraries.jersey
@@ -49,8 +49,8 @@ dependencies {
     implementation libraries.jackson_data_format
     implementation 'net.sourceforge.argparse4j:argparse4j:0.8.1'
     implementation 'com.github.wnameless:json-flattener:0.6.0'
-    implementation 'io.dropwizard.metrics:metrics-jvm:4.0.2'
-    implementation 'io.dropwizard.metrics:metrics-jmx:4.0.2'
+    implementation 'io.dropwizard.metrics5:metrics-jvm:5.0.0'
+    implementation 'io.dropwizard.metrics5:metrics-jmx:5.0.0'
 
     testImplementation libraries.junit4
     testImplementation libraries.assertj

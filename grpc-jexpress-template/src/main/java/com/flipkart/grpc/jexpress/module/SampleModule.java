@@ -1,6 +1,6 @@
 package com.flipkart.grpc.jexpress.module;
 
-import com.codahale.metrics.health.HealthCheck;
+import io.dropwizard.metrics5.health.HealthCheck;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.grpc.jexpress.filter.CreateLoggingFilter;

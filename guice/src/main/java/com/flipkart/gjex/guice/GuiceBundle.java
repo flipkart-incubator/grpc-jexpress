@@ -24,7 +24,7 @@ import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.grpc.service.ScheduledJobManager;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import com.codahale.metrics.health.HealthCheck;
+import io.dropwizard.metrics5.health.HealthCheck;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.Filter;
