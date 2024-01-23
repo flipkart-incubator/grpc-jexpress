@@ -47,7 +47,7 @@ publishing {
 }
 
 
-def grpcVersion = '1.38.0'
+def grpcVersion = '1.60.0'
 def jacksonVersion = '2.16.1'
 def guiceVersion = '5.1.0'
 
