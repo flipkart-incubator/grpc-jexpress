@@ -24,9 +24,16 @@ def protobufVersion = '3.12.0'
 def protocVersion = protobufVersion 
 
 dependencies {
-    implementation "com.flipkart.grpc-jexpress:core:${jexpressVersion}"
-    implementation "com.flipkart.grpc-jexpress:runtime:${jexpressVersion}"
-    implementation "com.flipkart.grpc-jexpress:guice:${jexpressVersion}"
+    //For Development
+    implementation project(':core')
+    implementation project(':runtime')
+    implementation project(':guice')
+
+    // In actual
+    // implementation "com.flipkart.grpc-jexpress:core:${jexpressVersion}"
+    // implementation "com.flipkart.grpc-jexpress:runtime:${jexpressVersion}"
+    // implementation "com.flipkart.grpc-jexpress:guice:${jexpressVersion}"
+
     implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
     implementation "io.grpc:grpc-stub:${grpcVersion}"
@@ -69,7 +76,7 @@ sourceSets {
 startScripts.enabled = false
 
 task helloWorldServer(type: CreateStartScripts) {
-    mainClassName = 'com.flipkart.gjex.examples.helloworld.HelloWorldApplication'
+    mainClass = 'com.flipkart.gjex.examples.helloworld.HelloWorldApplication'
     applicationName = 'hello-world-server'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = startScripts.classpath
@@ -86,7 +93,7 @@ task runHelloWorldServer(type: JavaExec) {
 
 
 task helloWorldClient(type: CreateStartScripts) {
-    mainClassName = 'com.flipkart.gjex.examples.helloworld.client.HelloWorldClient'
+    mainClass = 'com.flipkart.gjex.examples.helloworld.client.HelloWorldClient'
     applicationName = 'hello-world-client'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = startScripts.classpath

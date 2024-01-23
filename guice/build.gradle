@@ -30,6 +30,8 @@ dependencies {
     implementation project(':core')
     implementation libraries.commons_configuration
     implementation libraries.guice
+    implementation libraries.guava
+    implementation libraries.jaxb_api
     implementation libraries.dw_metrics
     implementation libraries.dw_metrics_healthchecks
     implementation libraries.dw_metrics_annotation

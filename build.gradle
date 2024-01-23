@@ -49,7 +49,7 @@ publishing {
 
 def grpcVersion = '1.38.0'
 def jacksonVersion = '2.9.7'
-def guiceVersion = '4.1.0'
+def guiceVersion = '5.1.0'
 
 subprojects {
     group = 'com.flipkart.grpc-jexpress'
@@ -66,6 +66,8 @@ subprojects {
                 log4j_slf4j             : "org.apache.logging.log4j:log4j-slf4j-impl:2.5",
                 commons_configuration   : "commons-configuration:commons-configuration:1.10",
                 guice                   : "com.google.inject:guice:${guiceVersion}",
+                guava                   : 'com.google.guava:guava:30.1-jre',
+                jaxb_api                : 'javax.xml.bind:jaxb-api:2.3.1',
                 dw_metrics              : "com.palominolabs.metrics:metrics-guice:5.0.1",
                 dw_metrics_healthchecks : "io.dropwizard.metrics5:metrics-healthchecks:5.0.0",
                 dw_metrics_annotation   : "io.dropwizard.metrics5:metrics-annotation:5.0.0",
