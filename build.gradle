@@ -26,12 +26,17 @@ tasks.withType(GenerateModuleMetadata) {
 	enabled = false
 }
 
+def gJEXVersion = '1.39-SNAPSHOT'
+def grpcVersion = '1.60.0'
+def jacksonVersion = '2.16.1'
+def guiceVersion = '5.1.0'
+
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.flipkart'
             artifactId = 'grpc-jexpress'
-            version = '1.39-SNAPSHOT'
+            version = "${gJEXVersion}"
             from components.java
         }
     }
@@ -47,13 +52,10 @@ publishing {
 }
 
 
-def grpcVersion = '1.60.0'
-def jacksonVersion = '2.16.1'
-def guiceVersion = '5.1.0'
 
 subprojects {
     group = 'com.flipkart.grpc-jexpress'
-    version = '1.39-SNAPSHOT'
+    version = "${gJEXVersion}"
 
     jar {
         manifest.attributes provider: 'gradle'
@@ -73,6 +75,7 @@ subprojects {
                 dw_metrics_annotation   : "io.dropwizard.metrics5:metrics-annotation:5.0.0",
                 grpc_netty              : "io.grpc:grpc-netty:${grpcVersion}",
                 grpc_protobuf           : "io.grpc:grpc-protobuf:${grpcVersion}",
+                grpc_services           : "io.grpc:grpc-services:${grpcVersion}",
                 jersey                  : 'org.glassfish.jersey.containers:jersey-container-servlet:2.6',
                 jersey_freemarker       : 'org.glassfish.jersey.ext:jersey-mvc-freemarker:2.6',
                 servlet                 : 'javax.servlet:javax.servlet-api:3.1.0',

@@ -26,6 +26,7 @@ import com.flipkart.gjex.grpc.interceptor.StatusMetricInterceptor;
 import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
 import io.grpc.*;
 import io.grpc.internal.GrpcUtil;
+import io.grpc.protobuf.services.ProtoReflectionService;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -89,7 +90,7 @@ public class GrpcServer extends AbstractService implements Logging {
 	
 	@Override
 	public void doStart() throws Exception {
-		this.grpcServer = this.grpcServerBuilder.build().start();
+		this.grpcServer = this.grpcServerBuilder.addService(ProtoReflectionService.newInstance()).build().start();
 		info("GJEX GrpcServer started.Hosting these services : ****** Start *****");
 		this.grpcServer.getServices().forEach(serviceDefinition -> info(serviceDefinition.getServiceDescriptor().getName()));
 		info("GJEX GrpcServer started.Hosting these services : ****** End *****");
