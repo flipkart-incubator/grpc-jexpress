@@ -40,30 +40,29 @@ Add the following repository to your build system to access releases builds - e.
 More details on [Distribution Binaries](https://github.com/flipkart-incubator/grpc-jexpress/wiki/Distribution-Binaries)
 
 ## Building
+
 You may also build GJEX from source. To build, clone this repository and run:
 
 ```
+$ git clone https://github.com/flipkart-incubator/grpc-jexpress.git
+$ cd grpc-jexpress
 $ ./gradlew clean build publishToMavenLocal
 ```
 
 ## Examples
 
-To build the GJEX examples, run in the 'examples' directory:
 
-```
-$ ../gradlew installDist
-```
 To run the hello world example with GJEX extensions, run:
 
 ```
-$ ./build/install/examples/bin/hello-world-server server ./src/main/resources/hello_world_config.yml
+$ ./gradlew runHelloWorldServer
 ```
 The gRPC Server, hosted gRPC services and the Jetty server status will be displayed in the console. By attaching an MBeans explorer like JConsole, one can inspect method-level execution metrics for the gRPC services.
 
 And in a different terminal window run:
 
 ```
-$ ./build/install/examples/bin/hello-world-client
+$ ./gradlew runHelloWorldClient
 ```
 
 ## Documentation
