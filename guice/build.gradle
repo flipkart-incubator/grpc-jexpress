@@ -41,6 +41,7 @@ dependencies {
     implementation libraries.jackson
     implementation libraries.jetty_metrics
     implementation libraries.grpc_netty
+    implementation libraries.grpc_services
     implementation libraries.grpc_protobuf
     implementation libraries.grpc_stub
     implementation libraries.guice_validator
