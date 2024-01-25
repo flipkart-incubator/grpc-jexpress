@@ -33,10 +33,10 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
-import io.grpc.examples.helloworld.GreeterGrpc;
-import io.grpc.examples.helloworld.HelloReply;
-import io.grpc.examples.helloworld.HelloRequest;
+import io.grpc.examples.helloworld.*;
 import io.grpc.stub.StreamObserver;
+
+import static io.grpc.examples.helloworld.GreeterGrpc.getPingPongMethod;
 
 
 /**
@@ -125,6 +125,36 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 			warn("Failed to say hello to external grpc service.Ensure Greeter service is running");
 		}
 	}
+
+	@Override
+	@Timed // the Timed annotation for publishing JMX metrics via MBean
+	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
+	@Traced(withSamplingRate=0.0f) // Start a new Trace or participate in a Client-initiated distributed trace
+	public StreamObserver<Ping> pingPong(StreamObserver<Pong> responseObserver) {
+
+		StreamObserver<Ping> requestObserver = new StreamObserver<Ping>() {
+			@Override
+			public void onNext(Ping ping) {
+				info("Received ping from client : " + ping.getMessage());
+				Pong pong = Pong.newBuilder().setMessage("Pong").build();
+				responseObserver.onNext(pong);
+			}
+
+			@Override
+			public void onError(Throwable throwable) {
+				error("Error in pingPong");
+			}
+
+			@Override
+			public void onCompleted() {
+				info("Completed pingPong");
+				responseObserver.onCompleted();
+			}
+		};
+
+		return requestObserver;
+	}
+
 	
 }
 

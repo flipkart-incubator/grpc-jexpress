@@ -20,6 +20,7 @@ import javax.inject.Named;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
@@ -30,14 +31,14 @@ import io.grpc.examples.helloworld.HelloRequest;
  *
  */
 @Named("LoggingFilter")
-public class LoggingFilter implements Filter<HelloRequest, HelloReply>, Logging {
+public class LoggingFilter<S extends GeneratedMessageV3,D extends GeneratedMessageV3 > implements Filter<S, D>, Logging {
 
 	/** Custom response key to indiacte request was logged on the server*/
 	static final Metadata.Key<String> CUSTOM_HEADER_KEY = Metadata.Key.of("request_response_logged_header_key", Metadata.ASCII_STRING_MARSHALLER);
 
 	@Override
-	public void doProcessRequest(HelloRequest request) {
-		info("Logging from filter. Request payload is : " + request.getName());
+	public void doProcessRequest(S request) {
+		info("Logging from filter. Request payload is : " + request.toString());
 	}
 
 	@Override
@@ -46,8 +47,8 @@ public class LoggingFilter implements Filter<HelloRequest, HelloReply>, Logging 
 	}
 
 	@Override
-	public void doProcessResponse(HelloReply response) {
-		info ("Logging from filter. Response payload is : " + response.getMessage());
+	public void doProcessResponse(D response) {
+		info ("Logging from filter. Response payload is : " + response.toString());
 	}
 
 }
