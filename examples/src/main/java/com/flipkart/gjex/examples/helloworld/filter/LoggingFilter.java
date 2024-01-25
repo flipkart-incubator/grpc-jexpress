@@ -27,7 +27,6 @@ import io.grpc.examples.helloworld.HelloRequest;
 
 /**
  * An implementation of the {@link Filter} interface as example that simply logs Request information
- *
  * @author regu.b
  */
 @Named("LoggingFilter")
