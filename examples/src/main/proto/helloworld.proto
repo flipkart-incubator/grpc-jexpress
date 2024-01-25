@@ -25,6 +25,7 @@ service Greeter {
     // Sends a greeting
     rpc SayHello (HelloRequest) returns (HelloReply) {}
 
+    // Starts a Bi-di stream of PingPong messages
     rpc PingPong (stream Ping) returns (stream Pong) {}
 }
 
@@ -38,10 +39,12 @@ message HelloReply {
     string message = 1;
 }
 
+// A ping request message containing the message
 message  Ping {
     string message = 1;
 }
 
+// A pong response message containing a response message
 message Pong {
     string message = 1;
 }
