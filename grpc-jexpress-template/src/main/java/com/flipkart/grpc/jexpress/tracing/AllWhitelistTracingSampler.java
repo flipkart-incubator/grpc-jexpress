@@ -19,8 +19,9 @@ import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
 
 public class AllWhitelistTracingSampler extends ConfigurableTracingSampler {
 
-    public AllWhitelistTracingSampler() {
-        super.setIsTraceEnabled(true); // turns on tracing
+    @Override
+    public boolean isSampled(String component) {
+        return true;
     }
 
 }
