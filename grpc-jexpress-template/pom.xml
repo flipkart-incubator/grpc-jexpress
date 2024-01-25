@@ -201,10 +201,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.12.1</version>
-                <configuration>
+                <!-- use jdk specific -->
+                <!-- <configuration>
                     <source>17</source>
                     <target>17</target>
-                </configuration>
+                </configuration>-->
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
