@@ -27,3 +27,7 @@ jobs:
       run: ./gradlew build publishToMavenLocal -x :examples:build 
     - name: Build Examples 
       run: ./gradlew build
+    - name: Build Maven Template
+      run: |
+        cd grpc-jexpress-template
+        mvn clean install

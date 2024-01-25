@@ -58,7 +58,7 @@ public class SampleClient {
         if (args.length > 0) {
             user = args[0];
         }
-        System.out.println("Trying cart lite for:" + user);
+        System.out.println("Trying to create account for:" + user);
         try {
             CreateResponse createResponse = client.createUser("Foo");
             System.out.println(createResponse);
