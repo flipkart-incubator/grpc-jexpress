@@ -9,9 +9,17 @@ tasks.withType(GenerateModuleMetadata) {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
             artifactId = 'guice'
             from components.java
+            pom {
+                licenses {
+                  license {
+                    name = "The Apache License, Version 2.0"
+                    url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                  }
+                }
+            }
         }
     }
     repositories {

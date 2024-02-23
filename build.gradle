@@ -33,11 +33,19 @@ def guiceVersion = '5.1.0'
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
             groupId = 'com.flipkart'
             artifactId = 'grpc-jexpress'
             version = "${gJEXVersion}"
             from components.java
+            pom {
+                licenses {
+                  license {
+                    name = "The Apache License, Version 2.0"
+                    url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                  }
+                }
+            }
         }
     }
     repositories {
@@ -50,7 +58,6 @@ publishing {
         }
     }
 }
-
 
 
 subprojects {
