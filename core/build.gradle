@@ -59,6 +59,9 @@ dependencies {
     implementation 'com.github.wnameless:json-flattener:0.6.0'
     implementation 'io.dropwizard.metrics5:metrics-jvm:5.0.0'
     implementation 'io.dropwizard.metrics5:metrics-jmx:5.0.0'
+    implementation 'io.prometheus:prometheus-metrics-core:1.2.0-SNAPSHOT'
+    implementation 'io.prometheus:prometheus-metrics-instrumentation-dropwizard:1.2.0-SNAPSHOT'
+    implementation 'io.prometheus:prometheus-metrics-exporter-common:1.2.0-SNAPSHOT'
 
     testImplementation libraries.junit4
     testImplementation libraries.assertj
