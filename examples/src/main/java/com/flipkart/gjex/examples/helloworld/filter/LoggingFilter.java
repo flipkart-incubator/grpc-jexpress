@@ -15,12 +15,15 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
+import javax.inject.Named;
+
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
+
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
-
-import javax.inject.Named;
+import io.grpc.examples.helloworld.HelloReply;
+import io.grpc.examples.helloworld.HelloRequest;
 
 /**
  * An implementation of the {@link Filter} interface as example that simply logs Request information

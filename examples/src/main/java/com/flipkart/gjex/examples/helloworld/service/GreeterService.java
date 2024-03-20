@@ -15,6 +15,10 @@
  */
 package com.flipkart.gjex.examples.helloworld.service;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import io.dropwizard.metrics5.annotation.Timed;
 import com.flipkart.gjex.core.filter.ApplicationHeaders;
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
@@ -24,20 +28,15 @@ import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
-import io.dropwizard.metrics5.annotation.Timed;
+
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
-import io.grpc.examples.helloworld.GreeterGrpc;
-import io.grpc.examples.helloworld.HelloReply;
-import io.grpc.examples.helloworld.HelloRequest;
-import io.grpc.examples.helloworld.Ping;
-import io.grpc.examples.helloworld.Pong;
+import io.grpc.examples.helloworld.*;
 import io.grpc.stub.StreamObserver;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import static io.grpc.examples.helloworld.GreeterGrpc.getPingPongMethod;
 
 
 /**
