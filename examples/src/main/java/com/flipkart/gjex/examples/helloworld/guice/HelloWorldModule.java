@@ -15,26 +15,21 @@
  */
 package com.flipkart.gjex.examples.helloworld.guice;
 
-import org.glassfish.jersey.server.ResourceConfig;
-
-import io.dropwizard.metrics5.health.HealthCheck;
 import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.task.RotationManagementTask;
 import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.examples.helloworld.config.HelloWorldConfiguration;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 import com.flipkart.gjex.examples.helloworld.healthcheck.AllIsWellHealthCheck;
-import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 import com.flipkart.gjex.examples.helloworld.web.HelloWorldResourceConfig;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-
-import io.grpc.BindableService;
+import io.dropwizard.metrics5.health.HealthCheck;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.examples.helloworld.GreeterGrpc;
-
-
+import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  * Guice module for wiring sample Service to GJEX runtime
@@ -51,11 +46,12 @@ public class HelloWorldModule extends AbstractModule {
 				.usePlaintext()
 				.build();
 //		install(new ClientModule<GreeterGrpc.GreeterBlockingStub>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
-		bind(GreeterGrpc.GreeterBlockingStub.class).toInstance(GreeterGrpc.newBlockingStub(channel));
-		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
+//		bind(GreeterGrpc.GreeterBlockingStub.class).toInstance(GreeterGrpc.newBlockingStub(channel));
+//		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(Filter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
 		bind(Filter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
+		bind(RotationManagementTask.class).toInstance(new RotationManagementTask());
 		bind(HealthCheck.class).to(AllIsWellHealthCheck.class);
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
 	}

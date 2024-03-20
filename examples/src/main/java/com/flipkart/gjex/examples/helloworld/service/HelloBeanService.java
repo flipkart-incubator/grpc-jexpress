@@ -15,11 +15,6 @@
  */
 package com.flipkart.gjex.examples.helloworld.service;
 
-import java.util.concurrent.Future;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.flipkart.gjex.core.filter.ApplicationHeaders;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.task.AsyncResult;
@@ -27,8 +22,11 @@ import com.flipkart.gjex.core.task.ConcurrentTask;
 import com.flipkart.gjex.core.task.FutureDecorator;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
-
 import io.reactivex.functions.BiFunction;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.concurrent.Future;
 
 /**
  * A sample business logic implementation that is called with an entity that is validated for correctness

@@ -15,16 +15,15 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
-import javax.inject.Named;
-
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
-
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
+
+import javax.inject.Named;
 
 /**
  * An implementation of the {@link Filter} interface as example that performs naive authentication based on

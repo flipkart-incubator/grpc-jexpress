@@ -15,9 +15,9 @@
  */
 package com.flipkart.gjex.examples.helloworld.bean;
 
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * An entity class for testing validation

@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.examples.helloworld;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.gjex.core.Application;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
