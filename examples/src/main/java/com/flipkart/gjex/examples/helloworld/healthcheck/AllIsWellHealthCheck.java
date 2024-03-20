@@ -15,51 +15,22 @@
  */
 package com.flipkart.gjex.examples.helloworld.healthcheck;
 
-import com.flipkart.gjex.core.logging.Logging;
-import com.flipkart.gjex.core.task.RotationManagementTask;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.dropwizard.metrics5.health.HealthCheck;
+import com.flipkart.gjex.core.logging.Logging;
+
+
 
 /**
  * A HealthCheck implementation that reports positive results always
  * @author regu.b
  *
  */
-@Singleton
 public class AllIsWellHealthCheck extends HealthCheck implements Logging {
 
-	private RotationManagementTask rotationManagementTask;
+  @Override
+  protected Result check() throws Exception {
+    info("Returning healthy status.");
+    return Result.healthy("All Is Well");
+  }
 
-	@Inject
-	public AllIsWellHealthCheck(RotationManagementTask rotationManagementTask) {
-		this.rotationManagementTask = rotationManagementTask;
-	}
-
-	@Override
-	protected Result check() {
-		if (rotationManagementTask.isBir()) {
-			info("Returning healthy status.");
-			return Result.healthy("Server is " + rotationManagementTask.getStatus());
-		} else {
-			info("Returning unhealthy status.");
-			return Result.unhealthy("Server is " + rotationManagementTask.getStatus());
-		}
-	}
-
-	public String getStatus() {
-		return rotationManagementTask.getStatus();
-	}
-
-	public String makeOor() {
-		return rotationManagementTask.makeOor();
-	}
-
-	public String makeBir() {
-		return rotationManagementTask.makeBir();
-	}
-
-	public boolean isBir() {
-		return rotationManagementTask.isBir();
-	}
 }
