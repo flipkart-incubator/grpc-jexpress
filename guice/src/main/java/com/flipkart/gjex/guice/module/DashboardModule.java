@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import com.flipkart.gjex.core.web.RotationManagementResource;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -139,13 +140,21 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Singleton
 	Server getAPIJettyServer(@Named("APIVanillaJettyServer")Server server,
 							@Named("ApiServletContext") ServletContextHandler context,
-							@Named("HealthCheckResourceConfig")ResourceConfig healthcheckResourceConfig,
+							@Named("HealthCheckResourceConfig")ResourceConfig healthCheckResourceConfig,
+							@Named("RotationManagementResourceConfig") ResourceConfig rotationManagementResourceConfig,
 							@Named("TracingResourceConfig")ResourceConfig tracingResourceConfig,
 							@Named("TracingSamplerHolder")TracingSamplerHolder tracingSamplerHolder,
 							@Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) throws URISyntaxException, UnknownHostException {
-		healthcheckResourceConfig.register(provider);
-		ServletHolder healthcheckServlet = new ServletHolder(new ServletContainer(healthcheckResourceConfig));
-		context.addServlet(healthcheckServlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
+		healthCheckResourceConfig.register(provider);
+		ServletHolder healthCheckServlet =
+				new ServletHolder(new ServletContainer(healthCheckResourceConfig));
+		context.addServlet(healthCheckServlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
+
+		rotationManagementResourceConfig.register(provider);
+		ServletHolder rotationManagementServlet =
+				new ServletHolder(new ServletContainer(rotationManagementResourceConfig));
+		context.addServlet(rotationManagementServlet, "/rotation"); // registering Rotation
+		// Management servlet under the /rotation path
 
 		tracingResourceConfig.register(provider);
 		ServletHolder tracingServlet = new ServletHolder(new ServletContainer(tracingResourceConfig));
@@ -205,6 +214,16 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(healthCheckResource);
+		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+		return resourceConfig;
+	}
+
+	@Named("RotationManagementResourceConfig")
+	@Singleton
+	@Provides
+	ResourceConfig getAPIResourceConfig(RotationManagementResource rotationManagementResource) {
+		ResourceConfig resourceConfig = new ResourceConfig();
+		resourceConfig.register(rotationManagementResource);
 		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
 		return resourceConfig;
 	}

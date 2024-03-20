@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.examples.helloworld.web;
 
+import com.flipkart.gjex.core.web.RotationManagementResource;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.inject.Inject;

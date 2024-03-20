@@ -15,9 +15,12 @@
  */
 package com.flipkart.gjex.guice.module;
 
+import com.flipkart.gjex.Constants;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Api;
+import com.flipkart.gjex.core.web.HealthCheckResource;
+import com.flipkart.gjex.core.web.RotationManagementResource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;
@@ -27,6 +30,7 @@ import io.grpc.Context;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.configuration.Configuration;
+import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.inject.Inject;
 import javax.inject.Named;

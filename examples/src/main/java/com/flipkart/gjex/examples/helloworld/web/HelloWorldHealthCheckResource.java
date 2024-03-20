@@ -1,6 +1,6 @@
 package com.flipkart.gjex.examples.helloworld.web;
 
-import com.flipkart.gjex.examples.helloworld.healthcheck.AllIsWellHealthCheck;
+import com.flipkart.gjex.core.task.RotationManagementBasedHealthCheck;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -15,18 +15,18 @@ import javax.ws.rs.core.Response;
 @Path("/app-healthcheck")
 @Named
 public class HelloWorldHealthCheckResource {
-  private AllIsWellHealthCheck allIsWellHealthCheck;
+  private RotationManagementBasedHealthCheck rotationManagementBasedHealthCheck;
 
   @Inject
-  public HelloWorldHealthCheckResource(AllIsWellHealthCheck allIsWellHealthCheck) {
-    this.allIsWellHealthCheck = allIsWellHealthCheck;
+  public HelloWorldHealthCheckResource(RotationManagementBasedHealthCheck rotationManagementBasedHealthCheck) {
+    this.rotationManagementBasedHealthCheck = rotationManagementBasedHealthCheck;
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/")
   public Response health() {
-    if (allIsWellHealthCheck.isBir()) {
+    if (rotationManagementBasedHealthCheck.isBir()) {
        return Response.status(Response.Status.OK).build();
     } else {
       return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();

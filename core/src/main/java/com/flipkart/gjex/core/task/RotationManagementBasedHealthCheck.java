@@ -1,17 +1,31 @@
 package com.flipkart.gjex.core.task;
 
+import com.flipkart.gjex.core.logging.Logging;
+import io.dropwizard.metrics5.health.HealthCheck;
+
 import javax.inject.Singleton;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Singleton
-public class RotationManagementTask {
+public class RotationManagementBasedHealthCheck extends HealthCheck implements Logging {
   private static final String BIR = "bir";
   private static final String OOR = "oor";
 
   private AtomicBoolean state;
 
-  public RotationManagementTask() {
+  public RotationManagementBasedHealthCheck() {
     state = new AtomicBoolean(true);
+  }
+
+  @Override
+  protected Result check() {
+    if (isBir()) {
+      info("Returning healthy status.");
+      return Result.healthy("Server is " + getStatus());
+    } else {
+      info("Returning unhealthy status.");
+      return Result.unhealthy("Server is " + getStatus());
+    }
   }
 
   public String getStatus() {
