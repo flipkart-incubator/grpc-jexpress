@@ -5,9 +5,11 @@ import com.flipkart.gjex.core.task.RotationManagementBasedHealthCheck;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -17,9 +19,12 @@ import javax.ws.rs.core.Response;
  */
 
 @Singleton
-@Path("/rotation_status")
+@Path("/rotation")
 @Named
 public class RotationManagementResource {
+
+  @Context
+  private ServletContext servletContext;
 
   private RotationManagementBasedHealthCheck rotationManagementBasedHealthCheck;
 

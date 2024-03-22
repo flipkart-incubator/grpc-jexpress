@@ -34,12 +34,10 @@ public class HelloWorldResourceConfig extends ResourceConfig {
 	@Inject
 	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1,
 																	 HelloWorldResource2 helloWorldresource2,
-																	 RotationManagementResource rotationManagementResource,
-																	 HelloWorldHealthCheckResource helloWorldHealthCheckResource) {
+																	 RotationManagementResource rotationManagementResource) {
 		register(helloWorldresource1);
 		register(helloWorldresource2);
-		register(rotationManagementResource);
-		register(helloWorldHealthCheckResource);
+//		register(rotationManagementResource);
 	}
 	
 }

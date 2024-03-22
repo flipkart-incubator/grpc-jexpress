@@ -52,7 +52,6 @@ public class HelloWorldModule extends AbstractModule {
 		bind(Filter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
 		bind(Filter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
-		bind(RotationManagementBasedHealthCheck.class).toInstance(new RotationManagementBasedHealthCheck());
 		bind(HealthCheck.class).to(RotationManagementBasedHealthCheck.class);
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
 	}
