@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 @Singleton
 @Named("RotationManagementConfig")
 public class RotationManagementConfig extends ResourceConfig  {
+
   @Inject
   public RotationManagementConfig (RotationManagementResource rotationManagementResource) {
 		register(rotationManagementResource);

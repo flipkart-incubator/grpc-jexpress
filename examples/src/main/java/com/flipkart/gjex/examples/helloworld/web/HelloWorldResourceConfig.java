@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.examples.helloworld.web;
 
+import com.flipkart.gjex.core.config.RotationManagementConfig;
 import com.flipkart.gjex.core.web.RotationManagementResource;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -37,7 +38,7 @@ public class HelloWorldResourceConfig extends ResourceConfig {
 																	 RotationManagementResource rotationManagementResource) {
 		register(helloWorldresource1);
 		register(helloWorldresource2);
-//		register(rotationManagementResource);
+		register(rotationManagementResource);
 	}
 	
 }

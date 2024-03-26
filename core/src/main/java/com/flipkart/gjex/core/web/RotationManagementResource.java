@@ -19,23 +19,31 @@ import javax.ws.rs.core.Response;
  */
 
 @Singleton
-@Path("/rotation")
+@Path("/")
 @Named
 public class RotationManagementResource {
 
   @Context
   private ServletContext servletContext;
 
-  private RotationManagementBasedHealthCheck rotationManagementBasedHealthCheck;
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response base() {
+//    String response = this.rotationManagementBasedHealthCheck.makeOor();
+    String response = "hello from rmr base";
+    return Response.status(Response.Status.OK).entity(response).build();
+  }
 
   @Inject
   public RotationManagementResource(RotationManagementBasedHealthCheck rotationManagementBasedHealthCheck) {
     this.rotationManagementBasedHealthCheck = rotationManagementBasedHealthCheck;
   }
 
+  private RotationManagementBasedHealthCheck rotationManagementBasedHealthCheck;
+
   @GET
-  @Produces(MediaType.APPLICATION_JSON)
   @Path("/oor")
+  @Produces(MediaType.APPLICATION_JSON)
   public Response oor() {
     String response = this.rotationManagementBasedHealthCheck.makeOor();
     return Response.status(Response.Status.OK).entity(response).build();
@@ -47,17 +55,6 @@ public class RotationManagementResource {
   public Response bir() {
     String response = this.rotationManagementBasedHealthCheck.makeBir();
     return Response.status(Response.Status.OK).entity(response).build();
-  }
-
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("/status")
-  public Response status() {
-    String response = this.rotationManagementBasedHealthCheck.getStatus();
-    if (this.rotationManagementBasedHealthCheck.isBir()) {
-      return Response.status(Response.Status.OK).entity(response).build();
-    }
-    return Response.status(Response.Status.NOT_FOUND).entity(response).build();
   }
 
 }

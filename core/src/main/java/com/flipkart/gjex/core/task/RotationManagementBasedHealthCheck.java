@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Rotation management based health check for the app
  * @author ajay.jalgaonkar
  */
+
 @Singleton
 public class RotationManagementBasedHealthCheck extends HealthCheck implements Logging {
   private static final String BIR = "bir";

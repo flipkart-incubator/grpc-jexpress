@@ -140,7 +140,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Singleton
 	Server getAPIJettyServer(@Named("APIVanillaJettyServer")Server server,
 							@Named("ApiServletContext") ServletContextHandler context,
-							@Named("HealthCheckResourceConfig")ResourceConfig healthCheckResourceConfig,
+							@Named("HealthCheckResourceConfig") ResourceConfig healthCheckResourceConfig,
 							@Named("RotationManagementResourceConfig") ResourceConfig rotationManagementResourceConfig,
 							@Named("TracingResourceConfig")ResourceConfig tracingResourceConfig,
 							@Named("TracingSamplerHolder")TracingSamplerHolder tracingSamplerHolder,
@@ -221,7 +221,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Named("RotationManagementResourceConfig")
 	@Singleton
 	@Provides
-	ResourceConfig getAPIResourceConfig(RotationManagementResource rotationManagementResource) {
+	ResourceConfig getRotationManagementResourceConfig(RotationManagementResource rotationManagementResource) {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(rotationManagementResource);
 		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
