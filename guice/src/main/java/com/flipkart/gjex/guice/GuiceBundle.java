@@ -166,9 +166,6 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		ApiServer apiServer = baseInjector.getInstance(ApiServer.class);
 		// Add all custom web resources
 		resourceConfigs = getInstances(baseInjector, ResourceConfig.class);
-
-		// Lookup the rotation management config
-//		resourceConfigs.addAll(getInstances(baseInjector, RotationManagementConfig.class));
 		apiServer.registerResources(resourceConfigs);		
 	}
 

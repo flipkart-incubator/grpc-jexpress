@@ -12,6 +12,7 @@ import javax.inject.Singleton;
  * @author ajay.jalgaonkar
  *
  */
+
 @Singleton
 @Named("RotationManagementConfig")
 public class RotationManagementConfig extends ResourceConfig  {
