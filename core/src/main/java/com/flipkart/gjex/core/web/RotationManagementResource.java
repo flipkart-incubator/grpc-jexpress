@@ -26,14 +26,6 @@ public class RotationManagementResource {
   @Context
   private ServletContext servletContext;
 
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response base() {
-//    String response = this.rotationManagementBasedHealthCheck.makeOor();
-    String response = "hello from rmr base";
-    return Response.status(Response.Status.OK).entity(response).build();
-  }
-
   @Inject
   public RotationManagementResource(RotationManagementBasedHealthCheck rotationManagementBasedHealthCheck) {
     this.rotationManagementBasedHealthCheck = rotationManagementBasedHealthCheck;

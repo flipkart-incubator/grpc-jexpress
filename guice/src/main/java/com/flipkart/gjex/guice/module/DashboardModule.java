@@ -153,7 +153,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		rotationManagementResourceConfig.register(provider);
 		ServletHolder rotationManagementServlet =
 				new ServletHolder(new ServletContainer(rotationManagementResourceConfig));
-		context.addServlet(rotationManagementServlet, "/rotation"); // registering Rotation
+		context.addServlet(rotationManagementServlet, "/rotation/*"); // registering Rotation
 		// Management servlet under the /rotation path
 
 		tracingResourceConfig.register(provider);
