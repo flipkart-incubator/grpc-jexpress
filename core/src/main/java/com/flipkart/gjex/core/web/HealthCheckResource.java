@@ -28,7 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.dropwizard.metrics5.health.HealthCheck;
-import com.flipkart.gjex.core.setup.HealthCheckRegistry;
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 
 /**
  * Servlet Resource for the HealthCheck API

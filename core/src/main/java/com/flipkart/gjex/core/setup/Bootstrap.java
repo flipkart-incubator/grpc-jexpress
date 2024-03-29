@@ -25,6 +25,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import io.dropwizard.metrics5.MetricRegistry;
 import io.dropwizard.metrics5.jmx.JmxReporter;
 import io.dropwizard.metrics5.jvm.BufferPoolMetricSet;

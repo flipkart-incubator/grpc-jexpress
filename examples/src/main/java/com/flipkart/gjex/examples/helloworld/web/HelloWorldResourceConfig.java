@@ -15,13 +15,11 @@
  */
 package com.flipkart.gjex.examples.helloworld.web;
 
-import com.flipkart.gjex.core.config.RotationManagementConfig;
-import com.flipkart.gjex.core.web.RotationManagementResource;
-import org.glassfish.jersey.server.ResourceConfig;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+
+import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  * ResourceConfig example for registering all custom web resources for a GJEX application. 
@@ -33,8 +31,8 @@ import javax.inject.Singleton;
 public class HelloWorldResourceConfig extends ResourceConfig {
 	
 	@Inject
-	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1,
-																	 HelloWorldResource2 helloWorldresource2) {
+	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1, 
+			HelloWorldResource2 helloWorldresource2) {
 		register(helloWorldresource1);
 		register(helloWorldresource2);
 	}

@@ -44,7 +44,7 @@ import com.flipkart.gjex.Constants;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
-import com.flipkart.gjex.core.setup.HealthCheckRegistry;
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import com.flipkart.gjex.core.tracing.TracingSamplerHolder;
 import com.flipkart.gjex.core.web.DashboardResource;
 import com.flipkart.gjex.core.web.HealthCheckResource;

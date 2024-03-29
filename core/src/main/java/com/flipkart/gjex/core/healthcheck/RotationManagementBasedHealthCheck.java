@@ -1,4 +1,4 @@
-package com.flipkart.gjex.core.task;
+package com.flipkart.gjex.core.healthcheck;
 
 import com.flipkart.gjex.core.logging.Logging;
 import io.dropwizard.metrics5.health.HealthCheck;
@@ -15,20 +15,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RotationManagementBasedHealthCheck extends HealthCheck implements Logging {
   private static final String BIR = "bir";
   private static final String OOR = "oor";
+  private static final AtomicBoolean rotationStatus = new AtomicBoolean(true);
 
-  private AtomicBoolean state;
-
-  public RotationManagementBasedHealthCheck() {
-    state = new AtomicBoolean(true);
-  }
+  public RotationManagementBasedHealthCheck() {}
 
   @Override
   protected Result check() {
     if (isBir()) {
-      info("Returning healthy status.");
       return Result.healthy("Server is " + getStatus());
     } else {
-      info("Returning unhealthy status.");
       return Result.unhealthy("Server is " + getStatus());
     }
   }
@@ -38,17 +33,17 @@ public class RotationManagementBasedHealthCheck extends HealthCheck implements L
   }
 
   public String makeOor() {
-    state.set(false);
+    rotationStatus.set(false);
     return OOR;
   }
 
   public String makeBir() {
-    state.set(true);
+    rotationStatus.set(true);
     return BIR;
   }
 
   public boolean isBir() {
-    return state.get();
+    return rotationStatus.get();
   }
 
 }

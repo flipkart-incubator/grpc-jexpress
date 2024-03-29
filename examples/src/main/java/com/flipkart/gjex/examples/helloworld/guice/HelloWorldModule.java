@@ -16,7 +16,7 @@
 package com.flipkart.gjex.examples.helloworld.guice;
 
 import com.flipkart.gjex.core.filter.Filter;
-import com.flipkart.gjex.core.task.RotationManagementBasedHealthCheck;
+import com.flipkart.gjex.core.healthcheck.RotationManagementBasedHealthCheck;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
