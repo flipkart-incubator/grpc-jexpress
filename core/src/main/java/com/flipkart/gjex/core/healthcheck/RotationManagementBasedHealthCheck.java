@@ -21,7 +21,7 @@ public class RotationManagementBasedHealthCheck extends HealthCheck implements L
 
   @Override
   protected Result check() {
-    if (isBir()) {
+    if (inRotation()) {
       return Result.healthy("Server is " + getStatus());
     } else {
       return Result.unhealthy("Server is " + getStatus());
@@ -29,7 +29,7 @@ public class RotationManagementBasedHealthCheck extends HealthCheck implements L
   }
 
   public String getStatus() {
-    return isBir() ? BIR : OOR;
+    return inRotation() ? BIR : OOR;
   }
 
   public String makeOor() {
@@ -42,7 +42,7 @@ public class RotationManagementBasedHealthCheck extends HealthCheck implements L
     return BIR;
   }
 
-  public boolean isBir() {
+  public boolean inRotation() {
     return rotationStatus.get();
   }
 

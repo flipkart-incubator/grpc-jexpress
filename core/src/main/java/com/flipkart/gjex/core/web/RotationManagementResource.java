@@ -5,7 +5,7 @@ import com.flipkart.gjex.core.healthcheck.RotationManagementBasedHealthCheck;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -28,7 +28,7 @@ public class RotationManagementResource {
 
   private RotationManagementBasedHealthCheck rotationManagementBasedHealthCheck;
 
-  @GET
+  @POST
   @Path("/oor")
   @Produces(MediaType.APPLICATION_JSON)
   public Response oor() {
@@ -36,7 +36,7 @@ public class RotationManagementResource {
     return Response.status(Response.Status.OK).entity(response).build();
   }
 
-  @GET
+  @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/bir")
   public Response bir() {
