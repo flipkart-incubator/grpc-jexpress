@@ -7,11 +7,11 @@ plugins {
 }
 
 
-
 ext {
-    clojarsusername = project.properties['clojarsusername'] ?: ""
-    clojarspassword = project.properties['clojarspassword'] ?: ""
+    clojarsusername = project.properties['clojarsusername'] ?: System.getenv("CLOJARS_USERNAME")
+    clojarspassword = project.properties['clojarspassword'] ?: System.getenv("CLOJARS_PASSWORD")
 }
+
 allprojects {
     repositories {
         maven { // The google mirror is less flaky than mavenCentral()
