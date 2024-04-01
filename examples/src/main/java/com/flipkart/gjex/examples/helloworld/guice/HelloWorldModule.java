@@ -16,7 +16,6 @@
 package com.flipkart.gjex.examples.helloworld.guice;
 
 import com.flipkart.gjex.core.filter.Filter;
-import com.flipkart.gjex.core.healthcheck.RotationManagementBasedHealthCheck;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
@@ -25,7 +24,6 @@ import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 import com.flipkart.gjex.examples.helloworld.web.HelloWorldResourceConfig;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import io.dropwizard.metrics5.health.HealthCheck;
 import io.grpc.BindableService;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -52,7 +50,6 @@ public class HelloWorldModule extends AbstractModule {
 		bind(Filter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
 		bind(Filter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
-		bind(HealthCheck.class).to(RotationManagementBasedHealthCheck.class);
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
 	}
 	
