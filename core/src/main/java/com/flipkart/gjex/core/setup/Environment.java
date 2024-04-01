@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.core.setup;
 
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import io.dropwizard.metrics5.MetricRegistry;
 
 import java.util.concurrent.Executors;

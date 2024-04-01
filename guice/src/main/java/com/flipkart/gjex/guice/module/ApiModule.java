@@ -16,12 +16,14 @@
 package com.flipkart.gjex.guice.module;
 
 import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.healthcheck.RotationManagementBasedHealthCheck;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Api;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
+import io.dropwizard.metrics5.health.HealthCheck;
 import io.grpc.BindableService;
 import io.grpc.Context;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -50,6 +52,7 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 		ApiMethodInterceptor methodInterceptor = new ApiMethodInterceptor();
 		requestInjection(methodInterceptor);
 		bindInterceptor(Matchers.any(), new ApiMethodMatcher(), methodInterceptor);
+		bind(HealthCheck.class).to(RotationManagementBasedHealthCheck.class);
 	}
 	
 	@Named("ApiScheduledExecutor")
