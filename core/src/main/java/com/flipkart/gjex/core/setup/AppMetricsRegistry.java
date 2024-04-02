@@ -1,7 +1,8 @@
 package com.flipkart.gjex.core.setup;
 
+import io.dropwizard.metrics5.MetricFilter;
 import io.dropwizard.metrics5.MetricRegistry;
-import io.prometheus.metrics.instrumentation.dropwizard.DropwizardExports;
+import io.prometheus.metrics.instrumentation.dropwizard5.DropwizardExports;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 
 
@@ -18,7 +19,7 @@ public class AppMetricsRegistry {
     }
 
     private void registerDropwizardMetrics() {
-        prometheusRegistry.register(new DropwizardExports(metricRegistry));
+        prometheusRegistry.register(new DropwizardExports(metricRegistry, MetricFilter.ALL));
     }
 
     public AppMetricsRegistry(MetricRegistry metricRegistry) {

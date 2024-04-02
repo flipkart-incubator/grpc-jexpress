@@ -38,6 +38,7 @@ import org.glassfish.jersey.server.mvc.freemarker.FreemarkerMvcFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import io.dropwizard.metrics5.jetty9.InstrumentedHandler;
+import io.prometheus.metrics.exporter.servlet.javax.PrometheusMetricsServlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.flipkart.gjex.Constants;
@@ -120,6 +121,9 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.command.local");
 		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.global");
 		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.tp.local");
+
+		/** Add the promethus servlet */
+		context.addServlet(PrometheusMetricsServlet.class,"/metrics");
 
 		/** Add the Metrics instrumentation */
 		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
