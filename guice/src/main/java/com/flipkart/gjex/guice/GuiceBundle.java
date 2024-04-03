@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.grpc.service.ScheduledJobManager;
+import io.grpc.health.v1.HealthGrpc;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import io.dropwizard.metrics5.health.HealthCheck;
@@ -138,8 +139,13 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		setEnvironment(configuration, environment); // NOTE
 		GrpcServer grpcServer = baseInjector.getInstance(GrpcServer.class);
 
+		List<BindableService> bindableServices = new ArrayList<>();
 		// Add all Grpc Services to the Grpc Server
-		List<BindableService> bindableServices = getInstances(baseInjector, BindableService.class);
+		bindableServices.addAll(getInstances(baseInjector, BindableService.class));
+
+		// Add all Grpc Health Check Services to the Grpc Server
+		bindableServices.addAll(getInstances(baseInjector, HealthGrpc.HealthImplBase.class));
+
 		grpcServer.registerServices(bindableServices);
 
 		// Add all Grpc Filters to the Grpc Server
