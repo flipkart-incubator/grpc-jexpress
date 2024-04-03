@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 
 /**
  * Default GRPC HealthCheck Service
- * @author ajay.jalgaonkar, See <a href="https://www.linkedin.com/in/apj">https://www.linkedin.com/in/apj</a>
+ * @author ajaypj, See <a href="https://www.linkedin.com/in/apj">https://www.linkedin.com/in/apj</a>
  */
 
 @Singleton
