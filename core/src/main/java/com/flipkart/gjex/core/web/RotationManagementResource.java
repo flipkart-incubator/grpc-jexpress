@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 
 /**
  * Resource for rotation management
- * @author ajaypj, See <a href="https://www.linkedin.com/in/apj">https://www.linkedin.com/in/apj</a>
+ * @author ajay.jalgaonkar
  */
 
 @Singleton
