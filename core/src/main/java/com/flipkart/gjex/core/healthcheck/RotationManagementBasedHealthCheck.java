@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Rotation management based health check for the app
- * @author ajay.jalgaonkar
+ * @author ajay.jalgaonkar, See <a href="https://www.linkedin.com/in/apj">https://www.linkedin.com/in/apj</a>
  */
 
 @Singleton
