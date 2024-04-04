@@ -52,6 +52,7 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.core.util.Pair;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import io.prometheus.metrics.model.registry.PrometheusRegistry;
 
 /**
  * The pre-start application container, containing services required to bootstrap a GJEX application
@@ -98,7 +99,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		this.configurationClass = configurationClass;
 		this.configPath = configPath;
 		this.application = application;
-		this.appMetricsRegistry = new AppMetricsRegistry(new MetricRegistry());
+		this.appMetricsRegistry = new AppMetricsRegistry(new MetricRegistry(), PrometheusRegistry.defaultRegistry);
 		this.bundles = Lists.newArrayList();
 		this.objectMapper = GJEXObjectMapper.newObjectMapper();
 		this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -106,13 +107,6 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		this.configurationSourceProvider = new FileConfigurationSourceProvider();
 		this.validatorFactory = Validation.buildDefaultValidatorFactory();
 		this.initializeConfig();
-
-		getMetricRegistry().register("jvm.buffers", new BufferPoolMetricSet(ManagementFactory
-                .getPlatformMBeanServer()));
-		getMetricRegistry().register("jvm.gc", new GarbageCollectorMetricSet());
-		getMetricRegistry().register("jvm.memory", new MemoryUsageGaugeSet());
-		getMetricRegistry().register("jvm.threads", new ThreadStatesGaugeSet());
-		JmxReporter.forRegistry(getMetricRegistry()).build().start();
 	}
 	
 	/**
