@@ -52,6 +52,7 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.core.util.Pair;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import io.prometheus.metrics.model.registry.PrometheusRegistry;
 
 /**
  * The pre-start application container, containing services required to bootstrap a GJEX application
@@ -63,7 +64,7 @@ import com.google.common.collect.Lists;
 public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Logging {
 
 	private final Application<T, U> application;
-	private final MetricRegistry metricRegistry;
+	private final AppMetricsRegistry appMetricsRegistry;
 	private final List<Bundle<? super T, ? super U>> bundles;
 	private final ObjectMapper objectMapper;
 	private final String configPath;
@@ -98,7 +99,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		this.configurationClass = configurationClass;
 		this.configPath = configPath;
 		this.application = application;
-		this.metricRegistry = new MetricRegistry();
+		this.appMetricsRegistry = new AppMetricsRegistry(new MetricRegistry(), PrometheusRegistry.defaultRegistry);
 		this.bundles = Lists.newArrayList();
 		this.objectMapper = GJEXObjectMapper.newObjectMapper();
 		this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -106,13 +107,6 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		this.configurationSourceProvider = new FileConfigurationSourceProvider();
 		this.validatorFactory = Validation.buildDefaultValidatorFactory();
 		this.initializeConfig();
-
-		getMetricRegistry().register("jvm.buffers", new BufferPoolMetricSet(ManagementFactory
-                .getPlatformMBeanServer()));
-		getMetricRegistry().register("jvm.gc", new GarbageCollectorMetricSet());
-		getMetricRegistry().register("jvm.memory", new MemoryUsageGaugeSet());
-		getMetricRegistry().register("jvm.threads", new ThreadStatesGaugeSet());
-		JmxReporter.forRegistry(getMetricRegistry()).build().start();
 	}
 	
 	/**
@@ -156,10 +150,15 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
      * Returns the application's metrics.
      */
     public MetricRegistry getMetricRegistry() {
-        return metricRegistry;
+        return appMetricsRegistry.getMetricRegistry();
     }
-    
-    public List<Service> getServices() {
+
+
+	public AppMetricsRegistry getAppMetricsRegistry() {
+		return appMetricsRegistry;
+	}
+
+	public List<Service> getServices() {
 		return services;
 	}
 
