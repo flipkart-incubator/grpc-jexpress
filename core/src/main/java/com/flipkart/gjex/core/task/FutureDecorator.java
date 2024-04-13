@@ -144,7 +144,7 @@ public class FutureDecorator<T> implements Future<T> {
 	
 	/** Convenience method to get the response from completion of the specified FutureDecorator and evaluate completion as defined in the FutureDecorator*/
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static Object getResultFromFuture(FutureDecorator future) {
+	public static Object getResultFromFuture(FutureDecorator future) {
 		Object result = null;
 		Integer futureGetTimeout = null;
 		// check if a Deadline has been set. This will become the first timeout we consider
@@ -158,7 +158,9 @@ public class FutureDecorator<T> implements Future<T> {
 		}
 		// see if a Task timeout has been set, use the smaller of the Deadline and Task timeout
 		if (future.getTaskExecutor().getTimeout() > 0) {
-			futureGetTimeout = Math.min(futureGetTimeout, future.getTaskExecutor().getTimeout());
+			futureGetTimeout = futureGetTimeout == null ?
+					future.getTaskExecutor().getTimeout() :
+					Math.min(futureGetTimeout, future.getTaskExecutor().getTimeout());
 		}
 		if (future.getTaskExecutor().isWithRequestHedging() && future.getTaskExecutor().getRollingTailLatency() > 0) {
 			// we'll take the minimum of deadline and rolling tail latency (if request hedging is enabled) as the timeout for the Future
@@ -178,13 +180,15 @@ public class FutureDecorator<T> implements Future<T> {
 				LOGGER.info("Sending hedged request for Task : " + future.getTaskExecutor().getInvocation().getMethod().getName());
 				result = FutureDecorator.getResultFromFuture(new FutureDecorator(future.getTaskExecutor().clone(), future.getCompletion()));
 			}
+			if (future.getCompletion().equals(ConcurrentTask.Completion.Mandatory)) {
+				throw new TaskException("Task execution results not available due to timeout.",
+						new StatusException(Status.DEADLINE_EXCEEDED.withDescription("Deadline exceeded waiting for results :" + e.getMessage())));
+			} else {
+				LOGGER.warn("Timeout in optional task. Not failing the execution and proceeding.");
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			String errorMessage =  e.getCause() == null ? e.getMessage() :  e.getCause().getMessage();
 			if (future.getCompletion().equals(ConcurrentTask.Completion.Mandatory)) {
-				if (TimeoutException.class.isAssignableFrom(e.getClass())) {
-					throw new TaskException("Task execution results not available.", 
-							new StatusException(Status.DEADLINE_EXCEEDED.withDescription("Deadline exceeded waiting for results :" + e.getMessage())));
-				}
 				throw new TaskException("Error executing mandatory Task : " + errorMessage, e);
 			} else {
 				LOGGER.warn("Execution exception in optional task :" + errorMessage + " . Not failing the execution and proceeding.");
