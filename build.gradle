@@ -27,7 +27,7 @@ tasks.withType(GenerateModuleMetadata) {
 	enabled = false
 }
 
-def gJEXVersion = '1.40-SNAPSHOT'
+def gJEXVersion = version
 def grpcVersion = '1.60.0'
 def jacksonVersion = '2.16.1'
 def guiceVersion = '5.1.0'
