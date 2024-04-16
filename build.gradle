@@ -4,6 +4,7 @@ plugins {
     id 'idea'
     id 'eclipse'
     id 'maven-publish'
+    id 'net.researchgate.release' version '3.0.2'
 }
 
 
@@ -30,6 +31,26 @@ def gJEXVersion = '1.40-SNAPSHOT'
 def grpcVersion = '1.60.0'
 def jacksonVersion = '2.16.1'
 def guiceVersion = '5.1.0'
+
+
+release {
+    failOnCommitNeeded = true
+    failOnPublishNeeded = true
+    failOnSnapshotDependencies = true
+    failOnUnversionedFiles = true
+    failOnUpdateNeeded = true
+    preTagCommitMessage = '[Gradle Release Plugin] - pre tag commit: '
+    tagCommitMessage = '[Gradle Release Plugin] - creating tag: '
+    newVersionCommitMessage = '[Gradle Release Plugin] - new version commit: '
+    tagTemplate = '${version}'
+    versionPropertyFile = 'gradle.properties'
+    snapshotSuffix = '-SNAPSHOT'
+    buildTasks = []
+    
+    git {
+        requireBranch.set('master')
+    }
+}
 
 publishing {
     publications {
