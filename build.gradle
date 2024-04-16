@@ -48,7 +48,7 @@ release {
     buildTasks = []
     
     git {
-        requireBranch.set('master')
+        requireBranch.set("")
     }
 }
 
