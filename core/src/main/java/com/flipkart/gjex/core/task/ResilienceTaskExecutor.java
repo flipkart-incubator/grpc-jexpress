@@ -94,13 +94,9 @@ public class ResilienceTaskExecutor<T> implements FutureProvider<T>, Logging {
 
     public CompletableFuture<T> getFuture() {
         Supplier<T> supplier = prepareBaseSupplier();
-        try {
-            return decorateSupplierWithResilience(supplier)
+        return decorateSupplierWithResilience(supplier)
                     .get()
                     .toCompletableFuture();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private Supplier<T> prepareBaseSupplier() {
