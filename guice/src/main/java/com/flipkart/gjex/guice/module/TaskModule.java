@@ -16,12 +16,16 @@
 package com.flipkart.gjex.guice.module;
 
 import com.flipkart.gjex.core.logging.Logging;
-import com.flipkart.gjex.core.task.ConcurrentTask;
-import com.flipkart.gjex.core.task.FutureDecorator;
-import com.flipkart.gjex.core.task.TaskExecutor;
+import com.flipkart.gjex.core.task.*;
+import com.flipkart.resilience4all.resilience4j.timer.TimerConfig;
+import com.flipkart.resilience4all.resilience4j.timer.TimerRegistry;
 import com.google.inject.AbstractModule;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadConfig;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.configuration.Configuration;
@@ -51,29 +55,98 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 		@Inject
 		@Named("GlobalFlattenedConfig")
 		private Provider<Configuration> globalConfigurationProvider;
-		
+
+		@Inject
+		private CircuitBreakerRegistry circuitBreakerRegistry;
+
+		@Inject
+		private ThreadPoolBulkheadRegistry threadPoolBulkheadRegistry;
+
+		@Inject
+		private TimerRegistry timerRegistry;
+
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			ConcurrentTask task = invocation.getMethod().getAnnotation(ConcurrentTask.class);
-			Configuration globalConfig = globalConfigurationProvider.get();
-			int timeout = 0;
-			if (task.timeoutConfig().length() > 0) { // check if timeout is specified as a config property
-				timeout = globalConfig.getInt(task.timeoutConfig());
-			}
-			if (task.timeout() > 0) { // we take the method level annotation value as the final override
-				timeout = task.timeout();
-			}
-			int concurrency = 0;
-			if (task.concurrencyConfig().length() > 0) { // check if concurrency is specified as a config property
-				concurrency = globalConfig.getInt(task.concurrencyConfig());
-			}
-			if (task.concurrency() > 0) { // we take the method level annotation value as the final override
-				concurrency = task.concurrency();
-			}
-			return new FutureDecorator<T>(new TaskExecutor<T>(invocation,
-					invocation.getMethod().getDeclaringClass().getSimpleName(),
-					invocation.getMethod().getName(), concurrency, timeout, task.withRequestHedging()),task.completion()) ; // we return the FutureDecorator and not wait for its completion. This enables responses to be composed in a reactive manner
+			FutureProvider<?> futureProvider = createFutureProvider(task, invocation);
+			return new FutureDecorator<>(futureProvider, task.completion());
 		}
+
+		private FutureProvider<T> createFutureProvider(ConcurrentTask task, MethodInvocation invocation) {
+			Configuration globalConfig = globalConfigurationProvider.get();
+			if (globalConfig.containsKey("useResilience4j") && globalConfig.getBoolean("useResilience4j")) {
+				return createResilienceTaskExecutor(task, invocation);
+			}
+			return createHystrixTaskExecutor(task, invocation);
+		}
+
+		private ResilienceTaskExecutor<T> createResilienceTaskExecutor(ConcurrentTask task, MethodInvocation invocation) {
+			String name = invocation.getMethod().getName();
+			Configuration globalConfig = globalConfigurationProvider.get();
+			return new ResilienceTaskExecutor<T>(
+					invocation,
+					circuitBreakerRegistry.circuitBreaker(name, buildCircuitBreakerConfig(task, globalConfig)),
+					threadPoolBulkheadRegistry.bulkhead(name, buildThreadPoolBulkHeadConfig(task, globalConfig)),
+					timerRegistry.timer(name + ".server", new TimerConfig.Builder().name(name + ".server").build()),
+					task.withRequestHedging(),
+					getTimeout(task, globalConfig)
+			);
+		}
+
+		private ThreadPoolBulkheadConfig buildThreadPoolBulkHeadConfig(ConcurrentTask task, Configuration globalConfig) {
+			int queueCapacity = globalConfig.getInt(task.resilience4jConfig()+".threadPoolBulkHead.queueCapacity");
+			int maxThreadPoolSize = globalConfig.getInt(task.resilience4jConfig()+".threadPoolBulkHead.maxThreadPoolSize");
+			int coreThreadPoolSize = globalConfig.getInt(task.resilience4jConfig()+".threadPoolBulkHead.coreThreadPoolSize");
+			int concurrency = getConcurrency(task, globalConfig);
+			if (concurrency > 0 && maxThreadPoolSize < concurrency) {
+				coreThreadPoolSize = concurrency; //Overwriting the core thread pool value if concurrency property is explicitly defined
+			}
+			return ThreadPoolBulkheadConfig.from(threadPoolBulkheadRegistry.getDefaultConfig())
+					.queueCapacity(queueCapacity)
+					.maxThreadPoolSize(maxThreadPoolSize)
+					.coreThreadPoolSize(coreThreadPoolSize)
+					.build();
+		}
+
+		private CircuitBreakerConfig buildCircuitBreakerConfig(ConcurrentTask task, Configuration globalConfig) {
+			String slidingWindowType = globalConfig.getString(task.resilience4jConfig() + ".circuitBreaker.type");
+			int slidingWindowSize = globalConfig.getInt(task.resilience4jConfig() + ".circuitBreaker.slidingWindowSize");
+			return CircuitBreakerConfig.from(circuitBreakerRegistry.getDefaultConfig())
+					.slidingWindowType(CircuitBreakerConfig.SlidingWindowType.valueOf(slidingWindowType))
+					.slidingWindowSize(slidingWindowSize)
+					.build();
+		}
+
+		private TaskExecutor<T> createHystrixTaskExecutor(ConcurrentTask task, MethodInvocation invocation) {
+			Configuration configuration = globalConfigurationProvider.get();
+			int timeout = getTimeout(task, configuration);
+			int concurrency = getConcurrency(task, configuration);
+			return new TaskExecutor<T>(invocation,
+					invocation.getMethod().getDeclaringClass().getSimpleName(),
+					invocation.getMethod().getName(), concurrency, timeout, task.withRequestHedging()) ; // we return the FutureDecorator and not wait for its completion. This enables responses to be composed in a reactive manner
+		}
+	}
+
+	private int getTimeout(ConcurrentTask task, Configuration globalConfig) {
+		int timeout = 0;
+		if (task.timeoutConfig().length() > 0) { // check if timeout is specified as a config property
+			timeout = globalConfig.getInt(task.timeoutConfig());
+		}
+		if (task.timeout() > 0) { // we take the method level annotation value as the final override
+			timeout = task.timeout();
+		}
+		return timeout;
+	}
+
+	private int getConcurrency(ConcurrentTask task, Configuration globalConfig) {
+		int concurrency = 0;
+		if (task.concurrencyConfig().length() > 0) { // check if concurrency is specified as a config property
+			concurrency = globalConfig.getInt(task.concurrencyConfig());
+		}
+		if (task.concurrency() > 0) { // we take the method level annotation value as the final override
+			concurrency = task.concurrency();
+		}
+		return concurrency;
 	}
 	
 	/**
