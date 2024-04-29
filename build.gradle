@@ -18,7 +18,7 @@ allprojects {
             url "https://maven-central.storage-download.googleapis.com/maven2/"
         }
         maven {
-            url "http://clojars.org/repo"
+            url "https://clojars.org/repo"
         }
         mavenCentral()
         mavenLocal()
