@@ -98,7 +98,7 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 			int maxThreadPoolSize = globalConfig.getInt(task.resilience4jConfig()+".threadPoolBulkHead.maxThreadPoolSize");
 			int coreThreadPoolSize = globalConfig.getInt(task.resilience4jConfig()+".threadPoolBulkHead.coreThreadPoolSize");
 			int concurrency = getConcurrency(task, globalConfig);
-			if (concurrency > 0 && maxThreadPoolSize < concurrency) {
+			if (concurrency > 0 && maxThreadPoolSize >= concurrency) {
 				coreThreadPoolSize = concurrency; //Overwriting the core thread pool value if concurrency property is explicitly defined
 			}
 			return ThreadPoolBulkheadConfig.from(threadPoolBulkheadRegistry.getDefaultConfig())
