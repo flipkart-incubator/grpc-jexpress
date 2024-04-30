@@ -17,6 +17,9 @@ allprojects {
         maven { // The google mirror is less flaky than mavenCentral()
             url "https://maven-central.storage-download.googleapis.com/maven2/"
         }
+        maven {
+            url "https://clojars.org/repo"
+        }
         mavenCentral()
         mavenLocal()
     }

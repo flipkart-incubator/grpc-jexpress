@@ -26,6 +26,13 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import com.flipkart.gjex.core.web.RotationManagementResource;
+import com.flipkart.resilience4all.metrics.eventstream.Resilience4jMetricsStreamServlet;
+import com.flipkart.resilience4all.resilience4j.timer.TimerRegistry;
+import io.github.resilience4j.bulkhead.BulkheadRegistry;
+import io.github.resilience4j.bulkhead.ThreadPoolBulkheadRegistry;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.retry.RetryRegistry;
+import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -86,7 +93,8 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 								   @Named("Dashboard.service.acceptors") int acceptorThreads,
 								   @Named("Dashboard.service.selectors") int selectorThreads,
 								   @Named("Dashboard.service.workers") int maxWorkerThreads,
-								   @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) {
+								   @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider,
+								   Resilience4jMetricsStreamServlet resilience4jMetricsStreamServlet) {
 		resourceConfig.register(provider);
 		QueuedThreadPool threadPool = new QueuedThreadPool();
 		threadPool.setMaxThreads(maxWorkerThreads);
@@ -121,6 +129,11 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.command.local");
 		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.global");
 		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.tp.local");
+
+		ServletHolder resilienceStreamServletHolder = new ServletHolder(resilience4jMetricsStreamServlet);
+		context.addServlet(resilienceStreamServletHolder, "/stream/resilience.stream.command.local");
+		context.addServlet(resilienceStreamServletHolder, "/stream/resilience.stream.global");
+		context.addServlet(resilienceStreamServletHolder, "/stream/resilience.stream.tp.local");
 
 		/** Add the promethus servlet */
 		context.addServlet(PrometheusMetricsServlet.class,"/metrics");
@@ -252,6 +265,25 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		resourceConfig.property(FreemarkerMvcFeature.TEMPLATES_BASE_PATH, "webroot/pages");
 		resourceConfig.register(FreemarkerMvcFeature.class);
 		return resourceConfig;
+	}
+
+	@Provides
+	@Singleton
+	public Resilience4jMetricsStreamServlet providesResilience4jMetricsStreamServlet(CircuitBreakerRegistry circuitBreakerRegistry,
+																					 ThreadPoolBulkheadRegistry tpBulkHeadRegistry,
+																					 BulkheadRegistry bulkheadRegistry,
+																					 RetryRegistry retryRegistry,
+																					 TimerRegistry timerRegistry,
+																					 TimeLimiterRegistry timeLimiterRegistry) {
+		return Resilience4jMetricsStreamServlet
+				.builder()
+				.withCircuitBreakerRegistry(circuitBreakerRegistry)
+				.withBulkheadRegistry(bulkheadRegistry)
+				.withThreadPoolBulkheadRegistry(tpBulkHeadRegistry)
+				.withRetryRegistry(retryRegistry)
+				.withTimeLimiterRegistry(timeLimiterRegistry)
+				.withTimerRegistry(timerRegistry)
+				.build();
 	}
 
 }

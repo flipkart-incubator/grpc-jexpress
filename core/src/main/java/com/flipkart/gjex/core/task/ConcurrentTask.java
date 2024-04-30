@@ -71,5 +71,11 @@ public @interface ConcurrentTask {
      */
     String concurrencyConfig() default "";
 
+
+    /**
+     * Resilience4j properties configured as a Config property
+     */
+    String resilience4jConfig() default "taskProperties.default";
+
 }
 
