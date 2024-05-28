@@ -22,7 +22,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import io.grpc.Channel;
 import io.grpc.stub.AbstractStub;
-import io.opentracing.Tracer;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.propagation.TextMapPropagator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -30,10 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-
-/**
- * Created by rohit.k on 28/07/18.
- */
 
 /**
  * {@link ClientModule} is a guice module to get an Instrumented, Traced instance of GRPC client
@@ -70,9 +68,18 @@ public class ClientModule<T extends AbstractStub<T>> extends AbstractModule {
 			try {
 				Constructor<T> constructor = clazz.getDeclaredConstructor(Channel.class);
 				constructor.setAccessible(true);
-				return constructor.newInstance(channel).withDeadlineAfter(channelConfig.getDeadlineInMs(),
-						TimeUnit.MILLISECONDS).withInterceptors(new ClientTracingInterceptor(tracer));
-			} catch (InstantiationException | IllegalAccessException | InvocationTargetException| NoSuchMethodException e) {
+				T stub = constructor.newInstance(channel);
+				stub = stub.withDeadlineAfter(channelConfig.getDeadlineInMs(), TimeUnit.MILLISECONDS);
+
+				// Create an instance of the OpenTelemetry ClientTracingInterceptor
+				TextMapPropagator textFormat = W3CTraceContextPropagator.getInstance();
+				ClientTracingInterceptor clientTracingInterceptor = new ClientTracingInterceptor(tracer, textFormat);
+
+				// Add the OpenTelemetry interceptor to the stub
+				stub = stub.withInterceptors(clientTracingInterceptor);
+
+				return stub;
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				throw new RuntimeException("Grpc stub class doesn't have a constructor which only takes  'Channel' as parameter", e);
 			}
 		}

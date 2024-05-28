@@ -55,11 +55,16 @@ dependencies {
     implementation libraries.guice_validator
     implementation libraries.hibernate_validator
     implementation libraries.javax_el
-    implementation libraries.opentracing
     implementation libraries.lombok
     implementation libraries.hystrix_core
     implementation libraries.hystrix_metrics_stream
     implementation libraries.rxjava2
+    implementation libraries.opentelemetry_api
+    implementation libraries.opentelemetry_sdk
+    implementation libraries.opentelemetry_exporter_logging
+    implementation libraries.opentelemetry_sdk_extension_autoconfigure
+    implementation libraries.opentelemetry_java_http_client
+    implementation libraries.opentelemetry_exporter_otlp
 
     implementation 'org.eclipse.jetty:jetty-server:9.4.22.v20191022'
     implementation 'org.eclipse.jetty:jetty-servlet:9.4.22.v20191022'

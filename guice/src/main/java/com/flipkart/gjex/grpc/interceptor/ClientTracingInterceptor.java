@@ -15,30 +15,15 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-
 import javax.annotation.Nullable;
 
-import com.flipkart.gjex.core.tracing.ActiveSpanSource;
-import com.flipkart.gjex.core.tracing.OperationNameConstructor;
-import com.google.common.collect.ImmutableMap;
+import io.grpc.*;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.context.propagation.TextMapSetter;
 
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
-import io.grpc.ClientInterceptors;
-import io.grpc.ForwardingClientCall;
-import io.grpc.ForwardingClientCallListener;
-import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
-import io.grpc.Status;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMap;
 
 /** 
  * An intercepter that applies tracing via OpenTracing to all client requests, if a Trace is active.
@@ -47,16 +32,14 @@ import io.opentracing.propagation.TextMap;
 public class ClientTracingInterceptor implements ClientInterceptor {
     
     private final Tracer tracer;
-    private final OperationNameConstructor operationNameConstructor;
-    private final ActiveSpanSource activeSpanSource;
+	private final TextMapPropagator textFormat;
 
     /**
      * @param tracer to use to trace requests
      */
-    public ClientTracingInterceptor(Tracer tracer) {
+    public ClientTracingInterceptor(Tracer tracer, TextMapPropagator textFormat) {
         this.tracer = tracer;
-        this.operationNameConstructor = OperationNameConstructor.DEFAULT;
-        this.activeSpanSource = ActiveSpanSource.GRPC_CONTEXT;
+		this.textFormat = textFormat;
     }
 
     /**
@@ -72,71 +55,37 @@ public class ClientTracingInterceptor implements ClientInterceptor {
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
         MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
 
-        Span activeSpan = this.activeSpanSource.getActiveSpan();
-        if (activeSpan != null) {
-	    		final String operationName = operationNameConstructor.constructOperationName(method);
-	
-	        final Span span = createSpanFromParent(activeSpan, operationName);
-	
-	        if (callOptions.getDeadline() == null) {
-	            span.setTag("grpc.deadline_millis", "null");
-	        } else {
-	            span.setTag("grpc.deadline_millis", callOptions.getDeadline().timeRemaining(TimeUnit.MILLISECONDS));
-	        }
-	        
-	        return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
+		SpanBuilder spanBuilder = tracer.spanBuilder(method.getFullMethodName());
+		final Span span = spanBuilder.startSpan();
 
-				@Override
-				public void start(Listener<RespT> responseListener, Metadata headers) {
-					tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new TextMap() {
-						@Override
-						public void put(String key, String value) {
-							Metadata.Key<String> headerKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
-							headers.put(headerKey, value);
-						}
-						@Override
-						public Iterator<Entry<String, String>> iterator() {
-							throw new UnsupportedOperationException(
-									"TextMapInjectAdapter should only be used with Tracer.inject()");
-						}
-					});
-					Listener<RespT> tracingResponseListener = new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(
-							responseListener) {
-						@Override
-						public void onClose(Status status, Metadata trailers) {
-							span.finish();
-							delegate().onClose(status, trailers);
-						}
-					};
-					delegate().start(tracingResponseListener, headers);
-				}
-
-				@Override
-				public void cancel(@Nullable String message, @Nullable Throwable cause) {
-					String errorMessage;
-					if (message == null) {
-						errorMessage = "Error";
-					} else {
-						errorMessage = message;
+		return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
+			@Override
+			public void start(Listener<RespT> responseListener, Metadata headers) {
+				textFormat.inject(io.opentelemetry.context.Context.current(), headers, new TextMapSetter<Metadata>() {
+					@Override
+					public void set(Metadata carrier, String key, String value) {
+						carrier.put(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER), value);
 					}
-					if (cause == null) {
-						span.log(errorMessage);
-					} else {
-						span.log(ImmutableMap.of(errorMessage, cause.getMessage()));
-					}
-					delegate().cancel(message, cause);
-				}
-			};
-        }
-        return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)){};
-    }
-    
-    private Span createSpanFromParent(Span parentSpan, String operationName) {
-        if (parentSpan == null) {
-            return tracer.buildSpan(operationName).start();
-        } else {
-            return tracer.buildSpan(operationName).asChildOf(parentSpan).start();
-        }
-    }
+				});
 
+				Listener<RespT> tracingResponseListener = new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(
+						responseListener) {
+					@Override
+					public void onClose(Status status, Metadata trailers) {
+						span.end();
+						delegate().onClose(status, trailers);
+					}
+				};
+				delegate().start(tracingResponseListener, headers);
+			}
+
+
+			@Override
+			public void cancel(@Nullable String message, @Nullable Throwable cause) {
+				span.recordException(cause);
+				span.end();
+				delegate().cancel(message, cause);
+			}
+		};
+	}
 }

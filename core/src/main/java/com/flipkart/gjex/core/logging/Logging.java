@@ -163,7 +163,7 @@ public interface Logging {
     
     default void addToTrace(String key, String value) {
     		if (GJEXContext.activeSpan() != null) {
-    			GJEXContext.activeSpan().setTag(key, value);
+    			GJEXContext.activeSpan().setAttribute(key, value);
     		}
     }
 

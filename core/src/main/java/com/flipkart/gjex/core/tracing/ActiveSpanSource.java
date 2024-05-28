@@ -17,7 +17,7 @@ package com.flipkart.gjex.core.tracing;
 
 import com.flipkart.gjex.core.context.GJEXContext;
 
-import io.opentracing.Span;
+import io.opentelemetry.api.trace.Span;;
 
 /**
  * An interface that defines how to get the current active span.
