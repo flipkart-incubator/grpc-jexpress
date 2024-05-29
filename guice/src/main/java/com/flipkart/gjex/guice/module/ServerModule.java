@@ -27,26 +27,24 @@ import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.grpc.service.ScheduledJobManager;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import io.grpc.BindableService;
 import io.grpc.health.v1.HealthGrpc;
 
 /**
  * <code>ServerModule</code> is a Guice {@link AbstractModule} implementation used for configuring the Grpc Server and Dashboard server.
- * 
- * @author regunath.balasubramanian
  *
+ * @author regunath.balasubramanian
  */
 public class ServerModule extends AbstractModule {
 
-	@Override
-    protected void configure() {		
-		bind(FilterInterceptor.class).annotatedWith(Names.named("FilterInterceptor")).to(FilterInterceptor.class);
-		bind(TracingInterceptor.class).annotatedWith(Names.named("TracingInterceptor")).to(TracingInterceptor.class);
-		bind(StatusMetricInterceptor.class).annotatedWith(Names.named("StatusMetricInterceptor")).to(StatusMetricInterceptor.class);
-		bind(Service.class).annotatedWith(Names.named("GrpcServer")).to(GrpcServer.class);
-		bind(HealthGrpc.HealthImplBase.class).annotatedWith(Names.named("GrpcHealthCheckService")).to(GrpcHealthCheckService.class);
-		bind(Service.class).annotatedWith(Names.named("DashboardServer")).to(DashboardServer.class);
-		bind(Service.class).annotatedWith(Names.named("APIServer")).to(ApiServer.class);
-		bind(Service.class).annotatedWith(Names.named("ScheduleJobManager")).to(ScheduledJobManager.class);
-	}
+    @Override
+    protected void configure() {
+        bind(FilterInterceptor.class).annotatedWith(Names.named("FilterInterceptor")).to(FilterInterceptor.class);
+        bind(TracingInterceptor.class).annotatedWith(Names.named("TracingInterceptor")).to(TracingInterceptor.class);
+        bind(StatusMetricInterceptor.class).annotatedWith(Names.named("StatusMetricInterceptor")).to(StatusMetricInterceptor.class);
+        bind(Service.class).annotatedWith(Names.named("GrpcServer")).to(GrpcServer.class);
+        bind(HealthGrpc.HealthImplBase.class).annotatedWith(Names.named("GrpcHealthCheckService")).to(GrpcHealthCheckService.class);
+        bind(Service.class).annotatedWith(Names.named("DashboardServer")).to(DashboardServer.class);
+        bind(Service.class).annotatedWith(Names.named("APIServer")).to(ApiServer.class);
+        bind(Service.class).annotatedWith(Names.named("ScheduleJobManager")).to(ScheduledJobManager.class);
+    }
 }

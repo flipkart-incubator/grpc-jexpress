@@ -36,7 +36,7 @@ import io.opentelemetry.context.Scope;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
-import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -76,8 +76,8 @@ public class TracingModule<T> extends AbstractModule implements Logging {
                 .setEndpoint(endPoint)
                 .build();
 
-        // Create a BatchSpanProcessor and add the exporter
-        BatchSpanProcessor spanProcessor = BatchSpanProcessor.builder(exporter).build();
+        // TODO: Create a BatchSpanProcessor and add the exporter
+        SimpleSpanProcessor spanProcessor = SimpleSpanProcessor.builder(exporter).build();
 
         // Build the OpenTelemetry SDK with the BatchSpanProcessor
         SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
