@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -101,8 +102,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
         for (Filter filter : filters) {
             try {
-                ServerRequestParams serverRequestParams = new ServerRequestParams(call.getAttributes()
-                    .get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString(),
+                ServerRequestParams serverRequestParams = new ServerRequestParams(Objects.requireNonNull(call.getAttributes()
+                    .get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)).toString(),
                     call.getMethodDescriptor().getFullMethodName().toLowerCase());
                 filter.doFilterRequest(serverRequestParams,headers);
                 for (Metadata.Key key : filter.getForwardHeaderKeys()) {
