@@ -18,6 +18,7 @@ package com.flipkart.gjex.examples.helloworld.filter;
 import javax.inject.Named;
 
 import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.ServerRequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 
 import io.grpc.Metadata;
@@ -44,7 +45,7 @@ public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
 	private final boolean isAuth = false;
 
 	@Override
-	public void doFilterRequest(Metadata requestHeaders) throws StatusRuntimeException {
+	public void doFilterRequest(ServerRequestParams serverRequestParams, Metadata requestHeaders) throws StatusRuntimeException {
 		info("Headers found in the request : " + requestHeaders.toString());
 		this.checkAuth(requestHeaders);
 	}
