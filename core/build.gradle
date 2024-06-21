@@ -55,6 +55,7 @@ dependencies {
     implementation libraries.guice
     implementation libraries.commons_io
     implementation libraries.jackson_data_format
+    implementation libraries.lombok
     implementation 'net.sourceforge.argparse4j:argparse4j:0.8.1'
     implementation 'com.github.wnameless:json-flattener:0.6.0'
     implementation 'io.dropwizard.metrics5:metrics-jvm:5.0.0'

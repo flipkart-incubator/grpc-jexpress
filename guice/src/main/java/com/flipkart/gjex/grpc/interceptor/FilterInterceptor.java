@@ -18,6 +18,7 @@ package com.flipkart.gjex.grpc.interceptor;
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.MethodFilters;
+import com.flipkart.gjex.core.filter.ServerRequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
@@ -26,6 +27,7 @@ import io.grpc.BindableService;
 import io.grpc.Context;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
+import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
@@ -99,7 +101,10 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
         for (Filter filter : filters) {
             try {
-                filter.doFilterRequest(headers);
+                ServerRequestParams serverRequestParams = new ServerRequestParams(call.getAttributes()
+                    .get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString(),
+                    call.getMethodDescriptor().getFullMethodName().toLowerCase());
+                filter.doFilterRequest(serverRequestParams,headers);
                 for (Metadata.Key key : filter.getForwardHeaderKeys()) {
                     Object value = headers.get(key);
                     if (value != null) {
