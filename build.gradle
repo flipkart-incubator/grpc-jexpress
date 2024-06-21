@@ -92,7 +92,7 @@ subprojects {
                 hibernate_validator     : 'org.hibernate:hibernate-validator:5.4.1.Final',
                 javax_el                : 'org.glassfish:javax.el:3.0.1-b08',
                 opentracing             : 'io.opentracing:opentracing-api:0.31.0',
-                lombok                  : 'org.projectlombok:lombok:1.18.2',
+                lombok                  : 'org.projectlombok:lombok:1.18.32',
                 grpc_stub               : "io.grpc:grpc-stub:${grpcVersion}",
                 hystrix_core            : "com.netflix.hystrix:hystrix-core:1.5.12",
                 hystrix_metrics_stream  : "com.netflix.hystrix:hystrix-metrics-event-stream:1.5.12",
