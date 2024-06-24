@@ -37,7 +37,7 @@ public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMes
 	/**
 	 * Function for creating new instance of this Filter
 	 */
-	default Filter<Req, Res> getInstance() {
+	default Filter<Req, Res> getNewInstance() {
 		return null;
 	}
 

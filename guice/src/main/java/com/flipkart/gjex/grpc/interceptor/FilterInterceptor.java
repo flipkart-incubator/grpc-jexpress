@@ -46,7 +46,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +67,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<Filter> filters, List<BindableService> services) {
         Map<Class<?>, Filter> classToInstanceMap = filters.stream()
-                .collect(Collectors.toMap(Object::getClass, Filter::getInstance));
+                .collect(Collectors.toMap(Object::getClass, Filter::getNewInstance));
         services.forEach(service -> {
             List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
             if (annotatedMethods != null) {
