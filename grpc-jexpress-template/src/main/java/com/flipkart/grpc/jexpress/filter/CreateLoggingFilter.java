@@ -29,6 +29,11 @@ import javax.inject.Named;
 public class CreateLoggingFilter implements Filter<CreateRequest, CreateResponse>, Logging {
 
     @Override
+    public void getNewInstance(){
+        return new CreateLoggingFilter();
+    }
+
+    @Override
     public void doProcessRequest(CreateRequest request) {
         info("Request: " + request);
     }
