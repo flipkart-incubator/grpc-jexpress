@@ -15,18 +15,23 @@
  */
 package com.flipkart.grpc.jexpress.filter;
 
+
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.grpc.jexpress.CreateRequest;
 import com.flipkart.grpc.jexpress.CreateResponse;
 import com.flipkart.grpc.jexpress.GetRequest;
 import com.flipkart.grpc.jexpress.GetResponse;
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 
 import javax.inject.Named;
 
 @Named("CreateLoggingFilter")
-public class CreateLoggingFilter implements Filter<CreateRequest, CreateResponse>, Logging {
+public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,CreateResponse extends GeneratedMessageV3> implements Filter<CreateRequest,
+    CreateResponse>, Logging {
+
+    public CreateLoggingFilter(){}
 
     @Override
     public Filter<CreateRequest,CreateResponse> getNewInstance(){
