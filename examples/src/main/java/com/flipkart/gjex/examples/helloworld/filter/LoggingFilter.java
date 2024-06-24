@@ -33,6 +33,11 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     static final Metadata.Key<String> CUSTOM_HEADER_KEY = Metadata.Key.of("request_response_logged_header_key", Metadata.ASCII_STRING_MARSHALLER);
 
     @Override
+    public Filter<Req,Res> getInstance(){
+        return new LoggingFilter<Req, Res>();
+    }
+
+    @Override
     public void doProcessRequest(Req request) {
         info("Logging from filter. Request payload is : " + request.toString());
     }

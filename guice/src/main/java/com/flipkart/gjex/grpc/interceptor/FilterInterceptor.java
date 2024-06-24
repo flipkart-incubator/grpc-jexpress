@@ -68,7 +68,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<Filter> filters, List<BindableService> services) {
         Map<Class<?>, Filter> classToInstanceMap = filters.stream()
-                .collect(Collectors.toMap(Object::getClass, Function.identity()));
+                .collect(Collectors.toMap(Object::getClass, Filter::getInstance));
         services.forEach(service -> {
             List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
             if (annotatedMethods != null) {

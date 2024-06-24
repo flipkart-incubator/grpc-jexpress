@@ -33,7 +33,14 @@ public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMes
 	/** Lifecycle methods for initializing and cleaning up resources used by this Filter*/
 	default void init() {}
 	default void destroy() {}
-	
+
+	/**
+	 * Function for creating new instance of this Filter
+	 */
+	default Filter<Req, Res> getInstance() {
+		return null;
+	}
+
 	/**
 	 * Call-back to process Request headers and Filter out processing of the next incoming Request Proto V3 body/message. 
 	 * @param requestHeaders Request Headers

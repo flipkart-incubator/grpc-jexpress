@@ -45,6 +45,11 @@ public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
 	private final boolean isAuth = false;
 
 	@Override
+	public Filter<HelloRequest, HelloReply> getInstance(){
+		return new AuthFilter();
+	}
+
+	@Override
 	public void doFilterRequest(ServerRequestParams serverRequestParams, Metadata requestHeaders) throws StatusRuntimeException {
 		info("Headers found in the request : " + requestHeaders.toString());
 		this.checkAuth(requestHeaders);
