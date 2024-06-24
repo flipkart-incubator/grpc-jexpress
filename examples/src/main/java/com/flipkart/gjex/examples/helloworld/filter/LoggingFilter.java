@@ -34,7 +34,7 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
 
     @Override
     public Filter<Req,Res> getNewInstance(){
-        return new LoggingFilter<Req, Res>();
+        return new LoggingFilter<>();
     }
 
     @Override

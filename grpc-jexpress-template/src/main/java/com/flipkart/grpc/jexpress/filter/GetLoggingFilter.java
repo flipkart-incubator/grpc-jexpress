@@ -27,8 +27,8 @@ import javax.inject.Named;
 public class GetLoggingFilter implements Filter<GetRequest, GetResponse>, Logging {
 
     @Override
-    public Filter<Req,Res> getNewInstance(){
-        return new GetLoggingFilter<GetRequest, GetResponse>();
+    public Filter<GetRequest,GetResponse> getNewInstance(){
+        return new GetLoggingFilter<>();
     }
 
     @Override
