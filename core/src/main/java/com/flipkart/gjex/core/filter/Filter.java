@@ -37,9 +37,7 @@ public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMes
 	/**
 	 * Function for creating new instance of this Filter
 	 */
-	default Filter<Req, Res> getNewInstance() {
-		return null;
-	}
+	Filter<Req, Res> getNewInstance();
 
 	/**
 	 * Call-back to process Request headers and Filter out processing of the next incoming Request Proto V3 body/message. 
