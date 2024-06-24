@@ -30,7 +30,7 @@ public class CreateLoggingFilter implements Filter<CreateRequest, CreateResponse
 
     @Override
     public Filter<CreateRequest,CreateResponse> getNewInstance(){
-        return new CreateLoggingFilter<>();
+        return new CreateLoggingFilter<CreateRequest,CreateResponse>();
     }
 
     @Override

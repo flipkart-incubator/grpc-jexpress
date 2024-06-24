@@ -28,7 +28,7 @@ public class GetLoggingFilter implements Filter<GetRequest, GetResponse>, Loggin
 
     @Override
     public Filter<GetRequest,GetResponse> getNewInstance(){
-        return new GetLoggingFilter<>();
+        return new GetLoggingFilter<GetRequest,GetResponse>();
     }
 
     @Override
