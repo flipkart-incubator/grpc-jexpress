@@ -38,8 +38,8 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     }
 
     @Override
-    public void doProcessResponseHeaders(Metadata reponseHeaders) {
-        reponseHeaders.put(CUSTOM_HEADER_KEY, "loggedRequestResponse");
+    public void doProcessResponseHeaders(Metadata responseHeaders) {
+        responseHeaders.put(CUSTOM_HEADER_KEY, "loggedRequestResponse");
     }
 
     @Override
