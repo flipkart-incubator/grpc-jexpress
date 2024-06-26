@@ -185,7 +185,9 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onCancel() {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
+                    error("Oncancel received");
                     super.onCancel();
+                    error("Oncancel completed");
                 } catch (RuntimeException ex) {
                     handleException(call, ex);
                 } finally {
