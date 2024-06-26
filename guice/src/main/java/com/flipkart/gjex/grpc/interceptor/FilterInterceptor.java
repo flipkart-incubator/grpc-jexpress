@@ -180,6 +180,18 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
             }
+
+            @Override
+            public void onCancel() {
+                Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
+                try {
+                    super.onCancel();
+                } catch (RuntimeException ex) {
+                    handleException(call, ex);
+                } finally {
+                    detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
+                }
+            }
         };
     }
 
