@@ -35,7 +35,8 @@ public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMes
 	default void destroy() {}
 
 	/**
-	 * Function for creating new instance of this Filter
+	 * Function for creating an instance of this {@link Filter}
+	 * Use only this function to get the {@link Filter} instance
 	 */
 	Filter<Req, Res> getInstance();
 
