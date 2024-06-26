@@ -15,15 +15,12 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
-import javax.inject.Named;
-
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.logging.Logging;
-
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
-import io.grpc.examples.helloworld.HelloReply;
-import io.grpc.examples.helloworld.HelloRequest;
+
+import javax.inject.Named;
 
 /**
  * An implementation of the {@link Filter} interface as example that simply logs Request information
@@ -36,13 +33,18 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     static final Metadata.Key<String> CUSTOM_HEADER_KEY = Metadata.Key.of("request_response_logged_header_key", Metadata.ASCII_STRING_MARSHALLER);
 
     @Override
+    public Filter<Req,Res> getInstance(){
+        return new LoggingFilter<>();
+    }
+
+    @Override
     public void doProcessRequest(Req request) {
         info("Logging from filter. Request payload is : " + request.toString());
     }
 
     @Override
-    public void doProcessResponseHeaders(Metadata reponseHeaders) {
-        reponseHeaders.put(CUSTOM_HEADER_KEY, "loggedRequestResponse");
+    public void doProcessResponseHeaders(Metadata responseHeaders) {
+        responseHeaders.put(CUSTOM_HEADER_KEY, "loggedRequestResponse");
     }
 
     @Override

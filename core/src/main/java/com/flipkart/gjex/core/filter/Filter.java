@@ -16,7 +16,6 @@
 package com.flipkart.gjex.core.filter;
 
 import com.google.protobuf.GeneratedMessageV3;
-
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -30,17 +29,23 @@ import io.grpc.StatusRuntimeException;
  * @param <Res> Proto V3 message
  */
 public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> {
-	
+
 	/** Lifecycle methods for initializing and cleaning up resources used by this Filter*/
 	default void init() {}
 	default void destroy() {}
-	
+
+	/**
+	 * Function for creating an instance of this {@link Filter}
+	 * Use only this function to get the {@link Filter} instance
+	 */
+	Filter<Req, Res> getInstance();
+
 	/**
 	 * Call-back to process Request headers and Filter out processing of the next incoming Request Proto V3 body/message. 
 	 * @param requestHeaders Request Headers
 	 * @throws StatusRuntimeException thrown with suitable {@link Status} to indicate reason for failing the request
 	 */
-	default void doFilterRequest(Metadata requestHeaders) throws StatusRuntimeException{}
+	default void doFilterRequest(ServerRequestParams serverRequestParams, Metadata requestHeaders) throws StatusRuntimeException{}
 	
 	/**
 	 * Call-back to decorate or inspect the Reauest Proto V3 body/message. This Filter cannot fail processing of the Request body and hence there is no support for indicating failure.
