@@ -30,7 +30,7 @@ public class GetLoggingFilter<GetRequest extends GeneratedMessageV3, GetResponse
     public GetLoggingFilter(){}
 
     @Override
-    public Filter<GetRequest,GetResponse> getNewInstance(){
+    public Filter<GetRequest,GetResponse> getInstance(){
         return new GetLoggingFilter<GetRequest,GetResponse>();
     }
 

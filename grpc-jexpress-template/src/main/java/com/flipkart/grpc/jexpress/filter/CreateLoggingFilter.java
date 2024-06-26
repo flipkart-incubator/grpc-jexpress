@@ -34,7 +34,7 @@ public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,Create
     public CreateLoggingFilter(){}
 
     @Override
-    public Filter<CreateRequest,CreateResponse> getNewInstance(){
+    public Filter<CreateRequest,CreateResponse> getInstance(){
         return new CreateLoggingFilter<CreateRequest,CreateResponse>();
     }
 

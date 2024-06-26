@@ -67,7 +67,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<Filter> filters, List<BindableService> services) {
         Map<Class<?>, Filter> classToInstanceMap = filters.stream()
-                .collect(Collectors.toMap(Object::getClass, Filter::getNewInstance));
+                .collect(Collectors.toMap(Object::getClass, Filter::getInstance));
         services.forEach(service -> {
             List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
             if (annotatedMethods != null) {
@@ -91,7 +91,9 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-        List<Filter> filters = filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
+        List<Filter> filters =
+            filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase())
+            .stream().map(Filter::getInstance).collect(Collectors.toList());
         Metadata forwardHeaders = new Metadata();
         if (filters == null) {
             return new SimpleForwardingServerCallListener<ReqT>(next.startCall(

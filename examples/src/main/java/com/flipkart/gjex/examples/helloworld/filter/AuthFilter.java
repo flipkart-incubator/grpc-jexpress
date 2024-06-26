@@ -45,7 +45,7 @@ public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
 	private final boolean isAuth = false;
 
 	@Override
-	public Filter<HelloRequest, HelloReply> getNewInstance(){
+	public Filter<HelloRequest, HelloReply> getInstance(){
 		return new AuthFilter();
 	}
 
