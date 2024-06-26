@@ -41,6 +41,7 @@ import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -93,14 +94,20 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         List<Filter> filters =
             filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
-        filters = (filters == null) ? null :
-            filters.stream().map(Filter::getInstance).collect(Collectors.toList());
-        if (filters == null) {
+        if (filters == null || filters.isEmpty()){
             return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
                 new SimpleForwardingServerCall<ReqT, RespT>(call) {
                 }, headers)) {
             };
         }
+        List<Filter> filters1 = filters.stream().map(Filter::getInstance).collect(Collectors.toList());
+        if (filters1 == null || filters1.isEmpty()) {
+            return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
+                new SimpleForwardingServerCall<ReqT, RespT>(call) {
+                }, headers)) {
+            };
+        }
+        filters = filters1;
         Metadata forwardHeaders = new Metadata();
         for (Filter filter : filters) {
             try {
