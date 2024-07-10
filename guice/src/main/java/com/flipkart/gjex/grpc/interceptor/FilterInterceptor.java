@@ -41,7 +41,6 @@ import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -92,22 +91,21 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-        List<Filter> filters =
+        List<Filter> filterReferences =
             filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
-        if (filters == null || filters.isEmpty()){
+        if (filterReferences == null || filterReferences.isEmpty()){
             return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
                 new SimpleForwardingServerCall<ReqT, RespT>(call) {
                 }, headers)) {
             };
         }
-        List<Filter> filters1 = filters.stream().map(Filter::getInstance).collect(Collectors.toList());
-        if (filters1 == null || filters1.isEmpty()) {
+        List<Filter> filters = filterReferences.stream().map(Filter::getInstance).collect(Collectors.toList());
+        if (filters.isEmpty()) {
             return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
                 new SimpleForwardingServerCall<ReqT, RespT>(call) {
                 }, headers)) {
             };
         }
-        filters = filters1;
         Metadata forwardHeaders = new Metadata();
         for (Filter filter : filters) {
             try {
@@ -131,13 +129,12 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         Context contextWithHeaders = forwardHeaders.keys().isEmpty() ? null : Context.current().withValue(GJEXContext.getHeadersKey(), forwardHeaders);
 
         ServerCall.Listener<ReqT> listener = null;
-        List<Filter> finalFilters = filters;
         listener = next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
             @Override
             public void sendMessage(final RespT response) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    finalFilters.forEach(filter -> filter.doProcessResponse((GeneratedMessageV3) response));
+                    filters.forEach(filter -> filter.doProcessResponse((GeneratedMessageV3) response));
                     super.sendMessage(response);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
@@ -148,7 +145,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void sendHeaders(final Metadata responseHeaders) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    finalFilters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
+                    filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
                     super.sendHeaders(responseHeaders);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
@@ -156,7 +153,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             }
         }, headers);
 
-        List<Filter> finalFilters1 = filters;
         return new SimpleForwardingServerCallListener<ReqT>(listener) {
             @Override
             public void onHalfClose() {
@@ -174,7 +170,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onMessage(ReqT request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    finalFilters1.forEach(filter -> filter.doProcessRequest((GeneratedMessageV3) request));
+                    filters.forEach(filter -> filter.doProcessRequest((GeneratedMessageV3) request));
                     super.onMessage(request);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
