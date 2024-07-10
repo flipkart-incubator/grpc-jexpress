@@ -1,6 +1,7 @@
 package com.flipkart.gjex.core.filter;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
+@Builder
 public class ServerRequestParams {
   private String clientIp;
   private String methodName;

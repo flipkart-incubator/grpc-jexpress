@@ -93,6 +93,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         List<Filter> filterReferences =
             filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
+        Metadata forwardHeaders = new Metadata();
         if (filterReferences == null || filterReferences.isEmpty()){
             return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
                 new SimpleForwardingServerCall<ReqT, RespT>(call) {
@@ -100,23 +101,20 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             };
         }
         List<Filter> filters = filterReferences.stream().map(Filter::getInstance).collect(Collectors.toList());
-        if (filters.isEmpty()) {
-            return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
-                new SimpleForwardingServerCall<ReqT, RespT>(call) {
-                }, headers)) {
-            };
-        }
-        Metadata forwardHeaders = new Metadata();
         for (Filter filter : filters) {
             try {
-                ServerRequestParams serverRequestParams = new ServerRequestParams(Objects.requireNonNull(call.getAttributes()
-                    .get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)).toString(),
-                    call.getMethodDescriptor().getFullMethodName().toLowerCase());
-                filter.doFilterRequest(serverRequestParams,headers);
-                for (Metadata.Key key : filter.getForwardHeaderKeys()) {
-                    Object value = headers.get(key);
-                    if (value != null) {
-                        forwardHeaders.put(key, value);
+                if (filter != null) {
+                    ServerRequestParams serverRequestParams =
+                        ServerRequestParams.builder()
+                            .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
+                            .methodName(call.getMethodDescriptor().getFullMethodName().toLowerCase())
+                            .build();
+                    filter.doFilterRequest(serverRequestParams, headers);
+                    for (Metadata.Key key : filter.getForwardHeaderKeys()) {
+                        Object value = headers.get(key);
+                        if (value != null) {
+                            forwardHeaders.put(key, value);
+                        }
                     }
                 }
             } catch (StatusRuntimeException se) {
