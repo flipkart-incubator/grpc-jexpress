@@ -31,5 +31,5 @@ public class GrpcConfig {
     private int executorThreads = 0;
 
     @JsonProperty("enableAccessLogs")
-    private boolean enableAccessLogs;
+    private boolean enableAccessLogs = true;
 }

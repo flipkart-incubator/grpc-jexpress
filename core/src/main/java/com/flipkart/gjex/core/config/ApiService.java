@@ -41,5 +41,5 @@ public class ApiService {
     private int scheduledExecutorThreadPoolSize;
 
     @JsonProperty("enableAccessLogs")
-    private boolean enableAccessLogs;
+    private boolean enableAccessLogs = true;
 }
