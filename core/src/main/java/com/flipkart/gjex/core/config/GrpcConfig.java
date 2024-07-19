@@ -29,4 +29,7 @@ public class GrpcConfig {
 
     @JsonProperty("server.executorThreads")
     private int executorThreads = 0;
+
+    @JsonProperty("enableAccessLogs")
+    private boolean enableAccessLogs;
 }

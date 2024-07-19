@@ -66,8 +66,8 @@ public class ApiServer extends AbstractService implements Logging {
 	}
 
 	public void registerHttpFilters(List<HttpFilterParams> httpFilterParamsList,
-																	boolean registerAccessLogFilter){
-		if (registerAccessLogFilter) {
+																	boolean enableAccessLogs){
+		if (enableAccessLogs) {
 			context.addFilter(new FilterHolder(accessLogFilter), "/*" ,
 					EnumSet.of(DispatcherType.REQUEST));
 		}

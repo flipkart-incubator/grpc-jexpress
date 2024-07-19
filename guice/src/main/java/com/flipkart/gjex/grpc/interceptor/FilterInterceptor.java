@@ -17,6 +17,7 @@ package com.flipkart.gjex.grpc.interceptor;
 
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.GrpcAccessLogFilter;
 import com.flipkart.gjex.core.filter.MethodFilters;
 import com.flipkart.gjex.core.filter.ServerRequestParams;
 import com.flipkart.gjex.core.logging.Logging;
@@ -45,7 +46,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,17 +63,18 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
      * Map of Filter instances mapped to Service and its method
      */
     @SuppressWarnings("rawtypes")
-    private Map<String, List<Filter>> filtersMap = new HashMap<String, List<Filter>>();
+    private final Map<String, List<Filter>> filtersMap = new HashMap<>();
 
     @SuppressWarnings("rawtypes")
-    public void registerFilters(List<Filter> filters, List<BindableService> services) {
+    public void registerFilters(List<Filter> filters, List<BindableService> services,
+                                boolean enableAccessLogs) {
         Map<Class<?>, Filter> classToInstanceMap = filters.stream()
                 .collect(Collectors.toMap(Object::getClass, Function.identity()));
         services.forEach(service -> {
             List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
-                    List<Filter> filtersForMethod = new LinkedList<Filter>();
+                    List<Filter> filtersForMethod = new LinkedList<>();
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
@@ -82,8 +83,12 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     });
                     // Key is of the form <Service Name>+ "/" +<Method Name>
                     // reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
-                    filtersMap.put((service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase(),
-                            filtersForMethod);
+                    String methodSignature =
+                        (service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase();
+                    filtersMap.put(methodSignature, filtersForMethod);
+                    if (enableAccessLogs){
+                        filtersMap.get(methodSignature).add(new GrpcAccessLogFilter());
+                    }
                 });
             }
         });

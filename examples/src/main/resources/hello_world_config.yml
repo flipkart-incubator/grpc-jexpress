@@ -1,6 +1,7 @@
 Grpc:
     server.port: 50051
     server.executorThreads : 4
+    enableAccessLogs: true
 
 Dashboard:
     service.port: 9999
