@@ -15,27 +15,19 @@
  */
 package com.flipkart.gjex.guice;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import com.flipkart.gjex.core.job.ScheduledJob;
-import com.flipkart.gjex.grpc.service.ScheduledJobManager;
-import io.grpc.health.v1.HealthGrpc;
-import org.glassfish.jersey.server.ResourceConfig;
-
-import io.dropwizard.metrics5.health.HealthCheck;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.core.web.filter.HttpFilterParams;
 import com.flipkart.gjex.grpc.service.ApiServer;
 import com.flipkart.gjex.grpc.service.GrpcServer;
+import com.flipkart.gjex.grpc.service.ScheduledJobManager;
 import com.flipkart.gjex.guice.module.ApiModule;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.flipkart.gjex.guice.module.DashboardModule;
@@ -52,9 +44,16 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
-
+import io.dropwizard.metrics5.health.HealthCheck;
 import io.grpc.BindableService;
+import io.grpc.health.v1.HealthGrpc;
+import org.glassfish.jersey.server.ResourceConfig;
 import ru.vyarus.guice.validator.ImplicitValidationModule;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * A Guice GJEX Bundle implementation. Multiple Guice Modules may be added to this Bundle.
@@ -73,6 +72,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	private List<TracingSampler> tracingSamplers;
 	private List<ScheduledJob> scheduledJobs;
 	private List<ResourceConfig> resourceConfigs;
+	private List<HttpFilterParams> httpFilterParamsList;
 	private Optional<Class<T>> configurationClass;
 	private GJEXEnvironmentModule gjexEnvironmentModule;
 
@@ -172,7 +172,11 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		ApiServer apiServer = baseInjector.getInstance(ApiServer.class);
 		// Add all custom web resources
 		resourceConfigs = getInstances(baseInjector, ResourceConfig.class);
-		apiServer.registerResources(resourceConfigs);		
+		apiServer.registerResources(resourceConfigs);
+
+		// Add all custom http filters
+		httpFilterParamsList = getInstances(baseInjector, HttpFilterParams.class);
+		apiServer.registerHttpFilters(httpFilterParamsList);
 	}
 
 	@SuppressWarnings("unchecked")
