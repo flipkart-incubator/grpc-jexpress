@@ -65,8 +65,12 @@ public class ApiServer extends AbstractService implements Logging {
 		this.resourceConfigs.addAll(resourceConfigs);
 	}
 
-	public void registerHttpFilters(List<HttpFilterParams> httpFilterParamsList){
-		context.addFilter(new FilterHolder(accessLogFilter), "/*" , EnumSet.of(DispatcherType.REQUEST));
+	public void registerHttpFilters(List<HttpFilterParams> httpFilterParamsList,
+																	boolean registerAccessLogFilter){
+		if (registerAccessLogFilter) {
+			context.addFilter(new FilterHolder(accessLogFilter), "/*" ,
+					EnumSet.of(DispatcherType.REQUEST));
+		}
 		for (HttpFilterParams httpFilterParams : httpFilterParamsList){
 			context.addFilter(new FilterHolder(httpFilterParams.getFilter()),
 					httpFilterParams.getPathSpec(),

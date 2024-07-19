@@ -1,8 +1,6 @@
 package com.flipkart.gjex.core.web.filter;
 
 import com.flipkart.gjex.core.logging.Logging;
-import com.flipkart.gjex.core.service.Api;
-import com.google.inject.AbstractModule;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -34,16 +32,17 @@ public class HttpAccessLogFilter implements Filter, Logging {
     startTime = System.currentTimeMillis();
     chain.doFilter(request, response);
     StringBuilder sb = new StringBuilder();
-    sb.append(request.getRemoteAddr()).append(" ");
     if (request instanceof HttpServletRequest && response instanceof HttpServletResponse){
       HttpServletRequest httpServletRequest= (HttpServletRequest) request;
       HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        sb.append(httpServletRequest.getRequestURI()).append(" ")
-          .append(httpServletResponse.getStatus()).append(" ")
-          .append(httpServletResponse.getHeader("Content-Length")).append(" ");
+      sb.append(httpServletRequest.getHeader("x-forwarded-for")).append(" ")
+        .append(httpServletRequest.getRequestURI()).append(" ")
+        .append(httpServletResponse.getStatus()).append(" ")
+        .append(httpServletResponse.getHeader("Content-Length")).append(" ");
     } else {
       sb.append("Did not get HTTP request").append(" ");
     }
+    sb.append(request.getRemoteAddr()).append(" ");
     sb.append(System.currentTimeMillis()-startTime);
     error(sb.toString());
   }

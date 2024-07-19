@@ -16,7 +16,9 @@
 package com.flipkart.gjex.core.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public class DashboardService {
 
     @JsonProperty("service.port")
@@ -30,36 +32,4 @@ public class DashboardService {
 
     @JsonProperty("service.workers")
     private int workers;
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public int getAcceptors() {
-        return acceptors;
-    }
-
-    public void setAcceptors(int acceptors) {
-        this.acceptors = acceptors;
-    }
-
-    public int getSelectors() {
-        return selectors;
-    }
-
-    public void setSelectors(int selectors) {
-        this.selectors = selectors;
-    }
-
-    public int getWorkers() {
-        return workers;
-    }
-
-    public void setWorkers(int workers) {
-        this.workers = workers;
-    }
 }

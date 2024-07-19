@@ -16,7 +16,9 @@
 package com.flipkart.gjex.core.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public class GrpcConfig {
 
     @JsonProperty("server.port")
@@ -27,28 +29,4 @@ public class GrpcConfig {
 
     @JsonProperty("server.executorThreads")
     private int executorThreads = 0;
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public int getMaxMessageSize() {
-        return maxMessageSize;
-    }
-
-    public void setMaxMessageSize(int maxMessageSize) {
-        this.maxMessageSize = maxMessageSize;
-    }
-
-    public int getExecutorThreads() {
-        return executorThreads;
-    }
-
-    public void setExecutorThreads(int executorThreads) {
-        this.executorThreads = executorThreads;
-    }
 }

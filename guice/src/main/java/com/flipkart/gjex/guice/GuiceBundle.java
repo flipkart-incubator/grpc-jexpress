@@ -176,7 +176,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 
 		// Add all custom http filters
 		httpFilterParamsList = getInstances(baseInjector, HttpFilterParams.class);
-		apiServer.registerHttpFilters(httpFilterParamsList);
+		apiServer.registerHttpFilters(httpFilterParamsList, configuration.getApiService().isEnableAccessLogs());
 	}
 
 	@SuppressWarnings("unchecked")
