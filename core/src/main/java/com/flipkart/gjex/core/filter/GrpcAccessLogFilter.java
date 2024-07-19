@@ -4,6 +4,11 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 
+/**
+ * Filter for logging grpc access log requests
+ * @author ajay.jalgaonkar
+ *
+ */
 public class GrpcAccessLogFilter <R extends GeneratedMessageV3,
     S extends GeneratedMessageV3> implements Filter<R, S>, Logging {
   private long startTime = 0;
