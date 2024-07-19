@@ -1,8 +1,6 @@
 package com.flipkart.gjex.core.web.filter;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
 import javax.servlet.Filter;
 
@@ -12,9 +10,7 @@ import javax.servlet.Filter;
  *
  */
 
-@AllArgsConstructor
-@Getter
-@Builder
+@Data
 public class HttpFilterParams {
   private final Filter filter;
   private final String pathSpec;
