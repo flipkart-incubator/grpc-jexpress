@@ -15,23 +15,6 @@
  */
 package com.flipkart.gjex.core.setup;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-
-import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
-import io.dropwizard.metrics5.MetricRegistry;
-import io.dropwizard.metrics5.jmx.JmxReporter;
-import io.dropwizard.metrics5.jvm.BufferPoolMetricSet;
-import io.dropwizard.metrics5.jvm.GarbageCollectorMetricSet;
-import io.dropwizard.metrics5.jvm.MemoryUsageGaugeSet;
-import io.dropwizard.metrics5.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.gjex.core.Application;
 import com.flipkart.gjex.core.Bundle;
@@ -45,6 +28,7 @@ import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
 import com.flipkart.gjex.core.config.DefaultConfigurationFactoryFactory;
 import com.flipkart.gjex.core.config.FileConfigurationSourceProvider;
 import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
@@ -52,7 +36,16 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.core.util.Pair;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import io.dropwizard.metrics5.MetricRegistry;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
+
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The pre-start application container, containing services required to bootstrap a GJEX application
@@ -225,10 +218,10 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
      */
 	public void run(Environment environment) throws Exception {
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
-        services = new LinkedList<Service>();
-        filters = new LinkedList<Filter>();
-        tracingSamplers = new LinkedList<TracingSampler>();
-        scheduledJobs = new LinkedList<ScheduledJob>();
+        services = new ArrayList<>();
+        filters = new ArrayList<Filter>();
+        tracingSamplers = new ArrayList<TracingSampler>();
+        scheduledJobs = new ArrayList<ScheduledJob>();
         // Set the HealthCheckRegsitry to the one initialized by the Environment
         healthCheckRegistry = environment.getHealthCheckRegistry();
 

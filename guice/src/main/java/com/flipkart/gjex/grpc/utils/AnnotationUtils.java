@@ -15,12 +15,12 @@
  */
 package com.flipkart.gjex.grpc.utils;
 
+import com.flipkart.gjex.core.util.Pair;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-
-import com.flipkart.gjex.core.util.Pair;
 
 public class AnnotationUtils {
 
@@ -33,7 +33,7 @@ public class AnnotationUtils {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static List<Pair<?,Method>> getAnnotatedMethods(Class<?> cls, Class<? extends Annotation> anno) {
-		List<Pair<?,Method>> methods = new LinkedList<Pair<?,Method>>();
+		List<Pair<?,Method>> methods = new ArrayList<>();
 		for (Method m : cls.getDeclaredMethods()) {
 			if (m.getAnnotation(anno) != null) {
 				methods.add(new Pair(cls,m));

@@ -30,8 +30,8 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
+import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -48,7 +48,7 @@ public class ApiServer extends AbstractService implements Logging {
 	private final ResourceRegistrar resourceRegistrar;
 	private final ServletContextHandler context;
 	private final Filter accessLogFilter;
-	private List<ResourceConfig> resourceConfigs = new LinkedList<>();
+	private List<ResourceConfig> resourceConfigs = new ArrayList<>();
 
 	@Inject
 	public ApiServer(@Named("APIJettyServer") Server apiServer,
