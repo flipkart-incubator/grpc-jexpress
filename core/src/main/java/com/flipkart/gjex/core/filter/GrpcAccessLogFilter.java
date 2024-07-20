@@ -42,6 +42,6 @@ public class GrpcAccessLogFilter <R extends GeneratedMessageV3,
         .append(serverRequestParams.getMethodName()).append(" ")
         .append(size).append(" ")
         .append(System.currentTimeMillis()-startTime);
-    error(sb.toString());
+    info("access-log", sb.toString());
   }
 }
