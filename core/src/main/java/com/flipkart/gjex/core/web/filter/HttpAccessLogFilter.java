@@ -1,6 +1,7 @@
 package com.flipkart.gjex.core.web.filter;
 
 import com.flipkart.gjex.core.logging.Logging;
+import org.slf4j.Logger;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -23,6 +24,9 @@ import java.io.IOException;
 @Singleton
 @Named("HttpAccessLogFilter")
 public class HttpAccessLogFilter implements Filter, Logging {
+
+  private Logger LOGGER = getLoggerWithName("access-log");
+
   private long startTime;
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {}
@@ -44,7 +48,7 @@ public class HttpAccessLogFilter implements Filter, Logging {
     }
     sb.append(request.getRemoteAddr()).append(" ");
     sb.append(System.currentTimeMillis()-startTime);
-    error(sb.toString());
+    LOGGER.error(sb.toString());
   }
 
   @Override

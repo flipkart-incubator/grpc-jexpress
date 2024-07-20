@@ -40,6 +40,10 @@ public interface Logging {
         else return logId + msg;
     }
 
+    default Logger getLoggerWithName(String loggerName){
+        return LoggerFactory.getLogger(loggerName);
+    }
+
     default String getLoggerName() { return this.getClass().getCanonicalName();}
 
     default Logger logger() {
