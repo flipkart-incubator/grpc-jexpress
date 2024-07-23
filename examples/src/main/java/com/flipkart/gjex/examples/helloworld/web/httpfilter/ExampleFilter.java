@@ -22,6 +22,7 @@ public class ExampleFilter extends GjexHttpFilter {
   public void doProcessRequest(RequestParams<ServletRequest, Set<String>> requestParams) {
     startTime  = System.currentTimeMillis();
     sb = new StringBuilder();
+    sb.append("example-filter: ");
   }
 
   @Override
