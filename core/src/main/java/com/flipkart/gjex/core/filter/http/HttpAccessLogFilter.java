@@ -3,8 +3,6 @@ package com.flipkart.gjex.core.filter.http;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +15,6 @@ import java.util.Set;
  *
  */
 
-@Singleton
-@Named("HttpAccessLogFilter")
 public class HttpAccessLogFilter extends GjexHttpFilter {
   private long startTime;
   private StringBuilder sb;

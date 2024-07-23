@@ -63,9 +63,9 @@ public class ApiServer extends AbstractService implements Logging {
 		this.resourceConfigs.addAll(resourceConfigs);
 	}
 
-	public void registerHttpFilters(List<HttpFilterParams> httpFilterParamsList,
-																	HttpFilterConfig httpFilterConfig){
-		applyHttpFilterConfig(context, httpFilterConfig);
+	public void registerFilters(List<HttpFilterParams> httpFilterParamsList,
+															HttpFilterConfig httpFilterConfig){
+		applyHttpFilterConfig(httpFilterConfig);
 		for (HttpFilterParams httpFilterParams : httpFilterParamsList){
 			context.addFilter(new FilterHolder(httpFilterParams.getFilter()),
 					httpFilterParams.getPathSpec(),
@@ -90,8 +90,7 @@ public class ApiServer extends AbstractService implements Logging {
 		}
 	}
 
-	@Inject
-	private void applyHttpFilterConfig(@Named("ApiServletContext")ServletContextHandler context, HttpFilterConfig httpFilterConfig){
+	private void applyHttpFilterConfig(HttpFilterConfig httpFilterConfig){
 		if (httpFilterConfig.isEnableAccessLogs()){
 			context.addFilter(new FilterHolder(new HttpAccessLogFilter()), "/*" ,
 					EnumSet.of(DispatcherType.REQUEST));

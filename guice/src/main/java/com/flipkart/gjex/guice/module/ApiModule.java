@@ -19,12 +19,10 @@ import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.healthcheck.RotationManagementBasedHealthCheck;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Api;
-import com.flipkart.gjex.core.filter.http.HttpAccessLogFilter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
-import com.google.inject.name.Names;
 import io.dropwizard.metrics5.health.HealthCheck;
 import io.grpc.BindableService;
 import io.grpc.Context;
@@ -36,7 +34,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import javax.servlet.Filter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.concurrent.Executors;
@@ -56,7 +53,6 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 		requestInjection(methodInterceptor);
 		bindInterceptor(Matchers.any(), new ApiMethodMatcher(), methodInterceptor);
 		bind(HealthCheck.class).to(RotationManagementBasedHealthCheck.class);
-		bind(Filter.class).annotatedWith(Names.named("HttpAccessLogFilter")).to(HttpAccessLogFilter.class);
 	}
 	
 	@Named("ApiScheduledExecutor")

@@ -18,13 +18,13 @@ package com.flipkart.gjex.guice;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
-import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.grpc.service.ApiServer;
 import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.grpc.service.ScheduledJobManager;
@@ -176,7 +176,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 
 		// Add all custom http filters
 		httpFilterParamsList = getInstances(baseInjector, HttpFilterParams.class);
-		apiServer.registerHttpFilters(httpFilterParamsList, configuration.getApiService().getHttpFilterConfig());
+		apiServer.registerFilters(httpFilterParamsList, configuration.getApiService().getHttpFilterConfig());
 	}
 
 	@SuppressWarnings("unchecked")
