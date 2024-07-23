@@ -15,7 +15,7 @@
  */
 package com.flipkart.gjex.grpc.service;
 
-import com.flipkart.gjex.core.filter.http.HttpAccessLogFilter;
+import com.flipkart.gjex.core.filter.http.AccessLogHttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterConfig;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.logging.Logging;
@@ -92,7 +92,7 @@ public class ApiServer extends AbstractService implements Logging {
 
 	private void applyHttpFilterConfig(HttpFilterConfig httpFilterConfig){
 		if (httpFilterConfig.isEnableAccessLogs()){
-			context.addFilter(new FilterHolder(new HttpAccessLogFilter()), "/*" ,
+			context.addFilter(new FilterHolder(new AccessLogHttpFilter()), "/*" ,
 					EnumSet.of(DispatcherType.REQUEST));
 		}
 	}

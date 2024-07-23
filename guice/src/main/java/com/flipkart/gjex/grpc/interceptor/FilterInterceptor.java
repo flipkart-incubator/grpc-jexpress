@@ -19,7 +19,7 @@ import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
-import com.flipkart.gjex.core.filter.grpc.GrpcAccessLogGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
@@ -219,7 +219,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private void applyGrpcFilterConfig(GrpcFilterConfig grpcFilterConfig,
                                        @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
         if (grpcFilterConfig.isEnableAccessLogs()){
-            filtersForMethod.add(new GrpcAccessLogGrpcFilter<>());
+            filtersForMethod.add(new AccessLogGrpcFilter<>());
         }
     }
 }

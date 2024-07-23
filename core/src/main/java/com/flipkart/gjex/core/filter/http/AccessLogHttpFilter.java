@@ -17,7 +17,7 @@ import java.util.Set;
  *
  */
 
-public class HttpAccessLogFilter extends HttpFilter {
+public class AccessLogHttpFilter extends HttpFilter {
   private long startTime;
   private StringBuilder sb;
 
