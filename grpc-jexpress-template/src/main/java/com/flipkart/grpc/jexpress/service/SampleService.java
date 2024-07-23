@@ -1,6 +1,6 @@
 package com.flipkart.grpc.jexpress.service;
 
-import com.flipkart.gjex.core.filter.MethodFilters;
+import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.grpc.jexpress.*;
 import com.flipkart.grpc.jexpress.filter.CreateLoggingFilter;
