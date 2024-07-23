@@ -14,9 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 
-@Singleton
-@Named("ExampleFilter")
-public class ExampleFilter extends HttpFilter {
+public class ExampleHttpFilter extends HttpFilter {
   private long startTime;
   private StringBuilder sb;
 
