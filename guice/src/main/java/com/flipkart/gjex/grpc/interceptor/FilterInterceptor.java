@@ -16,14 +16,14 @@
 package com.flipkart.gjex.grpc.interceptor;
 
 import com.flipkart.gjex.core.context.GJEXContext;
-import com.flipkart.gjex.core.filter.Filter;
-import com.flipkart.gjex.core.filter.GrpcAccessLogFilter;
-import com.flipkart.gjex.core.filter.MethodFilters;
-import com.flipkart.gjex.core.filter.ServerRequestParams;
+import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.filter.ResponseParams;
+import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcAccessLogGjexGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
-import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.BindableService;
 import io.grpc.Context;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
@@ -35,7 +35,6 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -50,7 +49,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * An implementation of the gRPC {@link ServerInterceptor} that allows custom {@link Filter} instances to be invoked around relevant methods to process Request, Request-Headers, Response and
+ * An implementation of the gRPC {@link ServerInterceptor} that allows custom {@link GjexGrpcFilter} instances to be invoked around relevant methods to process Request, Request-Headers, Response and
  * Response-Headers data.
  *
  * @author regu.b
@@ -63,18 +62,18 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
      * Map of Filter instances mapped to Service and its method
      */
     @SuppressWarnings("rawtypes")
-    private final Map<String, List<Filter>> filtersMap = new HashMap<>();
+    private final Map<String, List<GjexGrpcFilter>> filtersMap = new HashMap<>();
 
     @SuppressWarnings("rawtypes")
-    public void registerFilters(List<Filter> filters, List<BindableService> services,
+    public void registerFilters(List<GjexGrpcFilter> grpcFilters, List<BindableService> services,
                                 boolean enableAccessLogs) {
-        Map<Class<?>, Filter> classToInstanceMap = filters.stream()
+        Map<Class<?>, GjexGrpcFilter> classToInstanceMap = grpcFilters.stream()
                 .collect(Collectors.toMap(Object::getClass, Function.identity()));
         services.forEach(service -> {
             List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
-                    List<Filter> filtersForMethod = new ArrayList<>();
+                    List<GjexGrpcFilter> filtersForMethod = new ArrayList<>();
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
@@ -87,7 +86,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                         (service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase();
                     filtersMap.put(methodSignature, filtersForMethod);
                     if (enableAccessLogs){
-                        filtersMap.get(methodSignature).add(new GrpcAccessLogFilter());
+                        filtersMap.get(methodSignature).add(new GrpcAccessLogGjexGrpcFilter());
                     }
                 });
             }
@@ -96,49 +95,26 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-        List<Filter> filterReferences =
+    public <Req, Res> Listener<Req> interceptCall(ServerCall<Req, Res> call, Metadata headers, ServerCallHandler<Req, Res> next) {
+        List<GjexGrpcFilter> grpcFilterReferences =
             filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
         Metadata forwardHeaders = new Metadata();
-        if (filterReferences == null || filterReferences.isEmpty()){
-            return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
-                new SimpleForwardingServerCall<ReqT, RespT>(call) {
+        if (grpcFilterReferences == null || grpcFilterReferences.isEmpty()){
+            return new SimpleForwardingServerCallListener<Req>(next.startCall(
+                new SimpleForwardingServerCall<Req, Res>(call) {
                 }, headers)) {
             };
         }
-        List<Filter> filters = filterReferences.stream().map(Filter::getInstance).collect(Collectors.toList());
-        for (Filter filter : filters) {
-            try {
-                if (filter != null) {
-                    ServerRequestParams serverRequestParams =
-                        ServerRequestParams.builder()
-                            .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
-                            .methodName(call.getMethodDescriptor().getFullMethodName().toLowerCase())
-                            .build();
-                    filter.doFilterRequest(serverRequestParams, headers);
-                    for (Metadata.Key key : filter.getForwardHeaderKeys()) {
-                        Object value = headers.get(key);
-                        if (value != null) {
-                            forwardHeaders.put(key, value);
-                        }
-                    }
-                }
-            } catch (StatusRuntimeException se) {
-                call.close(se.getStatus(), se.getTrailers()); // Closing the call and not letting it to proceed further
-                return new ServerCall.Listener<ReqT>() {
-                };
-            }
-        }
-
+        List<GjexGrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GjexGrpcFilter::getInstance).collect(Collectors.toList());
         Context contextWithHeaders = forwardHeaders.keys().isEmpty() ? null : Context.current().withValue(GJEXContext.getHeadersKey(), forwardHeaders);
 
-        ServerCall.Listener<ReqT> listener = null;
-        listener = next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
+        ServerCall.Listener<Req> listener = null;
+        listener = next.startCall(new SimpleForwardingServerCall<Req, Res>(call) {
             @Override
-            public void sendMessage(final RespT response) {
+            public void sendMessage(final Res response) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    filters.forEach(filter -> filter.doProcessResponse((GeneratedMessageV3) response));
+                    grpcFilters.forEach(filter -> filter.doProcessResponse(ResponseParams.builder().response(response).build()));
                     super.sendMessage(response);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
@@ -149,7 +125,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void sendHeaders(final Metadata responseHeaders) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
+                    grpcFilters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
                     super.sendHeaders(responseHeaders);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
@@ -157,7 +133,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             }
         }, headers);
 
-        return new SimpleForwardingServerCallListener<ReqT>(listener) {
+        return new SimpleForwardingServerCallListener<Req>(listener) {
             @Override
             public void onHalfClose() {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
@@ -171,10 +147,27 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             }
 
             @Override
-            public void onMessage(ReqT request) {
+            public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    filters.forEach(filter -> filter.doProcessRequest((GeneratedMessageV3) request));
+                    for (GjexGrpcFilter grpcFilter : grpcFilters) {
+                        if (grpcFilter != null) {
+                            RequestParams requestParams =
+                                RequestParams.builder()
+                                    .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
+                                    .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
+                                    .metadata(headers)
+                                    .request(request)
+                                    .build();
+                            grpcFilters.forEach(filter -> filter.doProcessRequest(requestParams));
+                            for (Metadata.Key key : grpcFilter.getForwardHeaderKeys()) {
+                                Object value = headers.get(key);
+                                if (value != null) {
+                                    forwardHeaders.put(key, value);
+                                }
+                            }
+                        }
+                    }
                     super.onMessage(request);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
@@ -198,7 +191,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     /**
      * Helper method to handle RuntimeExceptions and convert it into suitable gRPC message. Closes the ServerCall
      */
-    private <ReqT, RespT> void handleException(ServerCall<ReqT, RespT> call, Exception e) {
+    private <Req, Res> void handleException(ServerCall<Req, Res> call, Exception e) {
         error("Closing gRPC call due to RuntimeException.", e);
         Status returnStatus = Status.INTERNAL;
         if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {

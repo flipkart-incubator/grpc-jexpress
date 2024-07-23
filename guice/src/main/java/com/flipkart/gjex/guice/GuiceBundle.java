@@ -17,14 +17,14 @@ package com.flipkart.gjex.guice;
 
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
-import com.flipkart.gjex.core.web.filter.HttpFilterParams;
+import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.grpc.service.ApiServer;
 import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.grpc.service.ScheduledJobManager;
@@ -67,7 +67,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	private List<Module> modules;
 	private Injector baseInjector;
 	private List<Service> services;
-	private List<Filter> filters;
+	private List<GjexGrpcFilter> grpcFilters;
 	private List<HealthCheck> healthchecks;
 	private List<TracingSampler> tracingSamplers;
 	private List<ScheduledJob> scheduledJobs;
@@ -149,8 +149,8 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		grpcServer.registerServices(bindableServices);
 
 		// Add all Grpc Filters to the Grpc Server
-		filters = getInstances(baseInjector, Filter.class);
-		grpcServer.registerFilters(filters, bindableServices, configuration.getGrpc().isEnableAccessLogs());
+		grpcFilters = getInstances(baseInjector, GjexGrpcFilter.class);
+		grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc().isEnableAccessLogs());
 
 		// Add all Grpc Filters to the Grpc Server
 		tracingSamplers = getInstances(baseInjector, TracingSampler.class);
@@ -192,10 +192,10 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	} 
 
 	@Override
-	public List<Filter> getFilters() {		
+	public List<GjexGrpcFilter> getFilters() {
         Preconditions.checkState(baseInjector != null,
                 "Filter(s) are only available after GuiceBundle.run() is called");
-		return this.filters;
+		return this.grpcFilters;
 	} 
 	
 	@Override

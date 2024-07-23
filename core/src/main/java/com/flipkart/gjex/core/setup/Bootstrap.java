@@ -27,7 +27,7 @@ import com.flipkart.gjex.core.config.ConfigurationFactoryFactory;
 import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
 import com.flipkart.gjex.core.config.DefaultConfigurationFactoryFactory;
 import com.flipkart.gjex.core.config.FileConfigurationSourceProvider;
-import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
 import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
@@ -77,7 +77,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	private List<Service> services;
 
 	/** List of initialized Filter instances*/
-	private List<Filter> filters;
+	private List<GjexGrpcFilter> grpcFilters;
 	
 	/** List of initialized ConfigurableTracingSampler instances*/
 	private List<TracingSampler> tracingSamplers;
@@ -155,8 +155,8 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		return services;
 	}
 
-	public List<Filter> getFilters() {
-		return filters;
+	public List<GjexGrpcFilter> getFilters() {
+		return grpcFilters;
 	}
 	
 	public List<TracingSampler> getTracingSamplers() {
@@ -219,7 +219,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	public void run(Environment environment) throws Exception {
 		// Identify all Service implementations, start them and register for Runtime shutdown hook
         services = new ArrayList<>();
-        filters = new ArrayList<Filter>();
+        grpcFilters = new ArrayList<GjexGrpcFilter>();
         tracingSamplers = new ArrayList<TracingSampler>();
         scheduledJobs = new ArrayList<ScheduledJob>();
         // Set the HealthCheckRegsitry to the one initialized by the Environment
@@ -228,7 +228,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
         for (Bundle<? super T, ? super U> bundle : bundles) {
             bundle.run(configuration, configMap, environment);
             services.addAll(bundle.getServices());
-            filters.addAll(bundle.getFilters());
+            grpcFilters.addAll(bundle.getFilters());
             tracingSamplers.addAll(bundle.getTracingSamplers());
             scheduledJobs.addAll(bundle.getScheduledJobs());
             // Register all HealthChecks with the HealthCheckRegistry
@@ -242,7 +242,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
                 throw new RuntimeException(e);
 			}
 		});
-		filters.forEach(filter -> {
+		grpcFilters.forEach(filter -> {
 			try {
 				filter.init();
 			} catch (Exception e) {
@@ -264,7 +264,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	    			// Use stdout here since the logger may have been reset by its JVM shutdown hook.
 	    			System.out.println("*** Shutting down GJEX server since JVM is shutting down");
 	    			services.forEach(Service::stop);
-	    			filters.forEach(Filter::destroy);
+	    			grpcFilters.forEach(GjexGrpcFilter::destroy);
 	    			System.out.println("*** Server shut down");
 	    		}
 	    	});    		

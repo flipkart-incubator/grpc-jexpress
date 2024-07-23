@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.flipkart.gjex.core.filter;
+package com.flipkart.gjex.core.filter.grpc;
 
 import com.flipkart.gjex.core.context.GJEXContext;
 

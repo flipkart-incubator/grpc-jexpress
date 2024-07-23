@@ -19,7 +19,7 @@ import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.healthcheck.RotationManagementBasedHealthCheck;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Api;
-import com.flipkart.gjex.core.web.filter.HttpAccessLogFilter;
+import com.flipkart.gjex.core.filter.http.HttpAccessLogFilter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;

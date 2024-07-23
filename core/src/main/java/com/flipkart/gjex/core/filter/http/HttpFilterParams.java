@@ -1,4 +1,4 @@
-package com.flipkart.gjex.core.web.filter;
+package com.flipkart.gjex.core.filter.http;
 
 import lombok.Data;
 

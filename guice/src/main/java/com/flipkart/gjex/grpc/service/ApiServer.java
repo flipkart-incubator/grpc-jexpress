@@ -18,7 +18,7 @@ package com.flipkart.gjex.grpc.service;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
-import com.flipkart.gjex.core.web.filter.HttpFilterParams;
+import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.web.ResourceRegistrar;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;

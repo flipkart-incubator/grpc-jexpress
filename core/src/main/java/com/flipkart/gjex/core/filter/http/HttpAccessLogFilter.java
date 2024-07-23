@@ -1,8 +1,7 @@
-package com.flipkart.gjex.examples.helloworld.web.httpfilter;
+package com.flipkart.gjex.core.filter.http;
 
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
-import com.flipkart.gjex.core.filter.http.GjexHttpFilter;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -12,9 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 
+/**
+ * Filter for logging http access log requests
+ * @author ajay.jalgaonkar
+ *
+ */
+
 @Singleton
-@Named("ExampleFilter")
-public class ExampleFilter extends GjexHttpFilter {
+@Named("HttpAccessLogFilter")
+public class HttpAccessLogFilter extends GjexHttpFilter {
   private long startTime;
   private StringBuilder sb;
 

@@ -15,7 +15,9 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
-import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.ResponseParams;
+import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
+import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
@@ -23,23 +25,24 @@ import io.grpc.Metadata;
 import javax.inject.Named;
 
 /**
- * An implementation of the {@link Filter} interface as example that simply logs Request information
+ * An implementation of the {@link GjexGrpcFilter} interface as example that simply logs Request information
  * @author regu.b
  */
 @Named("LoggingFilter")
-public class LoggingFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> implements Filter<Req, Res>, Logging {
+public class LoggingGjexGrpcFilter<Req extends GeneratedMessageV3,
+    Res extends GeneratedMessageV3> extends GjexGrpcFilter<Req, Res> implements Logging {
 
 	/** Custom response key to indicate request was logged on the server*/
     static final Metadata.Key<String> CUSTOM_HEADER_KEY = Metadata.Key.of("request_response_logged_header_key", Metadata.ASCII_STRING_MARSHALLER);
 
     @Override
-    public Filter<Req,Res> getInstance(){
-        return new LoggingFilter<>();
+    public GjexGrpcFilter<Req, Res> getInstance(){
+        return new LoggingGjexGrpcFilter<>();
     }
 
     @Override
-    public void doProcessRequest(Req request) {
-        info("Logging from filter. Request payload is : " + request.toString());
+    public void doProcessRequest(RequestParams<Req, Metadata> requestParams) {
+        info("Logging from filter. Request payload is : " + requestParams.getRequest().toString());
     }
 
     @Override
@@ -48,8 +51,8 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     }
 
     @Override
-    public void doProcessResponse(Res response) {
-        info("Logging from filter. Response payload is : " + response.toString());
+    public void doProcessResponse(ResponseParams<Res> responseParams) {
+        info("Logging from filter. Response payload is : " + responseParams.getResponse().toString());
     }
 
 }

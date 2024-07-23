@@ -15,27 +15,26 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
-import javax.inject.Named;
-
-import com.flipkart.gjex.core.filter.Filter;
-import com.flipkart.gjex.core.filter.ServerRequestParams;
+import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
 import com.flipkart.gjex.core.logging.Logging;
-
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
 
+import javax.inject.Named;
+
 /**
- * An implementation of the {@link Filter} interface as example that performs naive authentication based on
+ * An implementation of the {@link GjexGrpcFilter} interface as example that performs naive authentication based on
  * information contained in the Request headers
  *
  * @author regu.b
  *
  */
 @Named("AuthFilter")
-public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
+public class AuthGjexGrpcFilter extends GjexGrpcFilter<HelloRequest, HelloReply> implements Logging {
 
 	/** Fictitious authentication key*/
 	@SuppressWarnings("rawtypes")
@@ -45,16 +44,16 @@ public class AuthFilter implements Filter<HelloRequest, HelloReply>, Logging {
 	private final boolean isAuth = false;
 
 	@Override
-	public Filter<HelloRequest, HelloReply> getInstance(){
-		return new AuthFilter();
+	public GjexGrpcFilter<HelloRequest, HelloReply> getInstance(){
+		return new AuthGjexGrpcFilter();
 	}
 
 	@Override
-	public void doFilterRequest(ServerRequestParams serverRequestParams, Metadata requestHeaders) throws StatusRuntimeException {
-		info("Headers found in the request : " + requestHeaders.toString());
-		this.checkAuth(requestHeaders);
+	public void doProcessRequest(RequestParams<HelloRequest, Metadata> requestParams) throws StatusRuntimeException {
+		info("Headers found in the request : " + requestParams.getMetadata().toString());
+		this.checkAuth(requestParams.getMetadata());
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Metadata.Key[] getForwardHeaderKeys() {
