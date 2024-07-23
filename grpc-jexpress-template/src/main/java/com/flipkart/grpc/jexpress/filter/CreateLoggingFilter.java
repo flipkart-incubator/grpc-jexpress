@@ -33,7 +33,7 @@ public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,Create
     CreateResponse> {
 
     @Override
-    public Filter<CreateRequest,CreateResponse> getInstance(){
+    public GjexGrpcFilter<CreateRequest,CreateResponse> getInstance(){
         return new CreateLoggingFilter<CreateRequest,CreateResponse>();
     }
 
