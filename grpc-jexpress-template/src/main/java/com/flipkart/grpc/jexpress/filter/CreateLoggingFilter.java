@@ -22,6 +22,8 @@ import com.flipkart.grpc.jexpress.CreateResponse;
 import com.flipkart.grpc.jexpress.GetRequest;
 import com.flipkart.grpc.jexpress.GetResponse;
 import com.google.protobuf.GeneratedMessageV3;
+import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.filter.ResponseParams;
 import io.grpc.Metadata;
 
 import javax.inject.Named;
