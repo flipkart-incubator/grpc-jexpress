@@ -2,7 +2,6 @@ package com.flipkart.gjex.core.filter.grpc;
 
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
-import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 
@@ -12,7 +11,7 @@ import io.grpc.Metadata;
  *
  */
 public class GrpcAccessLogGjexGrpcFilter<R extends GeneratedMessageV3,
-    S extends GeneratedMessageV3> extends GjexGrpcFilter<R,S> implements Logging {
+    S extends GeneratedMessageV3> extends GjexGrpcFilter<R,S> {
   private long startTime = 0;
   private RequestParams<R, Metadata> requestParams;
   @Override

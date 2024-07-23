@@ -34,7 +34,7 @@ import javax.inject.Named;
  *
  */
 @Named("AuthFilter")
-public class AuthGjexGrpcFilter extends GjexGrpcFilter<HelloRequest, HelloReply> implements Logging {
+public class AuthGjexGrpcFilter extends GjexGrpcFilter<HelloRequest, HelloReply> {
 
 	/** Fictitious authentication key*/
 	@SuppressWarnings("rawtypes")

@@ -40,8 +40,8 @@ public abstract class GjexGrpcFilter<Req extends GeneratedMessageV3, Res extends
 	public abstract GjexGrpcFilter<Req, Res> getInstance();
 
 	/**
-	 * Returns array of {@link Key} identifiers for headers to be forwarded
-	 * @return array of {@link Key}
+	 * Returns array of {@link Metadata.Key} identifiers for headers to be forwarded
+	 * @return array of {@link Metadata.Key}
 	 */
 	@SuppressWarnings("rawtypes")
 	public Metadata.Key[] getForwardHeaderKeys(){
