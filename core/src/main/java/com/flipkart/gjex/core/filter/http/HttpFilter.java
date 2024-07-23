@@ -4,6 +4,7 @@ import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -24,7 +25,9 @@ import java.util.Set;
  *
  * @author ajay.jalgaonkar
  */
+
 @Data
+@EqualsAndHashCode(callSuper=false)
 public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse,
     Set<String>> implements javax.servlet.Filter {
   private ServletRequest request;
