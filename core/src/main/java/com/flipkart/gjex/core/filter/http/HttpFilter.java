@@ -6,7 +6,6 @@ import com.flipkart.gjex.core.filter.ResponseParams;
 import lombok.Data;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -32,9 +31,6 @@ public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse,
   private ServletResponse response;
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {}
-
-  @Override
   public final void doFilter(ServletRequest requestInput, ServletResponse responseOutput,
                        FilterChain chain) throws IOException, ServletException {
     try {
@@ -57,20 +53,5 @@ public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse,
       }
       doProcessResponse(ResponseParams.<ServletResponse>builder().response(response).build());
     }
-  }
-
-  @Override
-  public void doProcessRequest(RequestParams<ServletRequest, Set<String>> requestParams) {
-    super.doProcessRequest(requestParams);
-  }
-
-  @Override
-  public void doProcessResponseHeaders(Set<String> responseHeaders) {
-    super.doProcessResponseHeaders(responseHeaders);
-  }
-
-  @Override
-  public void doProcessResponse(ResponseParams<ServletResponse> responseParams) {
-    super.doProcessResponse(responseParams);
   }
 }

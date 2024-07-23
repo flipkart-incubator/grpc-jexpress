@@ -3,6 +3,8 @@ package com.flipkart.gjex.core.filter.http;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
 
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -45,4 +47,7 @@ public class HttpAccessLogFilter extends HttpFilter {
     sb.append(System.currentTimeMillis()-startTime);
     info("access-log", sb.toString());
   }
+
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {}
 }

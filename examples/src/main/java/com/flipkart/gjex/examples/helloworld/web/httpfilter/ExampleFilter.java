@@ -6,6 +6,8 @@ import com.flipkart.gjex.core.filter.http.HttpFilter;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -45,4 +47,7 @@ public class ExampleFilter extends HttpFilter {
     sb.append(System.currentTimeMillis()-startTime);
     info("access-log", sb.toString());
   }
+
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {}
 }
