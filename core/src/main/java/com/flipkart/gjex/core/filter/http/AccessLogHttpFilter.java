@@ -2,6 +2,7 @@ package com.flipkart.gjex.core.filter.http;
 
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
+import lombok.Data;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -17,6 +18,7 @@ import java.util.Set;
  *
  */
 
+@Data
 public class AccessLogHttpFilter extends HttpFilter {
   private long startTime;
   private StringBuilder sb;
