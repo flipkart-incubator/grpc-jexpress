@@ -16,7 +16,7 @@
 package com.flipkart.grpc.jexpress.filter;
 
 
-import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.grpc.jexpress.CreateRequest;
 import com.flipkart.grpc.jexpress.CreateResponse;
 import com.flipkart.grpc.jexpress.GetRequest;
@@ -29,11 +29,11 @@ import io.grpc.Metadata;
 import javax.inject.Named;
 
 @Named("CreateLoggingFilter")
-public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,CreateResponse extends GeneratedMessageV3> extends GjexGrpcFilter<CreateRequest,
+public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,CreateResponse extends GeneratedMessageV3> extends GrpcFilter<CreateRequest,
     CreateResponse> {
 
     @Override
-    public GjexGrpcFilter<CreateRequest,CreateResponse> getInstance(){
+    public GrpcFilter<CreateRequest,CreateResponse> getInstance(){
         return new CreateLoggingFilter<CreateRequest,CreateResponse>();
     }
 
