@@ -32,7 +32,7 @@ public class GetLoggingFilter<GetRequest extends GeneratedMessageV3,
     public GetLoggingFilter(){}
 
     @Override
-    public Filter<GetRequest,GetResponse> getInstance(){
+    public GjexGrpcFilter<GetRequest,GetResponse> getInstance(){
         return new GetLoggingFilter<GetRequest,GetResponse>();
     }
 
