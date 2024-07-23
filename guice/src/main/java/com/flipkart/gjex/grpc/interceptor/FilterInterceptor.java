@@ -148,16 +148,15 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             @Override
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
+                RequestParams requestParams = RequestParams.builder()
+                    .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
+                    .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
+                    .metadata(headers)
+                    .request(request)
+                    .build();
                 try {
                     for (GjexGrpcFilter grpcFilter : grpcFilters) {
                         if (grpcFilter != null) {
-                            RequestParams requestParams =
-                                RequestParams.builder()
-                                    .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
-                                    .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
-                                    .metadata(headers)
-                                    .request(request)
-                                    .build();
                             grpcFilters.forEach(filter -> filter.doProcessRequest(requestParams));
                             for (Metadata.Key key : grpcFilter.getForwardHeaderKeys()) {
                                 Object value = headers.get(key);
