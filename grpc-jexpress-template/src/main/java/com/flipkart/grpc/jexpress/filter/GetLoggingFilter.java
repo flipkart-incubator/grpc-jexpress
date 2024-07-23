@@ -46,7 +46,7 @@ public class GetLoggingFilter<GetRequest extends GeneratedMessageV3,
     }
 
     @Override
-    public void doProcessResponse(ResponseParams<GetRequest> requestParams) {
+    public void doProcessResponse(ResponseParams<GetResponse> requestParams) {
         info("Response: " + responseParams.getResponse());
     }
 
