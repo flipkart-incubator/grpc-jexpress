@@ -49,8 +49,8 @@ public class HelloWorldModule extends AbstractModule {
 //		install(new ClientModule<GreeterGrpc.GreeterBlockingStub>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
 		bind(GreeterGrpc.GreeterBlockingStub.class).toInstance(GreeterGrpc.newBlockingStub(channel));
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
-		bind(GrpcFilter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingGrpcFilter.class);
-		bind(GrpcFilter.class).annotatedWith(Names.named("AuthFilter")).to(AuthGrpcFilter.class);
+		bind(GrpcFilter.class).annotatedWith(Names.named("LoggingGrpcFilter")).to(LoggingGrpcFilter.class);
+		bind(GrpcFilter.class).annotatedWith(Names.named("AuthGrpcFilter")).to(AuthGrpcFilter.class);
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
 		bind(HttpFilterParams.class).annotatedWith(Names.named("ExampleHttpFilterParams"))

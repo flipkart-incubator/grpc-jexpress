@@ -27,7 +27,7 @@ import javax.inject.Named;
  * An implementation of the {@link GrpcFilter} interface as example that simply logs Request information
  * @author regu.b
  */
-@Named("LoggingFilter")
+@Named("LoggingGrpcFilter")
 public class LoggingGrpcFilter<Req extends GeneratedMessageV3,
     Res extends GeneratedMessageV3> extends GrpcFilter<Req, Res> {
 

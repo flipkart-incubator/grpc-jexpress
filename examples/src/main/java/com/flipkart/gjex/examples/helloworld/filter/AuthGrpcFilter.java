@@ -32,7 +32,7 @@ import javax.inject.Named;
  * @author regu.b
  *
  */
-@Named("AuthFilter")
+@Named("AuthGrpcFilter")
 public class AuthGrpcFilter extends GrpcFilter<HelloRequest, HelloReply> {
 
 	/** Fictitious authentication key*/
