@@ -1,11 +1,10 @@
 package com.flipkart.gjex.core.filter.http;
 
-import com.flipkart.gjex.core.filter.GjexFilter;
+import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
 import lombok.Data;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -19,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An Http Filter extending {@link GjexFilter}  interface for processing Request, Request-Headers,
+ * An Http Filter extending {@link Filter}  interface for processing Request, Request-Headers,
  * Response and
  * Response-Headers
  * around HTTP method invocation
@@ -27,8 +26,8 @@ import java.util.Set;
  * @author ajay.jalgaonkar
  */
 @Data
-public abstract class GjexHttpFilter extends GjexFilter<ServletRequest, ServletResponse,
-    Set<String>> implements Filter {
+public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse,
+    Set<String>> implements javax.servlet.Filter {
   private ServletRequest request;
   private ServletResponse response;
 

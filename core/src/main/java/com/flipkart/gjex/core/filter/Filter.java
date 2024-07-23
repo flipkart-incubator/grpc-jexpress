@@ -23,7 +23,7 @@ import com.flipkart.gjex.core.logging.Logging;
  *
  * @author ajay.jalgaonkar
  */
-public abstract class GjexFilter<Req, Res, M> implements Logging {
+public abstract class Filter<Req, Res, M> implements Logging {
 
   /** Lifecycle methods for cleaning up resources used by this Filter*/
   public void destroy(){}

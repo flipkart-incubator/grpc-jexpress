@@ -15,7 +15,7 @@ import java.util.Set;
  *
  */
 
-public class HttpAccessLogFilter extends GjexHttpFilter {
+public class HttpAccessLogFilter extends HttpFilter {
   private long startTime;
   private StringBuilder sb;
 

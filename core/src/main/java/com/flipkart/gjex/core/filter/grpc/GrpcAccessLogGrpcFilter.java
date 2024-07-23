@@ -10,13 +10,13 @@ import io.grpc.Metadata;
  * @author ajay.jalgaonkar
  *
  */
-public class GrpcAccessLogGjexGrpcFilter<R extends GeneratedMessageV3,
-    S extends GeneratedMessageV3> extends GjexGrpcFilter<R,S> {
+public class GrpcAccessLogGrpcFilter<R extends GeneratedMessageV3,
+    S extends GeneratedMessageV3> extends GrpcFilter<R,S> {
   private long startTime = 0;
   private RequestParams<R, Metadata> requestParams;
   @Override
-  public GjexGrpcFilter<R,S> getInstance(){
-    return new GrpcAccessLogGjexGrpcFilter<>();
+  public GrpcFilter<R,S> getInstance(){
+    return new GrpcAccessLogGrpcFilter<>();
   }
 
   @Override

@@ -18,7 +18,7 @@ package com.flipkart.gjex.examples.helloworld.service;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.flipkart.gjex.examples.helloworld.filter.AuthGjexGrpcFilter;
+import com.flipkart.gjex.examples.helloworld.filter.AuthGrpcFilter;
 import io.dropwizard.metrics5.annotation.Timed;
 import com.flipkart.gjex.core.filter.grpc.ApplicationHeaders;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
@@ -27,7 +27,7 @@ import com.flipkart.gjex.core.service.Api;
 import com.flipkart.gjex.core.task.TaskException;
 import com.flipkart.gjex.core.tracing.Traced;
 import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
-import com.flipkart.gjex.examples.helloworld.filter.LoggingGjexGrpcFilter;
+import com.flipkart.gjex.examples.helloworld.filter.LoggingGrpcFilter;
 
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -68,7 +68,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	@Override
 	@Api(deadlineConfig = "apiProperties.sayhello.deadline") // specify an API level Deadline that will cascade to all @ConcurrentTask invoked in serving this API
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
-	@MethodFilters({LoggingGjexGrpcFilter.class, AuthGjexGrpcFilter.class}) // Method level filters
+	@MethodFilters({LoggingGrpcFilter.class, AuthGrpcFilter.class}) // Method level filters
 	@Traced(withSamplingRate=0.0f) // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
 		
@@ -126,7 +126,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 
 	@Override
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
-	@MethodFilters({LoggingGjexGrpcFilter.class, AuthGjexGrpcFilter.class}) // Method level filters
+	@MethodFilters({LoggingGrpcFilter.class, AuthGrpcFilter.class}) // Method level filters
 	@Traced(withSamplingRate=0.0f) // Start a new Trace or participate in a Client-initiated distributed trace
 	public StreamObserver<Ping> pingPong(StreamObserver<Pong> responseObserver) {
 

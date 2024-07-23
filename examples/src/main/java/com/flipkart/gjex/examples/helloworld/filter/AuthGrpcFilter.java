@@ -16,8 +16,7 @@
 package com.flipkart.gjex.examples.helloworld.filter;
 
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
-import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -27,14 +26,14 @@ import io.grpc.examples.helloworld.HelloRequest;
 import javax.inject.Named;
 
 /**
- * An implementation of the {@link GjexGrpcFilter} interface as example that performs naive authentication based on
+ * An implementation of the {@link GrpcFilter} interface as example that performs naive authentication based on
  * information contained in the Request headers
  *
  * @author regu.b
  *
  */
 @Named("AuthFilter")
-public class AuthGjexGrpcFilter extends GjexGrpcFilter<HelloRequest, HelloReply> {
+public class AuthGrpcFilter extends GrpcFilter<HelloRequest, HelloReply> {
 
 	/** Fictitious authentication key*/
 	@SuppressWarnings("rawtypes")
@@ -44,8 +43,8 @@ public class AuthGjexGrpcFilter extends GjexGrpcFilter<HelloRequest, HelloReply>
 	private final boolean isAuth = false;
 
 	@Override
-	public GjexGrpcFilter<HelloRequest, HelloReply> getInstance(){
-		return new AuthGjexGrpcFilter();
+	public GrpcFilter<HelloRequest, HelloReply> getInstance(){
+		return new AuthGrpcFilter();
 	}
 
 	@Override

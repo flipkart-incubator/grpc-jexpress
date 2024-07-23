@@ -2,7 +2,7 @@ package com.flipkart.gjex.examples.helloworld.web.httpfilter;
 
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
-import com.flipkart.gjex.core.filter.http.GjexHttpFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilter;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Singleton
 @Named("ExampleFilter")
-public class ExampleFilter extends GjexHttpFilter {
+public class ExampleFilter extends HttpFilter {
   private long startTime;
   private StringBuilder sb;
 

@@ -17,7 +17,7 @@ package com.flipkart.gjex.guice;
 
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
@@ -67,7 +67,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	private List<Module> modules;
 	private Injector baseInjector;
 	private List<Service> services;
-	private List<GjexGrpcFilter> grpcFilters;
+	private List<GrpcFilter> grpcFilters;
 	private List<HealthCheck> healthchecks;
 	private List<TracingSampler> tracingSamplers;
 	private List<ScheduledJob> scheduledJobs;
@@ -149,7 +149,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		grpcServer.registerServices(bindableServices);
 
 		// Add all Grpc Filters to the Grpc Server
-		grpcFilters = getInstances(baseInjector, GjexGrpcFilter.class);
+		grpcFilters = getInstances(baseInjector, GrpcFilter.class);
 		grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc().getGrpcFilterConfig());
 
 		// Add all Grpc Filters to the Grpc Server
@@ -192,7 +192,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	} 
 
 	@Override
-	public List<GjexGrpcFilter> getFilters() {
+	public List<GrpcFilter> getFilters() {
         Preconditions.checkState(baseInjector != null,
                 "Filter(s) are only available after GuiceBundle.run() is called");
 		return this.grpcFilters;

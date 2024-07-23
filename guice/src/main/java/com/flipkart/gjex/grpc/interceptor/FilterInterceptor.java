@@ -18,8 +18,8 @@ package com.flipkart.gjex.grpc.interceptor;
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
-import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
-import com.flipkart.gjex.core.filter.grpc.GrpcAccessLogGjexGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcAccessLogGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
@@ -50,7 +50,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * An implementation of the gRPC {@link ServerInterceptor} that allows custom {@link GjexGrpcFilter} instances to be invoked around relevant methods to process Request, Request-Headers, Response and
+ * An implementation of the gRPC {@link ServerInterceptor} that allows custom {@link GrpcFilter} instances to be invoked around relevant methods to process Request, Request-Headers, Response and
  * Response-Headers data.
  *
  * @author regu.b
@@ -63,18 +63,18 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
      * Map of Filter instances mapped to Service and its method
      */
     @SuppressWarnings("rawtypes")
-    private final Map<String, List<GjexGrpcFilter>> filtersMap = new HashMap<>();
+    private final Map<String, List<GrpcFilter>> filtersMap = new HashMap<>();
 
     @SuppressWarnings("rawtypes")
-    public void registerFilters(List<GjexGrpcFilter> grpcFilters, List<BindableService> services,
+    public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
                                 GrpcFilterConfig grpcFilterConfig) {
-        Map<Class<?>, GjexGrpcFilter> classToInstanceMap = grpcFilters.stream()
+        Map<Class<?>, GrpcFilter> classToInstanceMap = grpcFilters.stream()
                 .collect(Collectors.toMap(Object::getClass, Function.identity()));
         services.forEach(service -> {
             List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
-                    List<GjexGrpcFilter> filtersForMethod = new ArrayList<>();
+                    List<GrpcFilter> filtersForMethod = new ArrayList<>();
                     applyGrpcFilterConfig(grpcFilterConfig, filtersForMethod);
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
@@ -95,7 +95,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public <Req, Res> Listener<Req> interceptCall(ServerCall<Req, Res> call, Metadata headers, ServerCallHandler<Req, Res> next) {
-        List<GjexGrpcFilter> grpcFilterReferences =
+        List<GrpcFilter> grpcFilterReferences =
             filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
         Metadata forwardHeaders = new Metadata();
         if (grpcFilterReferences == null || grpcFilterReferences.isEmpty()){
@@ -104,7 +104,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 }, headers)) {
             };
         }
-        List<GjexGrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GjexGrpcFilter::getInstance).collect(Collectors.toList());
+        List<GrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GrpcFilter::getInstance).collect(Collectors.toList());
         Context contextWithHeaders = forwardHeaders.keys().isEmpty() ? null : Context.current().withValue(GJEXContext.getHeadersKey(), forwardHeaders);
 
         ServerCall.Listener<Req> listener = null;
@@ -155,7 +155,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     .request(request)
                     .build();
                 try {
-                    for (GjexGrpcFilter grpcFilter : grpcFilters) {
+                    for (GrpcFilter grpcFilter : grpcFilters) {
                         if (grpcFilter != null) {
                             grpcFilters.forEach(filter -> filter.doProcessRequest(requestParams));
                             for (Metadata.Key key : grpcFilter.getForwardHeaderKeys()) {
@@ -217,9 +217,9 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     }
 
     private void applyGrpcFilterConfig(GrpcFilterConfig grpcFilterConfig,
-                                       @SuppressWarnings("rawtypes") List<GjexGrpcFilter> filtersForMethod){
+                                       @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
         if (grpcFilterConfig.isEnableAccessLogs()){
-            filtersForMethod.add(new GrpcAccessLogGjexGrpcFilter<>());
+            filtersForMethod.add(new GrpcAccessLogGrpcFilter<>());
         }
     }
 }

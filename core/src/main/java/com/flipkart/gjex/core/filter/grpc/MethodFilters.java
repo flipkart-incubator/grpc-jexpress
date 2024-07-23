@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for specifying an array of {@link GjexGrpcFilter} instances on gRPC service methods
+ * Annotation for specifying an array of {@link GrpcFilter} instances on gRPC service methods
  * @author regu.b
  *
  */
@@ -32,5 +32,5 @@ import java.lang.annotation.Target;
 public @interface MethodFilters {
 	// Not parameterizing Filter here as the Language doesnot support it for Annotations
 	@SuppressWarnings("rawtypes")
-	public Class<? extends GjexGrpcFilter>[] value();
+	public Class<? extends GrpcFilter>[] value();
 }

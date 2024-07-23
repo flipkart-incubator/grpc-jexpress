@@ -15,7 +15,7 @@
  */
 package com.flipkart.gjex.core.filter.grpc;
 
-import com.flipkart.gjex.core.filter.GjexFilter;
+import com.flipkart.gjex.core.filter.Filter;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 
@@ -27,17 +27,17 @@ import io.grpc.Metadata;
  * @param <Req> Proto V3 message
  * @param <Res> Proto V3 message
  */
-public abstract class GjexGrpcFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3>
-		extends GjexFilter<Req,Res, Metadata> {
+public abstract class GrpcFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3>
+		extends Filter<Req,Res, Metadata> {
 
 	/** Lifecycle methods for initializing and cleaning up resources used by this Filter*/
 	public void init(){}
 
 	/**
-	 * Function for creating an instance of this {@link GjexFilter}
-	 * Use only this function to get the {@link GjexFilter} instance
+	 * Function for creating an instance of this {@link Filter}
+	 * Use only this function to get the {@link Filter} instance
 	 */
-	public abstract GjexGrpcFilter<Req, Res> getInstance();
+	public abstract GrpcFilter<Req, Res> getInstance();
 
 	/**
 	 * Returns array of {@link Metadata.Key} identifiers for headers to be forwarded
