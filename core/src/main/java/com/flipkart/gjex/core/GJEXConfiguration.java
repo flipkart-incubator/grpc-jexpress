@@ -53,6 +53,8 @@ public class GJEXConfiguration {
     @JsonProperty("ScheduledJobs.executorThreads")
     private int scheduledJobExecutorThreads;
 
+
+
     @Override
     public String toString() {
         return "GJEXConfiguration{" +

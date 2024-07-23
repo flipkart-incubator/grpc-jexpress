@@ -20,6 +20,7 @@ import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
 import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcAccessLogGjexGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.util.Pair;
@@ -66,7 +67,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GjexGrpcFilter> grpcFilters, List<BindableService> services,
-                                boolean enableAccessLogs) {
+                                GrpcFilterConfig grpcFilterConfig) {
         Map<Class<?>, GjexGrpcFilter> classToInstanceMap = grpcFilters.stream()
                 .collect(Collectors.toMap(Object::getClass, Function.identity()));
         services.forEach(service -> {
@@ -74,6 +75,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
                     List<GjexGrpcFilter> filtersForMethod = new ArrayList<>();
+                    applyGrpcFilterConfig(grpcFilterConfig, filtersForMethod);
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
@@ -85,9 +87,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     String methodSignature =
                         (service.bindService().getServiceDescriptor().getName() + "/" + pair.getValue().getName()).toLowerCase();
                     filtersMap.put(methodSignature, filtersForMethod);
-                    if (enableAccessLogs){
-                        filtersMap.get(methodSignature).add(new GrpcAccessLogGjexGrpcFilter());
-                    }
                 });
             }
         });
@@ -218,4 +217,10 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
+    private void applyGrpcFilterConfig(GrpcFilterConfig grpcFilterConfig,
+                                       @SuppressWarnings("rawtypes") List<GjexGrpcFilter> filtersForMethod){
+        if (grpcFilterConfig.isEnableAccessLogs()){
+            filtersForMethod.add(new GrpcAccessLogGjexGrpcFilter<>());
+        }
+    }
 }

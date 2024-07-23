@@ -1,7 +1,8 @@
 Grpc:
     server.port: 50051
     server.executorThreads : 4
-    enableAccessLogs: true
+    grpcFilterConfig:
+        enableAccessLogs: true
 
 Dashboard:
     service.port: 9999
@@ -15,7 +16,8 @@ Api:
     service.selectors: 10
     service.workers: 30
     scheduledexecutor.threadpool.size: 1
-    enableAccessLogs: true
+    httpFilterConfig:
+        enableAccessLogs: true
 
 Tracing:
     collector.endpoint: http://localhost:9411/api/v2/spans

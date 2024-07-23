@@ -15,10 +15,12 @@
  */
 package com.flipkart.gjex.grpc.service;
 
+import com.flipkart.gjex.core.filter.http.HttpAccessLogFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilterConfig;
+import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
-import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.web.ResourceRegistrar;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -29,7 +31,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -47,17 +48,14 @@ public class ApiServer extends AbstractService implements Logging {
 	private final Server apiServer;
 	private final ResourceRegistrar resourceRegistrar;
 	private final ServletContextHandler context;
-	private final Filter accessLogFilter;
 	private List<ResourceConfig> resourceConfigs = new ArrayList<>();
 
 	@Inject
 	public ApiServer(@Named("APIJettyServer") Server apiServer,
 									 @Named("ApiServletContext")ServletContextHandler context,
-									 @Named("HttpAccessLogFilter")Filter accessLogFilter,
 									 ResourceRegistrar resourceRegistrar) {
 		this.apiServer = apiServer;
 		this.context = context;
-		this.accessLogFilter = accessLogFilter;
 		this.resourceRegistrar = resourceRegistrar;
 	}
 	
@@ -66,11 +64,8 @@ public class ApiServer extends AbstractService implements Logging {
 	}
 
 	public void registerHttpFilters(List<HttpFilterParams> httpFilterParamsList,
-																	boolean enableAccessLogs){
-		if (enableAccessLogs) {
-			context.addFilter(new FilterHolder(accessLogFilter), "/*" ,
-					EnumSet.of(DispatcherType.REQUEST));
-		}
+																	HttpFilterConfig httpFilterConfig){
+		applyHttpFilterConfig(context, httpFilterConfig);
 		for (HttpFilterParams httpFilterParams : httpFilterParamsList){
 			context.addFilter(new FilterHolder(httpFilterParams.getFilter()),
 					httpFilterParams.getPathSpec(),
@@ -95,4 +90,11 @@ public class ApiServer extends AbstractService implements Logging {
 		}
 	}
 
+	@Inject
+	private void applyHttpFilterConfig(@Named("ApiServletContext")ServletContextHandler context, HttpFilterConfig httpFilterConfig){
+		if (httpFilterConfig.isEnableAccessLogs()){
+			context.addFilter(new FilterHolder(new HttpAccessLogFilter()), "/*" ,
+					EnumSet.of(DispatcherType.REQUEST));
+		}
+	}
 }

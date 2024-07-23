@@ -150,7 +150,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 
 		// Add all Grpc Filters to the Grpc Server
 		grpcFilters = getInstances(baseInjector, GjexGrpcFilter.class);
-		grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc().isEnableAccessLogs());
+		grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc().getGrpcFilterConfig());
 
 		// Add all Grpc Filters to the Grpc Server
 		tracingSamplers = getInstances(baseInjector, TracingSampler.class);
@@ -176,7 +176,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 
 		// Add all custom http filters
 		httpFilterParamsList = getInstances(baseInjector, HttpFilterParams.class);
-		apiServer.registerHttpFilters(httpFilterParamsList, configuration.getApiService().isEnableAccessLogs());
+		apiServer.registerHttpFilters(httpFilterParamsList, configuration.getApiService().getHttpFilterConfig());
 	}
 
 	@SuppressWarnings("unchecked")

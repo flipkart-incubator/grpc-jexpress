@@ -16,6 +16,7 @@
 package com.flipkart.gjex.core.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import lombok.Data;
 
 @Data
@@ -30,6 +31,6 @@ public class GrpcConfig {
     @JsonProperty("server.executorThreads")
     private int executorThreads = 0;
 
-    @JsonProperty("enableAccessLogs")
-    private boolean enableAccessLogs = true;
+    @JsonProperty("grpcFilterConfig")
+    private GrpcFilterConfig grpcFilterConfig;
 }
