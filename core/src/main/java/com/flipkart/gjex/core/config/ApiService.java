@@ -16,7 +16,6 @@
 package com.flipkart.gjex.core.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.http.HttpFilterConfig;
 import lombok.Data;
 
