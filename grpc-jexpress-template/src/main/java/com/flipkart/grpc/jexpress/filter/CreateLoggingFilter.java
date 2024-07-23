@@ -37,7 +37,7 @@ public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,Create
 
     @Override
     public void doProcessRequest(RequestParams<CreateRequest, Metadata> requestParams) {
-        info("Request: " + requestParams.get);
+        info("Request: " + requestParams.getRequest());
     }
 
     @Override
@@ -45,16 +45,7 @@ public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,Create
 
     @Override
     public void doProcessResponse(ResponseParams<CreateResponse> responseParams) {
-        String size = null;
-        if (responseParams.getResponse() != null){
-            size = String.valueOf(responseParams.getResponse().getSerializedSize());
-        }
-        StringBuilder sb = new StringBuilder()
-            .append(requestParams.getClientIp()).append(" ")
-            .append(requestParams.getResourcePath()).append(" ")
-            .append(size).append(" ")
-            .append(System.currentTimeMillis()-startTime);
-        info("access-log", sb.toString());
+        info("Response: " + responseParams.getResponse());
     }
 
 }
