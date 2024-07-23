@@ -16,8 +16,7 @@
 package com.flipkart.grpc.jexpress.filter;
 
 
-import com.flipkart.gjex.core.filter.Filter;
-import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.filter.grpc.GjexGrpcFilter;
 import com.flipkart.grpc.jexpress.CreateRequest;
 import com.flipkart.grpc.jexpress.CreateResponse;
 import com.flipkart.grpc.jexpress.GetRequest;
