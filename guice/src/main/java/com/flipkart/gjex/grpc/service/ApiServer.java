@@ -63,8 +63,7 @@ public class ApiServer extends AbstractService implements Logging {
 		this.resourceConfigs.addAll(resourceConfigs);
 	}
 
-	public void registerFilters(List<HttpFilterParams> httpFilterParamsList,
-															HttpFilterConfig httpFilterConfig){
+	public void registerFilters(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig){
 		applyHttpFilterConfig(httpFilterConfig);
 		for (HttpFilterParams httpFilterParams : httpFilterParamsList){
 			context.addFilter(new FilterHolder(httpFilterParams.getFilter()),

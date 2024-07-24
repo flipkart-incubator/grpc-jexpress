@@ -113,8 +113,7 @@ public class GrpcServer extends AbstractService implements Logging {
 		info("GJEX GrpcServer stopped.");
 	}
 
-	public void registerFilters(@SuppressWarnings("rawtypes") List<GrpcFilter> grpcFilters,
-															List<BindableService> services, GrpcFilterConfig grpcFilterConfig) {
+	public void registerFilters(@SuppressWarnings("rawtypes") List<GrpcFilter> grpcFilters, List<BindableService> services, GrpcFilterConfig grpcFilterConfig) {
 		this.filterInterceptor.registerFilters(grpcFilters, services, grpcFilterConfig);
 	}
 	
