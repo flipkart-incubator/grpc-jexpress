@@ -2,8 +2,7 @@ package com.flipkart.gjex.core.filter.http;
 
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.slf4j.Logger;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -19,37 +18,31 @@ import java.util.Set;
  *
  */
 
-@Data
-@EqualsAndHashCode(callSuper=false)
 public class AccessLogHttpFilter extends HttpFilter {
-  private long startTime;
-  private StringBuilder sb;
+  protected long startTime;
+  protected Logger logger = getLoggerWithName("ACCESS-LOG");
+  protected static final String CONTENT_LENGTH_HEADER = "Content-Length";
+  protected static final String X_FORWARDED_FOR_HEADER = "x-forwarded-for";
 
   @Override
-  public void doProcessRequest(RequestParams<ServletRequest, Set<String>> requestParams) {
+  public void doProcessRequest(RequestParams<ServletRequest, Set<String>> requestParamsInput) {
     startTime  = System.currentTimeMillis();
-    sb = new StringBuilder();
-  }
-
-  @Override
-  public void doProcessResponseHeaders(Set<String> responseHeaders) {
-    if (getRequest() instanceof HttpServletRequest && getResponse() instanceof HttpServletResponse){
-      HttpServletRequest httpServletRequest= (HttpServletRequest) getRequest();
-      HttpServletResponse httpServletResponse = (HttpServletResponse) getResponse();
-      sb.append(httpServletRequest.getHeader("x-forwarded-for")).append(" ")
-          .append(httpServletRequest.getRequestURI()).append(" ")
-          .append(httpServletResponse.getStatus()).append(" ")
-          .append(httpServletResponse.getHeader("Content-Length")).append(" ");
-    } else {
-      sb.append("Did not get HTTP request").append(" ");
-    }
   }
 
   @Override
   public void doProcessResponse(ResponseParams<ServletResponse> response) {
-    sb.append(getRequest().getRemoteAddr()).append(" ");
-    sb.append(System.currentTimeMillis()-startTime);
-    info("access-log", sb.toString());
+    if (logger.isInfoEnabled()){
+      HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+      HttpServletResponse httpServletResponse = (HttpServletResponse) response.getResponse();
+      logger.info("{} {} {} {} {} {}",
+          httpServletRequest.getHeader(X_FORWARDED_FOR_HEADER),
+          httpServletRequest.getRequestURI(),
+          httpServletResponse.getStatus(),
+          httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
+          request.getRemoteAddr(),
+          System.currentTimeMillis()-startTime
+      );
+    }
   }
 
   @Override
@@ -61,13 +54,5 @@ public class AccessLogHttpFilter extends HttpFilter {
 
   public void setStartTime(long startTime) {
     this.startTime = startTime;
-  }
-
-  public StringBuilder getSb() {
-    return sb;
-  }
-
-  public void setSb(StringBuilder sb) {
-    this.sb = sb;
   }
 }

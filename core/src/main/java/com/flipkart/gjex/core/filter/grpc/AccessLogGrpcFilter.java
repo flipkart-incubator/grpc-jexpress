@@ -4,8 +4,7 @@ import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.ResponseParams;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.slf4j.Logger;
 
 /**
  * Filter for logging grpc access log requests
@@ -13,19 +12,15 @@ import lombok.EqualsAndHashCode;
  *
  */
 
-@Data
-@EqualsAndHashCode(callSuper=false)
-public class AccessLogGrpcFilter<R extends GeneratedMessageV3,
-    S extends GeneratedMessageV3> extends GrpcFilter<R,S> {
-  private long startTime = 0;
-  private RequestParams<R, Metadata> requestParams;
-  private StringBuilder sb;
+public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3> extends GrpcFilter<R,S> {
+  protected long startTime;
+  protected RequestParams<R, Metadata> requestParams;
+  protected Logger logger = getLoggerWithName("ACCESS-LOG");
 
   @Override
   public void doProcessRequest(RequestParams<R, Metadata> requestParamsInput) {
     startTime = System.currentTimeMillis();
     requestParams = requestParamsInput;
-    sb = new StringBuilder();
   }
 
   @Override
@@ -37,11 +32,10 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3,
     if (responseParams.getResponse() != null){
       size = String.valueOf(responseParams.getResponse().getSerializedSize());
     }
-    sb.append(requestParams.getClientIp()).append(" ")
-      .append(requestParams.getResourcePath()).append(" ")
-      .append(size).append(" ")
-      .append(System.currentTimeMillis()-startTime);
-    info("access-log", sb.toString());
+    if (logger.isInfoEnabled()){
+      logger.info("{} {} {} {}", requestParams.getClientIp(), requestParams.getResourcePath(),
+          size, System.currentTimeMillis()-startTime);
+    }
   }
 
   @Override
@@ -63,13 +57,5 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3,
 
   public void setRequestParams(RequestParams<R, Metadata> requestParams) {
     this.requestParams = requestParams;
-  }
-
-  public StringBuilder getSb() {
-    return sb;
-  }
-
-  public void setSb(StringBuilder sb) {
-    this.sb = sb;
   }
 }

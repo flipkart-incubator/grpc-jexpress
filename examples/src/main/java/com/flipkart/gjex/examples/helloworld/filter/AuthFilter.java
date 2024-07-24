@@ -32,8 +32,8 @@ import javax.inject.Named;
  * @author regu.b
  *
  */
-@Named("AuthGrpcFilter")
-public class AuthGrpcFilter extends GrpcFilter<HelloRequest, HelloReply> {
+@Named("AuthFilter")
+public class AuthFilter extends GrpcFilter<HelloRequest, HelloReply> {
 
 	/** Fictitious authentication key*/
 	@SuppressWarnings("rawtypes")
@@ -44,7 +44,7 @@ public class AuthGrpcFilter extends GrpcFilter<HelloRequest, HelloReply> {
 
 	@Override
 	public GrpcFilter<HelloRequest, HelloReply> getInstance(){
-		return new AuthGrpcFilter();
+		return new AuthFilter();
 	}
 
 	@Override

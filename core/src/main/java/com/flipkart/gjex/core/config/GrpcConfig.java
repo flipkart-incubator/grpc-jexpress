@@ -31,6 +31,6 @@ public class GrpcConfig {
     @JsonProperty("server.executorThreads")
     private int executorThreads = 0;
 
-    @JsonProperty("grpcFilterConfig")
+    @JsonProperty("filterConfig")
     private GrpcFilterConfig grpcFilterConfig;
 }

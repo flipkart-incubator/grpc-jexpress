@@ -26,12 +26,10 @@ import java.util.Set;
  * @author ajay.jalgaonkar
  */
 
-@Data
-@EqualsAndHashCode(callSuper=false)
 public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse,
     Set<String>> implements javax.servlet.Filter {
-  private ServletRequest request;
-  private ServletResponse response;
+  protected ServletRequest request;
+  protected ServletResponse response;
 
   @Override
   public final void doFilter(ServletRequest requestInput, ServletResponse responseOutput,

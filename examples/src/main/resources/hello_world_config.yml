@@ -1,7 +1,7 @@
 Grpc:
     server.port: 50051
     server.executorThreads : 4
-    grpcFilterConfig:
+    filterConfig:
         enableAccessLogs: true
 
 Dashboard:
@@ -16,7 +16,7 @@ Api:
     service.selectors: 10
     service.workers: 30
     scheduledexecutor.threadpool.size: 1
-    httpFilterConfig:
+    filterConfig:
         enableAccessLogs: true
 
 Tracing:

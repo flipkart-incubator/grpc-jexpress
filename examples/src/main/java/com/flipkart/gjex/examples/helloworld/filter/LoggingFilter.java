@@ -27,16 +27,15 @@ import javax.inject.Named;
  * An implementation of the {@link GrpcFilter} interface as example that simply logs Request information
  * @author regu.b
  */
-@Named("LoggingGrpcFilter")
-public class LoggingGrpcFilter<Req extends GeneratedMessageV3,
-    Res extends GeneratedMessageV3> extends GrpcFilter<Req, Res> {
+@Named("LoggingFilter")
+public class LoggingFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> extends GrpcFilter<Req, Res> {
 
 	/** Custom response key to indicate request was logged on the server*/
     static final Metadata.Key<String> CUSTOM_HEADER_KEY = Metadata.Key.of("request_response_logged_header_key", Metadata.ASCII_STRING_MARSHALLER);
 
     @Override
     public GrpcFilter<Req, Res> getInstance(){
-        return new LoggingGrpcFilter<>();
+        return new LoggingFilter<>();
     }
 
     @Override
@@ -53,5 +52,4 @@ public class LoggingGrpcFilter<Req extends GeneratedMessageV3,
     public void doProcessResponse(ResponseParams<Res> responseParams) {
         info("Logging from filter. Response payload is : " + responseParams.getResponse().toString());
     }
-
 }

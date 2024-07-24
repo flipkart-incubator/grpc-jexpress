@@ -95,11 +95,6 @@ public interface Logging {
         logger().debug(msgWithLogIdent(msg), args);
     }
 
-    default void info(String loggerName, String msg){
-        Logger logger = getLoggerWithName(loggerName);
-        if(logger.isInfoEnabled()) logger.info(msg);
-    }
-
     default void info(String msg)  {
         if (logger().isInfoEnabled()) logger().info(msgWithLogIdent(msg));
     }

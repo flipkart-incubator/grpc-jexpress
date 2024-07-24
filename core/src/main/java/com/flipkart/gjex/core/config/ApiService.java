@@ -41,6 +41,6 @@ public class ApiService {
     @JsonProperty("scheduledexecutor.threadpool.size")
     private int scheduledExecutorThreadPoolSize;
 
-    @JsonProperty("httpFilterConfig")
+    @JsonProperty("filterConfig")
     private HttpFilterConfig httpFilterConfig;
 }
