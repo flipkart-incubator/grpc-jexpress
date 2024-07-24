@@ -14,10 +14,6 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3,
     S extends GeneratedMessageV3> extends GrpcFilter<R,S> {
   private long startTime = 0;
   private RequestParams<R, Metadata> requestParams;
-  @Override
-  public GrpcFilter<R,S> getInstance(){
-    return new AccessLogGrpcFilter<>();
-  }
 
   @Override
   public void doProcessRequest(RequestParams<R, Metadata> requestParams) {
@@ -41,4 +37,26 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3,
         .append(System.currentTimeMillis()-startTime);
     info("access-log", sb.toString());
   }
+
+  @Override
+  public GrpcFilter<R,S> getInstance(){
+    return new AccessLogGrpcFilter<>();
+  }
+
+  public long getStartTime() {
+    return startTime;
+  }
+
+  public void setStartTime(long startTime) {
+    this.startTime = startTime;
+  }
+
+  public RequestParams<R, Metadata> getRequestParams() {
+    return requestParams;
+  }
+
+  public void setRequestParams(RequestParams<R, Metadata> requestParams) {
+    this.requestParams = requestParams;
+  }
+
 }

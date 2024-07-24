@@ -54,4 +54,20 @@ public class AccessLogHttpFilter extends HttpFilter {
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {}
+
+  public long getStartTime() {
+    return startTime;
+  }
+
+  public void setStartTime(long startTime) {
+    this.startTime = startTime;
+  }
+
+  public StringBuilder getSb() {
+    return sb;
+  }
+
+  public void setSb(StringBuilder sb) {
+    this.sb = sb;
+  }
 }
