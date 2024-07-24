@@ -27,6 +27,16 @@ import java.util.Set;
  */
 public class AccessLogHttpFilter extends HttpFilter {
 
+  public AccessLogHttpFilter() {
+    this.number = -1;
+  }
+
+  public AccessLogHttpFilter(int number) {
+    this.number = number;
+  }
+
+  public int number;
+
   // Time when the request processing started.
   @Getter
   @Setter
@@ -61,19 +71,19 @@ public class AccessLogHttpFilter extends HttpFilter {
    */
   @Override
   public void doProcessResponse(ServletResponse response) {
-    logger.info("access log filter: " + this.hashCode());
-    if (logger.isInfoEnabled()) {
-      HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-      HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-      logger.info("{} {} {} {} {} {}",
-              requestParams.getClientIp(),
-              httpServletRequest.getRequestURI(),
-              httpServletResponse.getStatus(),
-              httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
-              System.currentTimeMillis() - startTime,
-              this.hashCode()
-      );
-    }
+    logger.info("access log filter: " + number + " " + this.hashCode());
+//    if (logger.isInfoEnabled()) {
+//      HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+//      HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+//      logger.info("{} {} {} {} {} {}",
+//              requestParams.getClientIp(),
+//              httpServletRequest.getRequestURI(),
+//              httpServletResponse.getStatus(),
+//              httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
+//              System.currentTimeMillis() - startTime,
+//              this.hashCode()
+//      );
+//    }
   }
 
   /**

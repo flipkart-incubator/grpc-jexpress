@@ -16,6 +16,7 @@
 package com.flipkart.gjex.examples.helloworld.guice;
 
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.http.AccessLogHttpFilter;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
@@ -32,12 +33,16 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.examples.helloworld.GreeterGrpc;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Guice module for wiring sample Service to GJEX runtime
  * @author regu.b
  *
  */
 public class HelloWorldModule extends AbstractModule {
+
+	public AtomicInteger a = new AtomicInteger();
 
 	public HelloWorldModule() {}
 	
@@ -55,5 +60,11 @@ public class HelloWorldModule extends AbstractModule {
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
 		bind(HttpFilterParams.class).annotatedWith(Names.named("ExampleHttpFilterParams"))
 				.toInstance(new HttpFilterParams(new ExampleHttpFilter(), "/*"));
+		bind(HttpFilterParams.class).annotatedWith(Names.named("AccessLogHttpFilter1"))
+				.toInstance(new HttpFilterParams(new AccessLogHttpFilter(), "/*"));
+		bind(HttpFilterParams.class).annotatedWith(Names.named("AccessLogHttpFilter2"))
+				.toInstance(new HttpFilterParams(new AccessLogHttpFilter(a.getAndIncrement()), "/*"));
+		bind(HttpFilterParams.class).annotatedWith(Names.named("AccessLogHttpFilter3"))
+				.toInstance(new HttpFilterParams(new AccessLogHttpFilter(a.getAndIncrement()), "/*"));
 	}
 }

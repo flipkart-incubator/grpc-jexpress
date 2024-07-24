@@ -21,7 +21,6 @@ public class ExampleHttpFilter extends AccessLogHttpFilter {
 
   @Override
   public void doProcessResponse(ServletResponse response) {
-    super.doProcessResponse(response);
     logger.info("example filter: " + this.hashCode());
 //    if (logger.isInfoEnabled()){
 //      HttpServletRequest httpServletRequest = (HttpServletRequest) request;
