@@ -21,7 +21,6 @@ import com.flipkart.grpc.jexpress.GetResponse;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.ResponseParams;
 
 import javax.inject.Named;
 
@@ -37,8 +36,8 @@ public class GetLoggingFilter<GetRequest extends GeneratedMessageV3,
     }
 
     @Override
-    public void doProcessRequest(RequestParams<GetRequest, Metadata> requestParams) {
-        info("Request: " + requestParams.getRequest());
+    public void doProcessRequest(GetRequest request, RequestParams<Metadata> requestParams) {
+        info("Request: " + request);
     }
 
     @Override
@@ -46,8 +45,8 @@ public class GetLoggingFilter<GetRequest extends GeneratedMessageV3,
     }
 
     @Override
-    public void doProcessResponse(ResponseParams<GetResponse> responseParams) {
-        info("Response: " + responseParams.getResponse());
+    public void doProcessResponse(GetResponse response) {
+        info("Response: " + response);
     }
 
 }
