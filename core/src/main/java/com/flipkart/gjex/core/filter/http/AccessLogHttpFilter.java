@@ -61,15 +61,17 @@ public class AccessLogHttpFilter extends HttpFilter {
    */
   @Override
   public void doProcessResponse(ServletResponse response) {
+    logger.info("access log filter: " + this.hashCode());
     if (logger.isInfoEnabled()) {
       HttpServletRequest httpServletRequest = (HttpServletRequest) request;
       HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-      logger.info("{} {} {} {} {}",
+      logger.info("{} {} {} {} {} {}",
               requestParams.getClientIp(),
               httpServletRequest.getRequestURI(),
               httpServletResponse.getStatus(),
               httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
-              System.currentTimeMillis() - startTime
+              System.currentTimeMillis() - startTime,
+              this.hashCode()
       );
     }
   }
