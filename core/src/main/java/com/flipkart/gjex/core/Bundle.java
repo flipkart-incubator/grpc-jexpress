@@ -59,7 +59,7 @@ public interface Bundle<T extends GJEXConfiguration, U extends Map> {
      * Returns Filter instances loaded by this Bundle
      * @return List containing Filter instances
      */
-	List<GrpcFilter> getFilters();
+	List<GrpcFilter> getGrpcFilters();
     
     /**
      * Returns HealthCheck instances loaded by this Bundle

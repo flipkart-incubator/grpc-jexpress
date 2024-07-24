@@ -89,7 +89,7 @@ task runHelloWorldServer(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.flipkart.gjex.examples.helloworld.HelloWorldApplication'
     args "server", "./src/main/resources/hello_world_config.yml"
-    jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
+//     jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
 }
 
 

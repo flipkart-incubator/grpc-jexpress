@@ -192,7 +192,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	} 
 
 	@Override
-	public List<GrpcFilter> getFilters() {
+	public List<GrpcFilter> getGrpcFilters() {
         Preconditions.checkState(baseInjector != null,
                 "Filter(s) are only available after GuiceBundle.run() is called");
 		return this.grpcFilters;

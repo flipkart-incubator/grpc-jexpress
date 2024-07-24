@@ -228,7 +228,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
         for (Bundle<? super T, ? super U> bundle : bundles) {
             bundle.run(configuration, configMap, environment);
             services.addAll(bundle.getServices());
-            grpcFilters.addAll(bundle.getFilters());
+            grpcFilters.addAll(bundle.getGrpcFilters());
             tracingSamplers.addAll(bundle.getTracingSamplers());
             scheduledJobs.addAll(bundle.getScheduledJobs());
             // Register all HealthChecks with the HealthCheckRegistry
