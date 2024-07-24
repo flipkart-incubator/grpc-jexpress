@@ -8,6 +8,7 @@ import lombok.Data;
  *
  * @author ajay.jalgaonkar
  */
+
 @Data
 public class HttpFilterConfig {
   @JsonProperty("enableAccessLogs")
