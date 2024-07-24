@@ -15,6 +15,7 @@ public class ExampleHttpFilter extends AccessLogHttpFilter {
 
   @Override
   public void doProcessRequest(ServletRequest req, RequestParams<Set<String>> requestParams) {
+    super.doProcessRequest(req, requestParams);
     setStartTime(System.currentTimeMillis());
   }
 
@@ -23,13 +24,12 @@ public class ExampleHttpFilter extends AccessLogHttpFilter {
     if (logger.isInfoEnabled()){
       HttpServletRequest httpServletRequest = (HttpServletRequest) request;
       HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-      logger.info("{} {} {} {} {} {} {}",
+      logger.info("{} {} {} {} {} {}",
           this.getClass().getSimpleName(),
-          httpServletRequest.getHeader(X_FORWARDED_FOR_HEADER),
+          requestParams.getClientIp(),
           httpServletRequest.getRequestURI(),
           httpServletResponse.getStatus(),
           httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
-          request.getRemoteAddr(),
           System.currentTimeMillis()-startTime
       );
     }

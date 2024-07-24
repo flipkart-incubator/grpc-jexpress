@@ -21,11 +21,10 @@ import io.grpc.Metadata;
 
 /**
  * A Filter interface for processing Request, Request-Headers, Response and Response-Headers around gRPC method invocation
- *  
- * @author ajay.jalgaonkar
  *
  * @param <Req> Proto V3 message
  * @param <Res> Proto V3 message
+ * @author ajay.jalgaonkar
  */
 public abstract class GrpcFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3>
 		extends Filter<Req,Res, Metadata> {

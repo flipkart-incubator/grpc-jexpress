@@ -39,7 +39,7 @@ public interface Logging {
         else return logId + msg;
     }
 
-    default Logger getLoggerWithName(String loggerName){
+    default Logger loggerWithName(String loggerName){
         return LoggerFactory.getLogger(loggerName);
     }
 

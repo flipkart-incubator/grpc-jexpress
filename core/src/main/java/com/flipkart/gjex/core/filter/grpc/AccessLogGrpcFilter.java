@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3> extends GrpcFilter<R,S> {
   protected long startTime;
   protected RequestParams<Metadata> requestParams;
-  protected Logger logger = getLoggerWithName("ACCESS-LOG");
+  protected Logger logger = loggerWithName("ACCESS-LOG");
 
   @Override
   public void doProcessRequest(R req, RequestParams<Metadata> requestParamsInput) {
