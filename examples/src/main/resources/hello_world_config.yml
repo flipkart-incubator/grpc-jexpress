@@ -33,4 +33,3 @@ apiProperties:
 
 taskProperties:
     hello.timeout: 200
-
