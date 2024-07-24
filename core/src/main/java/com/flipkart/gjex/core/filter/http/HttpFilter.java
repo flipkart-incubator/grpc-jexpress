@@ -2,7 +2,6 @@ package com.flipkart.gjex.core.filter.http;
 
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.ResponseParams;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -37,22 +36,21 @@ public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse,
     try {
       this.request = requestInput;
       this.response = responseOutput;
-      RequestParams.RequestParamsBuilder<ServletRequest, Set<String>> requestParamsBuilder =
+      RequestParams.RequestParamsBuilder<Set<String>> requestParamsBuilder =
           RequestParams.builder();
-      requestParamsBuilder.request(request);
       if (request instanceof HttpServletRequest){
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         Set<String> headersNames = new HashSet<>(Collections.list(httpServletRequest.getHeaderNames()));
         requestParamsBuilder.metadata(headersNames);
       }
-      doProcessRequest(requestParamsBuilder.build());
+      doProcessRequest(request, requestParamsBuilder.build());
       chain.doFilter(request,response);
     } finally {
       if (response instanceof HttpServletResponse){
         HttpServletResponse httpServletResponse = (HttpServletResponse)response;
         doProcessResponseHeaders(new HashSet<>(httpServletResponse.getHeaderNames()));
       }
-      doProcessResponse(ResponseParams.<ServletResponse>builder().response(response).build());
+      doProcessResponse(response);
     }
   }
 }

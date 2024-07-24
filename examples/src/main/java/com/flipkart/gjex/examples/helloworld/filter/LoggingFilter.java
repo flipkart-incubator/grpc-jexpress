@@ -15,7 +15,6 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
-import com.flipkart.gjex.core.filter.ResponseParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.google.protobuf.GeneratedMessageV3;
@@ -39,8 +38,8 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     }
 
     @Override
-    public void doProcessRequest(RequestParams<Req, Metadata> requestParams) {
-        info("Logging from filter. Request payload is : " + requestParams.getRequest().toString());
+    public void doProcessRequest(Req req, RequestParams<Metadata> requestParams) {
+        info("Logging from filter. Request payload is : " + req.toString());
     }
 
     @Override
@@ -49,7 +48,7 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     }
 
     @Override
-    public void doProcessResponse(ResponseParams<Res> responseParams) {
-        info("Logging from filter. Response payload is : " + responseParams.getResponse().toString());
+    public void doProcessResponse(Res response) {
+        info("Logging from filter. Response payload is : " + response.toString());
     }
 }

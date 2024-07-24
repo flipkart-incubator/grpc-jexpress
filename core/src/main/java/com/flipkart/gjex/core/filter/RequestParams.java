@@ -11,9 +11,8 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class RequestParams<R,M> {
+public class RequestParams<M> {
   String clientIp;
   String resourcePath;
-  R request;
   M metadata;
 }

@@ -17,7 +17,6 @@ package com.flipkart.gjex.grpc.interceptor;
 
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.ResponseParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
@@ -113,7 +112,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void sendMessage(final Res response) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    grpcFilters.forEach(filter -> filter.doProcessResponse(ResponseParams.builder().response(response).build()));
+                    grpcFilters.forEach(filter -> filter.doProcessResponse(response));
                     super.sendMessage(response);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
@@ -152,12 +151,11 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
                     .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
                     .metadata(headers)
-                    .request(request)
                     .build();
                 try {
                     for (GrpcFilter grpcFilter : grpcFilters) {
                         if (grpcFilter != null) {
-                            grpcFilters.forEach(filter -> filter.doProcessRequest(requestParams));
+                            grpcFilters.forEach(filter -> filter.doProcessRequest(request,requestParams));
                             for (Metadata.Key key : grpcFilter.getForwardHeaderKeys()) {
                                 Object value = headers.get(key);
                                 if (value != null) {

@@ -48,7 +48,7 @@ public class AuthFilter extends GrpcFilter<HelloRequest, HelloReply> {
 	}
 
 	@Override
-	public void doProcessRequest(RequestParams<HelloRequest, Metadata> requestParams) throws StatusRuntimeException {
+	public void doProcessRequest(HelloRequest request, RequestParams<Metadata> requestParams) throws StatusRuntimeException {
 		info("Headers found in the request : " + requestParams.getMetadata().toString());
 		this.checkAuth(requestParams.getMetadata());
 	}

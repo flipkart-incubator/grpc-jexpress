@@ -1,7 +1,6 @@
 package com.flipkart.gjex.examples.helloworld.web.httpfilter;
 
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.ResponseParams;
 import com.flipkart.gjex.core.filter.http.AccessLogHttpFilter;
 
 import javax.servlet.FilterConfig;
@@ -15,15 +14,15 @@ import java.util.Set;
 public class ExampleHttpFilter extends AccessLogHttpFilter {
 
   @Override
-  public void doProcessRequest(RequestParams<ServletRequest, Set<String>> requestParams) {
+  public void doProcessRequest(ServletRequest req, RequestParams<Set<String>> requestParams) {
     setStartTime(System.currentTimeMillis());
   }
 
   @Override
-  public void doProcessResponse(ResponseParams<ServletResponse> response) {
+  public void doProcessResponse(ServletResponse response) {
     if (logger.isInfoEnabled()){
       HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-      HttpServletResponse httpServletResponse = (HttpServletResponse) response.getResponse();
+      HttpServletResponse httpServletResponse = (HttpServletResponse) response;
       logger.info("{} {} {} {} {} {} {}",
           this.getClass().getSimpleName(),
           httpServletRequest.getHeader(X_FORWARDED_FOR_HEADER),

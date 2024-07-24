@@ -31,9 +31,10 @@ public abstract class Filter<Req, Res, M> implements Logging {
   /**
    * Call-back to decorate or inspect the Request body/message. This Filter cannot fail processing of the Request body and hence there is no support for indicating failure.
    * This method should be viewed almost like a proxy for the Request body.
-   * @param requestParams the Request body/message
+   * @param req the Request body/message
+   * @param requestParams prams
    */
-  public void doProcessRequest(RequestParams<Req, M> requestParams){}
+  public void doProcessRequest(Req req, RequestParams<M> requestParams){}
 
   /**
    * Call-back to decorate or inspect the Response headers. Implementations may use this method to set additional headers in the response.
@@ -44,7 +45,7 @@ public abstract class Filter<Req, Res, M> implements Logging {
   /**
    * Call-back to decorate or inspect the Response body/message. This Filter cannot fail processing of the Response body and hence there is no support for indicating failure.
    * This method should be viewed almost like a proxy for the Response body.
-   * @param responseParams the Response body/message
+   * @param response the Response body/message
    */
-  public void doProcessResponse(ResponseParams<Res> responseParams) {}
+  public void doProcessResponse(Res response) {}
 }
