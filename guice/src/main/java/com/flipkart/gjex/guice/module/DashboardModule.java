@@ -16,16 +16,24 @@
 
 package com.flipkart.gjex.guice.module;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.Map;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.flipkart.gjex.Constants;
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
+import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.setup.Bootstrap;
+import com.flipkart.gjex.core.tracing.TracingSamplerHolder;
+import com.flipkart.gjex.core.web.DashboardHealthCheckResource;
+import com.flipkart.gjex.core.web.DashboardResource;
+import com.flipkart.gjex.core.web.HealthCheckResource;
 import com.flipkart.gjex.core.web.RotationManagementResource;
+import com.flipkart.gjex.core.web.TracingResource;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import io.dropwizard.metrics5.jetty9.InstrumentedHandler;
+import io.prometheus.metrics.exporter.servlet.javax.PrometheusMetricsServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -37,22 +45,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.mvc.freemarker.FreemarkerMvcFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-import io.dropwizard.metrics5.jetty9.InstrumentedHandler;
-import io.prometheus.metrics.exporter.servlet.javax.PrometheusMetricsServlet;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.flipkart.gjex.Constants;
-import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.logging.Logging;
-import com.flipkart.gjex.core.setup.Bootstrap;
-import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
-import com.flipkart.gjex.core.tracing.TracingSamplerHolder;
-import com.flipkart.gjex.core.web.DashboardResource;
-import com.flipkart.gjex.core.web.HealthCheckResource;
-import com.flipkart.gjex.core.web.TracingResource;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashboard components.
@@ -83,6 +82,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Singleton
 	Server getDashboardJettyServer(@Named("Dashboard.service.port") int port,
 								   @Named("DashboardResourceConfig")ResourceConfig resourceConfig,
+									 @Named("DashboardHealthCheckResourceConfig")ResourceConfig dashboardHealthCheckResourceConfig,
 								   @Named("Dashboard.service.acceptors") int acceptorThreads,
 								   @Named("Dashboard.service.selectors") int selectorThreads,
 								   @Named("Dashboard.service.workers") int maxWorkerThreads,
@@ -113,9 +113,12 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		context.getMimeTypes().addMimeMapping("txt", "text/plain;charset=utf-8");
 		server.setHandler(context);
 
+		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
+		/** Add the Servlet for serving the HealthCheck resource */
+		context.addServlet(new ServletHolder(new ServletContainer(dashboardHealthCheckResourceConfig)), "/healthcheck");
+
 		/** Add the Servlet for serving the Dashboard resource */
-		ServletHolder servlet = new ServletHolder(new ServletContainer(resourceConfig));
-		context.addServlet(servlet, "/admin/*");
+		context.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), "/admin/*");
 
 		/** Add the Hystrix metrics stream servlets */
 		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.command.local");
@@ -218,6 +221,16 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(healthCheckResource);
+		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+		return resourceConfig;
+	}
+
+	@Named("DashboardHealthCheckResourceConfig")
+	@Singleton
+	@Provides
+	ResourceConfig getAPIResourceConfig(DashboardHealthCheckResource dashboardHealthCheckResource) {
+		ResourceConfig resourceConfig = new ResourceConfig();
+		resourceConfig.register(dashboardHealthCheckResource);
 		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
 		return resourceConfig;
 	}

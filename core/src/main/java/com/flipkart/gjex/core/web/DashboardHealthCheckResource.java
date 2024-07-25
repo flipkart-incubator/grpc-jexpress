@@ -30,15 +30,15 @@ import javax.ws.rs.core.Response;
 import java.util.SortedMap;
 
 /**
- * Servlet Resource for the HealthCheck API
- * @author regu.b
+ * Servlet Resource for the Dashboard HealthCheck API
+ * @author ajay.jalgaonkar
  *
  */
 
 @Singleton
 @Path("/")
-@Named("HealthCheckResource")
-public class HealthCheckResource {
+@Named("DashboardHealthCheckResource")
+public class DashboardHealthCheckResource {
 
 	@Context
 	private ServletContext servletContext;
