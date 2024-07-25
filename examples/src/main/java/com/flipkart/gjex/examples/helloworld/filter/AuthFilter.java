@@ -17,6 +17,7 @@ package com.flipkart.gjex.examples.helloworld.filter;
 
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.logging.Logging;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -33,7 +34,7 @@ import javax.inject.Named;
  *
  */
 @Named("AuthFilter")
-public class AuthFilter extends GrpcFilter<HelloRequest, HelloReply> {
+public class AuthFilter extends GrpcFilter<HelloRequest, HelloReply> implements Logging {
 
 	/** Fictitious authentication key*/
 	@SuppressWarnings("rawtypes")

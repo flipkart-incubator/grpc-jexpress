@@ -21,12 +21,13 @@ import com.flipkart.grpc.jexpress.GetResponse;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.logging.Logging;
 
 import javax.inject.Named;
 
 @Named("GetLoggingFilter")
 public class GetLoggingFilter<GetRequest extends GeneratedMessageV3,
-    GetResponse extends GeneratedMessageV3> extends GrpcFilter<GetRequest, GetResponse> {
+    GetResponse extends GeneratedMessageV3> extends GrpcFilter<GetRequest, GetResponse> implements Logging {
 
     public GetLoggingFilter(){}
 

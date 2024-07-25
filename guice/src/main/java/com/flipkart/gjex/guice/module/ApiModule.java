@@ -19,6 +19,7 @@ import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.healthcheck.RotationManagementBasedHealthCheck;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Api;
+import com.flipkart.gjex.http.interceptor.HttpFilterInterceptor;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;
@@ -112,8 +113,15 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 			return result;
 		}
 	}
-	
-	/**
+
+	@Named("HttpFilterInterceptor")
+	@Provides
+	@Singleton
+	HttpFilterInterceptor getHttpFilterInterceptor(){
+		return new HttpFilterInterceptor();
+	}
+
+													 /**
 	 * The Matcher that matches methods with the {@link Api} annotation
 	 */
 	class ApiMethodMatcher extends AbstractMatcher<Method> {

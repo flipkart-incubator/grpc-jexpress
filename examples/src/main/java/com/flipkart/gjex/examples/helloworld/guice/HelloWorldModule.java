@@ -16,8 +16,8 @@
 package com.flipkart.gjex.examples.helloworld.guice;
 
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
-import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
+import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 import com.flipkart.gjex.examples.helloworld.service.GreeterService;
@@ -54,6 +54,6 @@ public class HelloWorldModule extends AbstractModule {
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
 		bind(HttpFilterParams.class).annotatedWith(Names.named("ExampleHttpFilterParams"))
-				.toInstance(new HttpFilterParams(new ExampleHttpFilter(), "/*"));
+				.toInstance(HttpFilterParams.builder().filter(new ExampleHttpFilter()).pathSpec("/*").build());
 	}
 }

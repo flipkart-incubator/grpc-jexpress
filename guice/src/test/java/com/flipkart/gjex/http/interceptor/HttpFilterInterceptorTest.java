@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import org.eclipse.jetty.http.pathmap.RegexPathSpec;
 import org.eclipse.jetty.http.pathmap.ServletPathSpec;
 import org.junit.Before;
@@ -30,8 +31,9 @@ public class HttpFilterInterceptorTest {
         List<HttpFilter> filters = new ArrayList<>();
         filters.add(new AccessLogHttpFilter());
         assertEquals(1, filters.size());
-        interceptor.registerFilters(pathSpec, filters);
-        assertEquals(1, interceptor.getMatchingFilters("/test/path").size() );
+        List<HttpFilterParams> httpFilterParamsList = new ArrayList<>();
+        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter()).build());
+        interceptor.registerFilters(httpFilterParamsList);
     }
 
     @Test

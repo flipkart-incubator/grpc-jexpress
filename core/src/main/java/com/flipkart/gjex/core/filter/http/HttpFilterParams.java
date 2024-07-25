@@ -15,9 +15,8 @@
  */
 package com.flipkart.gjex.core.filter.http;
 
+import lombok.Builder;
 import lombok.Data;
-
-import javax.servlet.Filter;
 
 /**
  * Encapsulates the parameters necessary for creating HTTP filters within the GJEX framework.
@@ -33,9 +32,10 @@ import javax.servlet.Filter;
  * @author ajay.jalgaonkar
  */
 @Data
+@Builder
 public class HttpFilterParams {
   // The filter instance to be applied.
-  private final Filter filter;
+  private final HttpFilter filter;
 
   // The URL pattern(s) the filter applies to.
   private final String pathSpec;
