@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.core.filter;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -29,7 +30,11 @@ import lombok.Getter;
  */
 @Getter
 @Builder
+@AllArgsConstructor
 public class RequestParams<M> {
+
+  public RequestParams(){};
+
   // IP address of the client making the request.
   String clientIp;
 
