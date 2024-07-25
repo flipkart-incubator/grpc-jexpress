@@ -6,6 +6,10 @@ import com.flipkart.gjex.core.filter.http.HttpFilter;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Example filter extending {@link com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter}
+ * @author ajay.jalgaonkar
+ */
 public class ExampleHttpFilter extends AccessLogHttpFilter {
 
   @Override
