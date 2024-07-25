@@ -15,16 +15,16 @@ import java.util.stream.Collectors;
 
 @Singleton
 @Named("HttpFilterInterceptor")
-public class HttpFilterInterceptor implements javax.servlet.Filter{
+public class HttpFilterInterceptor implements javax.servlet.Filter {
 
     /**
      * Map of Filter instances mapped to Service and its method
      */
     @SuppressWarnings("rawtypes")
-    private final List<HttpFilter> filtersMap = new ArrayList<>();
+    private final Map<String, List<HttpFilter>> filtersMap = new HashMap<>();
 
-    public void registerFilters(List<HttpFilter> filters) {
-        filtersMap.addAll(filters);
+    public void registerFilters(String pathSpec, List<HttpFilter> filters) {
+        filtersMap.computeIfAbsent(pathSpec, k -> new ArrayList<>()).addAll(filters);
     }
 
     @Override
@@ -47,6 +47,9 @@ public class HttpFilterInterceptor implements javax.servlet.Filter{
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response,
                                FilterChain chain) throws IOException, ServletException {
+
+        //do some matching of path spec.
+        //
         List<HttpFilter> filters = filtersMap.stream().map(HttpFilter::getInstance).toList();
         try {
             RequestParams.RequestParamsBuilder<Set<String>> requestParamsBuilder = RequestParams.builder();
