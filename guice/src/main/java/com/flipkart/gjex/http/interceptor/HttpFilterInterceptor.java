@@ -3,6 +3,11 @@ package com.flipkart.gjex.http.interceptor;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Value;
+import org.eclipse.jetty.http.pathmap.RegexPathSpec;
+import org.eclipse.jetty.http.pathmap.ServletPathSpec;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -17,17 +22,40 @@ import java.util.stream.Collectors;
 @Named("HttpFilterInterceptor")
 public class HttpFilterInterceptor implements javax.servlet.Filter {
 
+
+    private static class RegisteredFilters {
+        ServletPathSpec spec;
+        List<HttpFilter> filters;
+
+        public RegisteredFilters(ServletPathSpec spec, List<HttpFilter> filters) {
+            this.spec = spec;
+            this.filters = filters;
+        }
+    }
+
     /**
      * Map of Filter instances mapped to Service and its method
      */
     @SuppressWarnings("rawtypes")
-    private final Map<String, List<HttpFilter>> filtersMap = new HashMap<>();
+    private final Map<String, RegisteredFilters> filtersMap = new HashMap<>();
 
     public void registerFilters(String pathSpec, List<HttpFilter> filters) {
-        filtersMap.computeIfAbsent(pathSpec, k -> new ArrayList<>()).addAll(filters);
+        filtersMap.computeIfAbsent(pathSpec, k -> {
+            ServletPathSpec spec = new ServletPathSpec(pathSpec);
+            return new RegisteredFilters(spec, new ArrayList<>());
+        }).filters.addAll(filters);
     }
 
-    @Override
+    public List<HttpFilter> getMatchingFilters(String path) {
+        List<HttpFilter> collect = filtersMap.values().stream()
+                .filter(registeredFilters -> registeredFilters.spec.matches(path))
+                .map(t -> t.filters)
+                .flatMap(List::stream)
+                .map(HttpFilter::getInstance)
+                .collect(Collectors.toList());
+        return collect;
+    }
+
     public void init(FilterConfig filterConfig) throws ServletException {
 
     }
@@ -48,13 +76,13 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
     public final void doFilter(ServletRequest request, ServletResponse response,
                                FilterChain chain) throws IOException, ServletException {
 
-        //do some matching of path spec.
-        //
-        List<HttpFilter> filters = filtersMap.stream().map(HttpFilter::getInstance).toList();
+        List<HttpFilter> filters = new ArrayList<>();
+        RequestParams.RequestParamsBuilder<Set<String>> requestParamsBuilder = RequestParams.builder();
         try {
-            RequestParams.RequestParamsBuilder<Set<String>> requestParamsBuilder = RequestParams.builder();
             if (request instanceof HttpServletRequest){
                 HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+                filters = getMatchingFilters(httpServletRequest.getRequestURI());
+
                 Set<String> headersNames = new HashSet<>(Collections.list(httpServletRequest.getHeaderNames()));
                 requestParamsBuilder.metadata(headersNames);
                 requestParamsBuilder.clientIp(getClientIp(request));

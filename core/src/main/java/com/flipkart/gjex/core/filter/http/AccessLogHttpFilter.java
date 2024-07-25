@@ -41,6 +41,10 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
   // HTTP header name for content length.
   protected static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
+
+  public AccessLogHttpFilter() {
+  }
+
   @Override
   public HttpFilter getInstance() {
     return new AccessLogHttpFilter();
