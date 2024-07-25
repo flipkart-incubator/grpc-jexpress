@@ -78,7 +78,7 @@ public class ApiServer extends AbstractService implements Logging {
 			httpFilterParamsList.add(0, HttpFilterParams.builder().filter(new AccessLogHttpFilter()).pathSpec("/*").build());
 		}
 	}
-	
+
 	@Override
 	public void doStart() throws Exception {
 		this.resourceRegistrar.registerResources(this.resourceConfigs); // register any custom web resources added by the GJEX application
