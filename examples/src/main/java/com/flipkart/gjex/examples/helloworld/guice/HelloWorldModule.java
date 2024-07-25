@@ -16,9 +16,8 @@
 package com.flipkart.gjex.examples.helloworld.guice;
 
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
-import com.flipkart.gjex.core.filter.http.AccessLogHttpFilter;
-import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.tracing.TracingSampler;
+import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 import com.flipkart.gjex.examples.helloworld.service.GreeterService;

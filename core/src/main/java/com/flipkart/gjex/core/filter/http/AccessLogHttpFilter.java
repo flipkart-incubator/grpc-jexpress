@@ -1,12 +1,10 @@
 package com.flipkart.gjex.core.filter.http;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.gjex.core.GJEXObjectMapper;
 import com.flipkart.gjex.core.filter.RequestParams;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
-import org.slf4j.MDC;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -28,10 +26,14 @@ import java.util.Set;
  * @author ajay.jalgaonkar
  */
 public class AccessLogHttpFilter extends HttpFilter {
-  private final String UUID = java.util.UUID.randomUUID().toString();
-  private static final String START_TIME = "START_TIME";
-  private static final String REQUEST_PARAMS = "REQUEST_PARAMS";
-  private static final ObjectMapper objectMapper = GJEXObjectMapper.newObjectMapper();
+
+  // Time when the request processing started.
+  @Getter
+  @Setter
+  protected long startTime;
+
+  // Parameters of the request being processed.
+  protected RequestParams<Set<String>> requestParams;
 
   // Logger instance for logging access log messages.
   protected Logger logger = loggerWithName("ACCESS-LOG");
@@ -47,8 +49,8 @@ public class AccessLogHttpFilter extends HttpFilter {
    */
   @Override
   public void doProcessRequest(ServletRequest req, RequestParams<Set<String>> requestParamsInput) {
-    setStartTime(System.currentTimeMillis());
-    setRequestParams(requestParamsInput);
+    startTime = System.currentTimeMillis();
+    requestParams = requestParamsInput;
   }
 
   /**
@@ -63,13 +65,12 @@ public class AccessLogHttpFilter extends HttpFilter {
       HttpServletRequest httpServletRequest = (HttpServletRequest) request;
       HttpServletResponse httpServletResponse = (HttpServletResponse) response;
       logger.info("{} {} {} {} {}",
-            getRequestParams().getClientIp(),
-            httpServletRequest.getRequestURI(),
-            httpServletResponse.getStatus(),
-            httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
-            System.currentTimeMillis() - getStartTime()
+              requestParams.getClientIp(),
+              httpServletRequest.getRequestURI(),
+              httpServletResponse.getStatus(),
+              httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
+              System.currentTimeMillis() - startTime
       );
-      clearMDC();
     }
   }
 
@@ -83,38 +84,5 @@ public class AccessLogHttpFilter extends HttpFilter {
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {}
 
-  protected long getStartTime() {
-    return Long.parseLong(MDC.get(UUID + START_TIME));
-  }
 
-  protected void setStartTime(long startTime) {
-    MDC.put(UUID + START_TIME, String.valueOf(startTime));
-  }
-
-  protected RequestParams<Set<String>> getRequestParams() {
-    String requestParams = MDC.get(UUID + REQUEST_PARAMS);
-    if (requestParams != null){
-      try {
-        return objectMapper.readValue(requestParams, new TypeReference<RequestParams<Set<String>>>() {});
-      } catch (JsonProcessingException e) {
-        error("unable to deserialize requestParams: " + requestParams);
-        throw new RuntimeException(e);
-      }
-    }
-    return null;
-  }
-
-  protected void setRequestParams(RequestParams<Set<String>> requestParams) {
-    try {
-      MDC.put(UUID + REQUEST_PARAMS, objectMapper.writeValueAsString(requestParams));
-    } catch (JsonProcessingException e) {
-      error("unable to serialize requestParams: " + requestParams);
-      throw new RuntimeException(e);
-    }
-  }
-
-  protected void clearMDC(){
-    MDC.remove(UUID + START_TIME);
-    MDC.remove(UUID + REQUEST_PARAMS);
-  }
 }
