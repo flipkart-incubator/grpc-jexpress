@@ -74,7 +74,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
                     List<GrpcFilter> filtersForMethod = new ArrayList<>();
-                    applyGrpcFilterConfig(grpcFilterConfig, filtersForMethod);
+                    configureAccessLog(grpcFilterConfig, filtersForMethod);
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
@@ -214,8 +214,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    private void applyGrpcFilterConfig(GrpcFilterConfig grpcFilterConfig,
-                                       @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
+    private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,
+                                    @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
         if (grpcFilterConfig.isEnableAccessLogs()){
             filtersForMethod.add(new AccessLogGrpcFilter<>());
         }
