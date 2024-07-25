@@ -16,6 +16,7 @@
 package com.flipkart.gjex.core.filter.grpc;
 
 import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 import lombok.Getter;
@@ -35,7 +36,8 @@ import org.slf4j.Logger;
  * @param <S> The response type extending {@link GeneratedMessageV3}, representing the gRPC response message.
  * @author ajay.jalgaonkar
  */
-public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3> extends GrpcFilter<R,S> {
+public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
+        extends GrpcFilter<R,S> implements Logging {
 
   // The start time of the request processing.
   @Getter
@@ -46,7 +48,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
   protected RequestParams<Metadata> requestParams;
 
   // Logger instance for logging access log messages.
-  protected Logger logger = loggerWithName("ACCESS-LOG");
+  protected static Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
   /**
    * Processes the incoming gRPC request by initializing the start time and storing the request parameters.

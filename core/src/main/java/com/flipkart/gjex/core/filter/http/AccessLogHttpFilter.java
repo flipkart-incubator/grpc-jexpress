@@ -1,6 +1,7 @@
 package com.flipkart.gjex.core.filter.http;
 
 import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.logging.Logging;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,21 +26,25 @@ import java.util.Set;
  *
  * @author ajay.jalgaonkar
  */
-public class AccessLogHttpFilter extends HttpFilter {
+public class AccessLogHttpFilter extends HttpFilter implements Logging {
 
   // Time when the request processing started.
-  @Getter
-  @Setter
   protected long startTime;
 
   // Parameters of the request being processed.
   protected RequestParams<Set<String>> requestParams;
 
+
   // Logger instance for logging access log messages.
-  protected Logger logger = loggerWithName("ACCESS-LOG");
+  protected static Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
   // HTTP header name for content length.
   protected static final String CONTENT_LENGTH_HEADER = "Content-Length";
+
+  @Override
+  public HttpFilter getInstance() {
+    return new AccessLogHttpFilter();
+  }
 
   /**
    * Processes the incoming request by initializing the start time and storing the request parameters.
@@ -62,27 +67,15 @@ public class AccessLogHttpFilter extends HttpFilter {
   @Override
   public void doProcessResponse(ServletResponse response) {
     if (logger.isInfoEnabled()) {
-      HttpServletRequest httpServletRequest = (HttpServletRequest) request;
       HttpServletResponse httpServletResponse = (HttpServletResponse) response;
       logger.info("{} {} {} {} {}",
               requestParams.getClientIp(),
-              httpServletRequest.getRequestURI(),
+              requestParams.getResourcePath(),
               httpServletResponse.getStatus(),
               httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
               System.currentTimeMillis() - startTime
       );
     }
   }
-
-  /**
-   * Initializes the filter with the given filter configuration. This method is a placeholder
-   * and does not perform any initialization logic in the current implementation.
-   *
-   * @param filterConfig The filter configuration provided by the servlet container.
-   * @throws ServletException if an error occurs during initialization.
-   */
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {}
-
 
 }
