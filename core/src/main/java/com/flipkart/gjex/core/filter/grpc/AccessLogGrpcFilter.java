@@ -34,6 +34,7 @@ import org.slf4j.Logger;
  *
  * @param <R> The request type extending {@link GeneratedMessageV3}, representing the gRPC request message.
  * @param <S> The response type extending {@link GeneratedMessageV3}, representing the gRPC response message.
+ *
  * @author ajay.jalgaonkar
  */
 public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
