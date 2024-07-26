@@ -3,7 +3,6 @@ package com.flipkart.gjex.http.interceptor;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
-import com.google.common.annotations.VisibleForTesting;
 import org.eclipse.jetty.http.pathmap.ServletPathSpec;
 
 import javax.inject.Named;
