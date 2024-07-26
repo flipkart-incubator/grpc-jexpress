@@ -22,19 +22,19 @@ import javax.inject.Singleton;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
- * ResourceConfig example for registering all custom web resources for a GJEX application. 
+ * ResourceConfig example for registering all custom web resources for a GJEX application.
  * @author regu.b
  *
  */
 @Singleton
 @Named("HelloWorldResourceConfig")
 public class HelloWorldResourceConfig extends ResourceConfig {
-	
+
 	@Inject
-	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1, 
+	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1,
 			HelloWorldResource2 helloWorldresource2) {
 		register(helloWorldresource1);
 		register(helloWorldresource2);
 	}
-	
+
 }

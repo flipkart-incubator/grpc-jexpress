@@ -38,20 +38,20 @@ import java.lang.reflect.Method;
  *
  */
 public class TaskModule<T> extends AbstractModule implements Logging {
-	
+
 	@Override
     protected void configure() {
 		TaskMethodInterceptor methodInterceptor = new TaskMethodInterceptor();
 		requestInjection(methodInterceptor);
 		bindInterceptor(Matchers.any(), new TaskMethodMatcher(), methodInterceptor);
 	}
-	
+
 	class TaskMethodInterceptor implements MethodInterceptor {
-		
+
 		@Inject
 		@Named("GlobalFlattenedConfig")
 		private Provider<Configuration> globalConfigurationProvider;
-		
+
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			ConcurrentTask task = invocation.getMethod().getAnnotation(ConcurrentTask.class);
@@ -75,7 +75,7 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 					invocation.getMethod().getName(), concurrency, timeout, task.withRequestHedging()),task.completion()) ; // we return the FutureDecorator and not wait for its completion. This enables responses to be composed in a reactive manner
 		}
 	}
-	
+
 	/**
 	 * The Matcher that matches methods with the {@link ConcurrentTask} annotation
 	 */
@@ -92,5 +92,5 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 	        }
 	        return matches;
 	    }
-	}	
+	}
 }

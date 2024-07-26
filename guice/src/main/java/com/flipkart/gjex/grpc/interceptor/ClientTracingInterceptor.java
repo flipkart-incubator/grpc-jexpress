@@ -40,12 +40,12 @@ import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 
-/** 
+/**
  * An intercepter that applies tracing via OpenTracing to all client requests, if a Trace is active.
- * Inspired by https://github.com/grpc-ecosystem/grpc-opentracing/blob/master/java/src/main/java/io/opentracing/contrib/ClientTracingInterceptor.java 
- */ 
+ * Inspired by https://github.com/grpc-ecosystem/grpc-opentracing/blob/master/java/src/main/java/io/opentracing/contrib/ClientTracingInterceptor.java
+ */
 public class ClientTracingInterceptor implements ClientInterceptor {
-    
+
     private final Tracer tracer;
     private final OperationNameConstructor operationNameConstructor;
     private final ActiveSpanSource activeSpanSource;
@@ -63,7 +63,7 @@ public class ClientTracingInterceptor implements ClientInterceptor {
      * Use this intercepter to trace requests made by this client channel.
      * @param channel to be traced
      * @return intercepted channel
-     */ 
+     */
     public Channel intercept(Channel channel) {
         return ClientInterceptors.intercept(channel, this);
     }
@@ -75,15 +75,15 @@ public class ClientTracingInterceptor implements ClientInterceptor {
         Span activeSpan = this.activeSpanSource.getActiveSpan();
         if (activeSpan != null) {
 	    		final String operationName = operationNameConstructor.constructOperationName(method);
-	
+
 	        final Span span = createSpanFromParent(activeSpan, operationName);
-	
+
 	        if (callOptions.getDeadline() == null) {
 	            span.setTag("grpc.deadline_millis", "null");
 	        } else {
 	            span.setTag("grpc.deadline_millis", callOptions.getDeadline().timeRemaining(TimeUnit.MILLISECONDS));
 	        }
-	        
+
 	        return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
 
 				@Override
@@ -130,7 +130,7 @@ public class ClientTracingInterceptor implements ClientInterceptor {
         }
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)){};
     }
-    
+
     private Span createSpanFromParent(Span parentSpan, String operationName) {
         if (parentSpan == null) {
             return tracer.buildSpan(operationName).start();

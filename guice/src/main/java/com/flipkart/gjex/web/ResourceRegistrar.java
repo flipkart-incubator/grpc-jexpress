@@ -32,31 +32,31 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.web.ResourceException;
 
 /**
- * <code>ResourceRegistrar</code> provides ability to wire GJEX application specific web resources to the /api Http1.x end-point 
- * hosted by this GJEX runtime. 
+ * <code>ResourceRegistrar</code> provides ability to wire GJEX application specific web resources to the /api Http1.x end-point
+ * hosted by this GJEX runtime.
  * This ResourceRegistrar may be used by GJEX applications to configure additional control path APIs similar to Health check.
- * 
+ *
  * @author regunath.balasubramanian
  */
 
 @Singleton
 public class ResourceRegistrar implements Logging {
-	
+
 	private final ServletContextHandler context;
 	private final JacksonJaxbJsonProvider jaxbProvider;
-	
+
 	@Inject
 	public ResourceRegistrar(@Named("ApiServletContext")ServletContextHandler context,
 			@Named("JSONMarshallingProvider")JacksonJaxbJsonProvider jaxbProvider) {
 		this.context = context;
 		this.jaxbProvider = jaxbProvider;
 	}
-	 	
+
 	public void registerResources(List<ResourceConfig> resourceConfigs) throws Exception {
 		ResourceConfig uniqueResourceConfig = null;
-		for (ResourceConfig resourceConfig : resourceConfigs) { 
+		for (ResourceConfig resourceConfig : resourceConfigs) {
 			// we check to ensure we are not adding GJEX core application resources again
-			if (resourceConfig.getApplicationName() == null || 
+			if (resourceConfig.getApplicationName() == null ||
 					!resourceConfig.getApplicationName().equalsIgnoreCase(Constants.GJEX_CORE_APPLICATION)) {
 				if (uniqueResourceConfig == null) {
 					uniqueResourceConfig = resourceConfig;

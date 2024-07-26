@@ -16,15 +16,15 @@
 
 	/**
 	 * Object containing functions for displaying and updating the UI with streaming data.
-	 * 
+	 *
 	 * Publish this externally as "HystrixThreadPoolMonitor"
 	 */
 	window.HystrixThreadPoolMonitor = function(containerId) {
-		
+
 		var self = this; // keep scope under control
-		
+
 		this.containerId = containerId;
-		
+
 		/**
 		 * Initialization on construction
 		 */
@@ -33,7 +33,7 @@
 		var maxYaxisForCircle="40%";
 		var maxRadiusForCircle="125";
 		var maxDomain = 2000;
-		
+
 		self.circleRadius = d3.scale.pow().exponent(0.5).domain([0, maxDomain]).range(["5", maxRadiusForCircle]); // requests per second per host
 		self.circleYaxis = d3.scale.linear().domain([0, maxDomain]).range(["30%", maxXaxisForCircle]);
 		self.circleXaxis = d3.scale.linear().domain([0, maxDomain]).range(["30%", maxYaxisForCircle]);
@@ -43,18 +43,18 @@
 		/**
 		 * We want to keep sorting in the background since data values are always changing, so this will re-sort every X milliseconds
 		 * to maintain whatever sort the user (or default) has chosen.
-		 * 
+		 *
 		 * In other words, sorting only for adds/deletes is not sufficient as all but alphabetical sort are dynamically changing.
 		 */
 		setInterval(function() {
 			// sort since we have added a new one
 			self.sortSameAsLast();
 		}, 1000)
-		
+
 		/**
 		 * END of Initialization on construction
 		 */
-		
+
 		/**
 		 * Event listener to handle new messages from EventSource as streamed from the server.
 		 */
@@ -65,7 +65,7 @@
 				if(!data.reportingHosts) {
 					data.reportingHosts = 1;
 				}
-				
+
 				if(data && data.type == 'HystrixThreadPool') {
 					if (data.deleteData == 'true') {
 						deleteThreadPool(data.name);
@@ -75,10 +75,10 @@
 				}
 			}
 		}
-		
+
 		/**
-		 * Pre process the data before displying in the UI. 
-		 * e.g   Get Averages from sums, do rate calculation etc. 
+		 * Pre process the data before displying in the UI.
+		 * e.g   Get Averages from sums, do rate calculation etc.
 		 */
 		function preProcessData(data) {
 			validateData(data);
@@ -87,13 +87,13 @@
 			// do math
 			converAllAvg(data);
 		}
-		
+
 		function converAllAvg(data) {
 			convertAvg(data, "propertyValue_corePoolSize", false);
 			convertAvg(data, "propertyValue_queueSizeRejectionThreshold", false);
 			convertAvg(data, "rollingThreadExecutions", false);
 		}
-		
+
 		function convertAvg(data, key, decimal) {
 			if (decimal) {
 				data[key] = roundNumber(data[key]/data["reportingHosts"]);
@@ -101,9 +101,9 @@
 				data[key] = Math.floor(data[key]/data["reportingHosts"]);
 			}
 		}
-		
+
 		function validateData(data) {
-			
+
 			assertNotNull(data,"type");
 			assertNotNull(data,"name");
 			// assertNotNull(data,"currentTime");
@@ -122,7 +122,7 @@
             assertNotNull(data,"propertyValue_queueSizeRejectionThreshold");
 			assertNotNull(data,"propertyValue_metricsRollingStatisticalWindowInMilliseconds");
 		}
-		
+
 		function assertNotNull(data, key) {
 			if(data[key] == undefined) {
 				if (key == "dependencyOwner") {
@@ -135,23 +135,23 @@
 
 		/**
 		 * Method to display the THREAD_POOL data
-		 * 
+		 *
 		 * @param data
 		 */
 		/* private */ function displayThreadPool(data) {
-			
+
 			try {
 				preProcessData(data);
 			} catch (err) {
 				log("Failed preProcessData: " + err.message);
 				return;
 			}
-			
+
 			// add the 'addCommas' function to the 'data' object so the HTML templates can use it
 			data.addCommas = addCommas;
 			// add the 'roundNumber' function to the 'data' object so the HTML templates can use it
 			data.roundNumber = roundNumber;
-			
+
 			var addNew = false;
 			// check if we need to create the container
 			if(!$('#THREAD_POOL_' + data.name).length) {
@@ -165,40 +165,40 @@
 				$('#' + containerId + '').append(html);
 				// add the 'last' class to the column we just added
 				$('#' + containerId + ' div.monitor').last().addClass('last');
-				
+
 				// add the default sparkline graph
 				d3.selectAll('#graph_THREAD_POOL_' + data.name + ' svg').append("svg:path");
-				
+
 				// remember this is new so we can trigger a sort after setting data
 				addNew = true;
 			}
-			
+
 			var ratePerSecondPerHost = roundNumber(data.rollingCountThreadsExecuted/data.reportingHosts);
-			
+
 			data.ratePerSecond = data.rollingCountThreadsExecuted;
 			data.ratePerSecondPerHost = ratePerSecondPerHost;
-			
+
 			// set the rate on the div element so it's available for sorting
 			$('#THREAD_POOL_' + data.name).attr('rate_value', data.ratePerSecondPerHost);
-			
+
 			// now update/insert the data
 			$('#THREAD_POOL_' + data.name + ' div.monitor_data').html(tmpl(htmlTemplate, data));
 
-			
+
 			// set variables for circle visualization
 			var rate = ratePerSecondPerHost;
 			// we will treat each item in queue as 1% of an error visualization
 			// ie. 5 threads in queue per instance == 5% error percentage
-			var errorPercentage = data.currentQueueSize / data.reportingHosts; 
-			
+			var errorPercentage = data.currentQueueSize / data.reportingHosts;
+
 			updateCircle('#THREAD_POOL_' + data.name + ' circle', rate, errorPercentage);
-			
+
 			if(addNew) {
 				// sort since we added a new circuit
 				self.sortSameAsLast();
 			}
 		}
-		
+
 		/* round a number to X digits: num => the number to round, dec => the number of decimals */
 		/* private */ function roundNumber(num) {
 			var dec=1; // we are hardcoding to support only 1 decimal so that our padding logic at the end is simple
@@ -212,8 +212,8 @@
 			}
 			return resultAsString;
 		};
-		
-		
+
+
 		/* private */ function updateCircle(cssTarget, rate, errorPercentage) {
 			var newXaxisForCircle = self.circleXaxis(rate);
 			if(parseInt(newXaxisForCircle) > parseInt(maxXaxisForCircle)) {
@@ -227,7 +227,7 @@
 			if(parseInt(newRadiusForCircle) > parseInt(maxRadiusForCircle)) {
 				newRadiusForCircle = maxRadiusForCircle;
 			}
-			
+
 			d3.selectAll(cssTarget)
 				.transition()
 				.duration(400)
@@ -236,11 +236,11 @@
 				.attr("r", newRadiusForCircle)
 				.style("fill", self.colorRange(errorPercentage));
 		}
-		
+
 		/* private */ function deleteThreadPool(circuitName) {
 			$('#THREAD_POOL_' + circuitName).remove();
 		}
-		
+
 	}
 
 	// public methods for sorting
@@ -308,7 +308,7 @@
 			this.sortByMetricInDirection('asc', 'pMedian');
 		} else if(this.sortedBy == 'latMedian_desc') {
 			this.sortByMetricInDirection('desc', 'pMedian');
-		}  
+		}
 	}
 
 	// default sort type and direction

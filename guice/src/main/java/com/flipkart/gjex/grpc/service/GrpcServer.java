@@ -42,7 +42,7 @@ import java.util.concurrent.Executors;
 
 /**
  * <code>GrpcServer</code> is a {@link Service} implementation that manages the GJEX Grpc Server instance lifecycle
- * 
+ *
  * @author regunath.balasubramanian
  */
 
@@ -59,12 +59,12 @@ public class GrpcServer extends AbstractService implements Logging {
 	/** The core Grpc Server instance and its builder*/
 	private ServerBuilder<?> grpcServerBuilder;
 	private Server grpcServer;
-	
+
 	/** The ServerInterceptors*/
 	private FilterInterceptor filterInterceptor;
 	private TracingInterceptor tracingInterceptor;
 	private StatusMetricInterceptor statusMetricInterceptor;
-	
+
 	@Inject
 	public GrpcServer(GJEXConfiguration configuration,
 					  @Named("FilterInterceptor") FilterInterceptor filterInterceptor,
@@ -93,7 +93,7 @@ public class GrpcServer extends AbstractService implements Logging {
 		this.tracingInterceptor = tracingInterceptor;
 		this.statusMetricInterceptor = statusMetricInterceptor;
 	}
-	
+
 	@Override
 	public void doStart() throws Exception {
 		this.grpcServer = this.grpcServerBuilder.addService(ProtoReflectionService.newInstance()).build().start();
@@ -116,7 +116,7 @@ public class GrpcServer extends AbstractService implements Logging {
 	public void registerFilters(@SuppressWarnings("rawtypes") List<GrpcFilter> grpcFilters, List<BindableService> services, GrpcFilterConfig grpcFilterConfig) {
 		this.filterInterceptor.registerFilters(grpcFilters, services, grpcFilterConfig);
 	}
-	
+
 	public void registerTracingSamplers(List<TracingSampler> samplers, List<BindableService> services) {
 		this.tracingInterceptor.registerTracingSamplers(samplers, services);
 	}

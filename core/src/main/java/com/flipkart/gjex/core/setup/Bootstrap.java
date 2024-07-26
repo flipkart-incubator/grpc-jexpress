@@ -78,7 +78,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 
 	/** List of initialized Filter instances*/
 	private List<GrpcFilter> grpcFilters;
-	
+
 	/** List of initialized ConfigurableTracingSampler instances*/
 	private List<TracingSampler> tracingSamplers;
 
@@ -87,7 +87,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 
 	/** The HealthCheckRegistry*/
 	private HealthCheckRegistry healthCheckRegistry;
-	
+
 	public Bootstrap(Application<T, U> application, String configPath, Class<T> configurationClass) {
 		this.configurationClass = configurationClass;
 		this.configPath = configPath;
@@ -101,7 +101,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		this.validatorFactory = Validation.buildDefaultValidatorFactory();
 		this.initializeConfig();
 	}
-	
+
 	/**
 	 * Gets the bootstrap's Application
 	 */
@@ -122,7 +122,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
-    
+
     /**
      * Adds the given bundle to the bootstrap.
      *
@@ -158,7 +158,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	public List<GrpcFilter> getFilters() {
 		return grpcFilters;
 	}
-	
+
 	public List<TracingSampler> getTracingSamplers() {
 		return tracingSamplers;
 	}
@@ -253,10 +253,10 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 		registerServicesForShutdown();
     }
 
-    public HealthCheckRegistry getHealthCheckRegistry() {		
+    public HealthCheckRegistry getHealthCheckRegistry() {
 		return this.healthCheckRegistry;
-	} 
-        
+	}
+
     private void registerServicesForShutdown() throws Exception {
 	    	Runtime.getRuntime().addShutdownHook(new Thread() {
 	    		@Override
@@ -267,7 +267,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
 	    			grpcFilters.forEach(GrpcFilter::destroy);
 	    			System.out.println("*** Server shut down");
 	    		}
-	    	});    		
+	    	});
     }
 
     private void initializeConfig() {

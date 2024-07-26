@@ -49,5 +49,5 @@ public class AppMetricsRegistry {
         metricRegistry.register("jvm.memory", new MemoryUsageGaugeSet());
         metricRegistry.register("jvm.threads", new ThreadStatesGaugeSet());
     }
-    
+
 }

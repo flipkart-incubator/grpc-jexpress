@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class ApiModule<T> extends AbstractModule implements Logging {
-	
+
 	@Override
     protected void configure() {
 		ApiMethodInterceptor methodInterceptor = new ApiMethodInterceptor();
@@ -55,24 +55,24 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 		bindInterceptor(Matchers.any(), new ApiMethodMatcher(), methodInterceptor);
 		bind(HealthCheck.class).to(RotationManagementBasedHealthCheck.class);
 	}
-	
+
 	@Named("ApiScheduledExecutor")
 	@Provides
 	@Singleton
 	ScheduledExecutorService getScheduledExecutorService(GJEXConfiguration configuration) {
 		return Executors.newScheduledThreadPool(configuration.getApiService().getScheduledExecutorThreadPoolSize());
 	}
-	
+
 	class ApiMethodInterceptor implements MethodInterceptor {
-		
+
 		@Inject
 		@Named("GlobalFlattenedConfig")
 		private Provider<Configuration> globalConfigurationProvider;
-		
+
 		@Inject
 		@Named("ApiScheduledExecutor")
 		private Provider<ScheduledExecutorService> scheduledExecutorServiceProvider;
-		
+
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			Context.CancellableContext cancellableContext = null;
@@ -82,11 +82,11 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 			 * We explicitly set the deadline only when it is specified on the stub method AND there is none specified by the client.
 			 * Client deadline wins over any server specified deadline
 			 */
-			if (api != null) { 
+			if (api != null) {
 				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
 				// check and warn if Api is used for non BindableService classes
 				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass())) {
-					warn("Api declarations are interpreted only for sub-types of gRPC BindableService. Api declared for : " 
+					warn("Api declarations are interpreted only for sub-types of gRPC BindableService. Api declared for : "
 							+ methodInvoked + " will not be interpreted/honored");
 				}
 				int deadline = 0;
@@ -137,5 +137,5 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 	        }
 	        return matches;
 	    }
-	}	
+	}
 }

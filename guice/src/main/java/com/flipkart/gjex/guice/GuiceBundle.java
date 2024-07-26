@@ -57,7 +57,7 @@ import java.util.Optional;
 
 /**
  * A Guice GJEX Bundle implementation. Multiple Guice Modules may be added to this Bundle.
- * 
+ *
  * @author regu.b
  *
  */
@@ -105,7 +105,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
         this.modules = modules;
         this.configurationClass = configurationClass;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(Bootstrap<?, ?> bootstrap) {
@@ -168,7 +168,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		services = getInstances(baseInjector, Service.class);
 		// Lookup all HealthCheck implementations
 		healthchecks = getInstances(baseInjector, HealthCheck.class);
-		
+
 		ApiServer apiServer = baseInjector.getInstance(ApiServer.class);
 		// Add all custom web resources
 		resourceConfigs = getInstances(baseInjector, ResourceConfig.class);
@@ -185,25 +185,25 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	}
 
 	@Override
-	public List<Service> getServices() {		
+	public List<Service> getServices() {
         Preconditions.checkState(baseInjector != null,
                 "Service(s) are only available after GuiceBundle.run() is called");
 		return this.services;
-	} 
+	}
 
 	@Override
 	public List<GrpcFilter> getGrpcFilters() {
         Preconditions.checkState(baseInjector != null,
                 "Filter(s) are only available after GuiceBundle.run() is called");
 		return this.grpcFilters;
-	} 
-	
+	}
+
 	@Override
-	public List<HealthCheck> getHealthChecks() {		
+	public List<HealthCheck> getHealthChecks() {
         Preconditions.checkState(baseInjector != null,
                 "HealthCheck(s) are only available after GuiceBundle.run() is called");
 		return this.healthchecks;
-	} 
+	}
 
 	@Override
 	public List<TracingSampler> getTracingSamplers() {
@@ -225,13 +225,13 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
                 "ResourceConfig(s) is only available after GuiceBundle.run() is called");
         return this.resourceConfigs;
 	}
-	
+
 	public Injector getInjector() {
         Preconditions.checkState(baseInjector != null,
                 "Injector is only available after GuiceBundle.initialize() is called");
         return baseInjector;
-    }	
-		
+    }
+
     private <S> List<S> getInstances(Injector injector, Class<S> type) {
         List<S> instances = new ArrayList<S>();
         List<Binding<S>> bindings = injector.findBindingsByType(TypeLiteral.get(type));

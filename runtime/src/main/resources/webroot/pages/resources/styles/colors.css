@@ -3,11 +3,11 @@
 /*
  * COLORS CSS
  *
- * Only css that affects the colors and text decoration of elements 
+ * Only css that affects the colors and text decoration of elements
  * should be included here.
  *
  */
- 
+
 
 /*
  * COMMON STYLES
@@ -64,7 +64,7 @@ h4 {
 /*
  * LINK STYLES
  */
- 
+
   a:link,
   a:visited
   {
@@ -88,7 +88,7 @@ h4 {
 /*
  * MENU STYLES
  */
- 
+
   #primary-left
   {
     color: #edf2ce;
@@ -128,58 +128,58 @@ h4 {
   {
     font-weight: bold;
   }
-  
-  
+
+
 /*
  * CONTAINER STYLES
- */  
- 
+ */
+
   #container
   {
     background:#fff;
   }
-  
-  
+
+
 /*
  * TABLE STYLES
- */    
- 
- table 
+ */
+
+ table
  {
  	color:#666;
  }
- 
+
  .bordered-table
  {
  	border:1px solid #b8c885;
  }
- 
- th 
+
+ th
  {
  	color:#333;
  }
- 
+
  .bordered-table th
  {
  	border-bottom: 1px solid #b8c885;
  }
- 
+
  .sublevel1-odd {
  	background:#f8faf0;
  }
- 
+
  .sublevel1-even {
  	background:#fff;
  }
- 
+
  .name-sublevel1-odd {
  	background:#f8faf0;
  }
- 
+
  .name-sublevel1-even {
  	background:#fff;
- } 
-   
+ }
+
 
 /*
  * FOOTER STYLES

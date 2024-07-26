@@ -24,7 +24,7 @@ import io.opentracing.SpanContext;
 
 /**
  * Code ported from {@linkplain https://github.com/opentracing-contrib/java-grpc/blob/master/src/main/java/io/opentracing/contrib/grpc/OpenTracingContextKey.java}
- * 
+ *
  * Supports storing and propagating useful per-execution data such as current OpenTracing trace state using the gRPC {@link io.grpc.Context}
  *
  */
@@ -35,12 +35,12 @@ public class GJEXContext {
 	public static final String KEY_CONTEXT_NAME = "io.opentracing.active-span-context";
 	public static final String KEY_TRACING_SAMPLER_NAME = "io.opentracing.active-tracing-sampler";
 	public static final String KEY_HEADERS_NAME = "com.flipkart.gjex.headers";
-	
+
 	private static final Context.Key<Span> KEY_ROOT_SPAN = Context.key(KEY_ROOT_SPAN_NAME);
 	private static final Context.Key<Span> KEY_ACTIVE_SPAN = Context.key(KEY_ACTIVE_SPAN_NAME);
 	private static final Context.Key<SpanContext> KEY_CONTEXT = Context.key(KEY_CONTEXT_NAME);
-	private static final Context.Key<TracingSampler> KEY_TRACING_SAMPLER = Context.key(KEY_TRACING_SAMPLER_NAME);	
-	private static final Context.Key<Metadata> KEY_HEADERS = Context.key(KEY_HEADERS_NAME);	
+	private static final Context.Key<TracingSampler> KEY_TRACING_SAMPLER = Context.key(KEY_TRACING_SAMPLER_NAME);
+	private static final Context.Key<Metadata> KEY_HEADERS = Context.key(KEY_HEADERS_NAME);
 
 	/**
 	 * @return the OpenTracing context key for Root span
@@ -96,5 +96,5 @@ public class GJEXContext {
 	public static Metadata activeHeaders() {
 		return KEY_HEADERS.get();
 	}
-	
+
 }

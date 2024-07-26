@@ -21,7 +21,7 @@ repositories {
 def jexpressVersion = '1.40-SNAPSHOT'
 def grpcVersion = '1.60.0'
 def protobufVersion = '3.25.2'
-def protocVersion = protobufVersion 
+def protocVersion = protobufVersion
 
 dependencies {
     //For Development

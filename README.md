@@ -27,7 +27,7 @@ Provides following features:
 Changelog can be viewed in [CHANGELOG.md](https://github.com/flipkart-incubator/grpc-jexpress/blob/master/CHANGELOG.md) file
 
 ## Distribution
-GJEX builds are distributed via the [Clojars](https://clojars.org/) community maintained repository for open source libraries. 
+GJEX builds are distributed via the [Clojars](https://clojars.org/) community maintained repository for open source libraries.
 Add the following repository to your build system to access releases builds - e.g for Maven :
 
 ```xml
@@ -66,4 +66,4 @@ $ ./gradlew runHelloWorldClient
 ```
 
 ## Documentation
-Refer to the [wiki](https://github.com/flipkart-incubator/grpc-jexpress/wiki) for documentation. 
+Refer to the [wiki](https://github.com/flipkart-incubator/grpc-jexpress/wiki) for documentation.

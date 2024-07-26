@@ -32,14 +32,14 @@ import io.grpc.health.v1.HealthGrpc;
 
 /**
  * <code>ServerModule</code> is a Guice {@link AbstractModule} implementation used for configuring the Grpc Server and Dashboard server.
- * 
+ *
  * @author regunath.balasubramanian
  *
  */
 public class ServerModule extends AbstractModule {
 
 	@Override
-    protected void configure() {		
+    protected void configure() {
 		bind(FilterInterceptor.class).annotatedWith(Names.named("FilterInterceptor")).to(FilterInterceptor.class);
 		bind(TracingInterceptor.class).annotatedWith(Names.named("TracingInterceptor")).to(TracingInterceptor.class);
 		bind(StatusMetricInterceptor.class).annotatedWith(Names.named("StatusMetricInterceptor")).to(StatusMetricInterceptor.class);

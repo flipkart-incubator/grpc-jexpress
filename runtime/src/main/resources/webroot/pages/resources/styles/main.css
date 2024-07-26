@@ -23,7 +23,7 @@
     margin:8px;
   }
 
-  
+
 
 
 /*
@@ -116,7 +116,7 @@ h4 {
     position:relative;
     margin: 0px 0 0 0;
   }
-  
+
   #primary-left
   {
     background-repeat:no-repeat;
@@ -128,7 +128,7 @@ h4 {
     position:relative;
     float:left;
   }
-  
+
   #primary-right
   {
   	background-image: url(../images/primary-wrapper-right.png);
@@ -148,7 +148,7 @@ h4 {
     margin: 0;
     list-style: none;
   }
-  
+
   #primary-left li, #primary-right li
   {
     display:inline;
@@ -194,49 +194,49 @@ h4 {
     text-decoration: none;
     padding: 6px 5px;
   }
-  
+
   #secondary-navigation ul ul
   {
     margin: 0;
     padding: 0 0 0 12px;
     list-style: none;
   }
- 
-  #content 
+
+  #content
   {
   	display:block;
   	margin:10px 0;
   	padding-bottom:20px;
   }
- 
-  #content.no-side-nav 
+
+  #content.no-side-nav
   {
   	margin-left: 19px;
   }
-  
+
 /*
  * CONTAINER STYLES
- */  
- 
+ */
+
   #container
   {
     margin: 0;
     padding-bottom:20px;
     overflow:hidden;
   }
-  
+
 /*
  * TABLE STYLES
- */    
- 
- table 
+ */
+
+ table
  {
  	border-spacing:0;
  	margin:0;
  	border-collapse:collapse;
  }
- 
- th 
+
+ th
  {
  	height:19px;
  	text-align:left;
@@ -245,7 +245,7 @@ h4 {
  	padding:3px 6px 0 6px;
  	line-height:19px;
  }
- 
+
  .bordered-table th
  {
  	background-image: url(../images/table-header-background.png);
@@ -261,36 +261,36 @@ h4 {
  	vertical-align:top;
  	border-bottom: 1px
  }
- 
+
  th.table-meta-data
  {
  	text-align: right;
  	vertical-align: center;
  }
- 
-.name-sublevel1-odd 
+
+.name-sublevel1-odd
  {
  	padding-left:20px;
  	font-weight:bold;
  }
- 
- .name-sublevel1-even 
+
+ .name-sublevel1-even
   {
  	padding-left:20px;
  	font-weight:bold;
- } 
- 
+ }
+
  .two-tables
  {
  	width:100%;
  }
- 
+
  .two-tables .left
  {
  	float:left;
  }
- 
- .two-tables .right 
+
+ .two-tables .right
  {
  	float:right;
  }
@@ -326,7 +326,7 @@ h4 {
     padding: 1px;
     font-size: 100%;
   }
-  
+
   input.small
   {
   	font-size: 80%;
@@ -407,7 +407,7 @@ h4 {
     left:0;
     float:left;
   }
-  
+
   #footer-right
   {
   	text-align:right;
@@ -469,7 +469,7 @@ h4 {
    background-image: -ms-linear-gradient(top, #6aa436 0%, #8dc059 100%);
    color: #fff;
    }
-   
+
    /**
    Dependency table style
    */

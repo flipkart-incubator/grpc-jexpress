@@ -23,8 +23,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Represents a GJEX application environment 
- * 
+ * Represents a GJEX application environment
+ *
  * @author regu.b
  *
  */
@@ -48,8 +48,8 @@ public class Environment {
 
 	public MetricRegistry getMetricRegistry() {
 		return metricRegistry;
-	}	
-	
+	}
+
 	public HealthCheckRegistry getHealthCheckRegistry() {
 		return healthCheckRegistry;
 	}
@@ -74,5 +74,5 @@ public class Environment {
                 t.setPriority(Thread.NORM_PRIORITY);
             return t;
         }
-    }	
+    }
 }
