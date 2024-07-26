@@ -16,14 +16,13 @@
 
 package com.flipkart.gjex.core.logging;
 
+import com.flipkart.gjex.Constants;
+import com.flipkart.gjex.core.context.GJEXContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
-
-import com.flipkart.gjex.Constants;
-import com.flipkart.gjex.core.context.GJEXContext;
 
 /**
  * Convenience logging implementation with default behavior for use by classes in GJEX runtime and applications.
@@ -38,6 +37,10 @@ public interface Logging {
         if(logId == null || logId.isEmpty())
             return msg;
         else return logId + msg;
+    }
+
+    static Logger loggerWithName(String loggerName){
+        return LoggerFactory.getLogger(loggerName);
     }
 
     default String getLoggerName() { return this.getClass().getCanonicalName();}

@@ -68,6 +68,9 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.7'
 
     implementation 'io.prometheus:prometheus-metrics-exporter-servlet-javax:1.2.0'
+
+    testImplementation libraries.junit4
+    testImplementation libraries.assertj
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

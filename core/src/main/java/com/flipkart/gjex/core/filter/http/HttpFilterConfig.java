@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.gjex.core.filter;
+package com.flipkart.gjex.core.filter.http;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
- * Annotation for specifying an array of {@link Filter} instances on gRPC service methods
- * @author regu.b
+ * An HTTP Filter Config for processing filters
  *
+ * @author ajay.jalgaonkar
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface MethodFilters {
-	// Not parameterizing Filter here as the Language doesnot support it for Annotations
-	@SuppressWarnings("rawtypes")
-	public Class<? extends Filter>[] value();
+
+@Data
+public class HttpFilterConfig {
+  @JsonProperty("enableAccessLogs")
+  private boolean enableAccessLogs = true;
 }

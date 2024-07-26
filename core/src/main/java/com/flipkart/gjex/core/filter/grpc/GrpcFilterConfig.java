@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.gjex.core.config;
+package com.flipkart.gjex.core.filter.grpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+/**
+ * A gRPC Filter Config for processing filters
+ *
+ * @author ajay.jalgaonkar
+ */
+
 @Data
-public class DashboardService {
-
-    @JsonProperty("service.port")
-    private int port;
-
-    @JsonProperty("service.acceptors")
-    private int acceptors;
-
-    @JsonProperty("service.selectors")
-    private int selectors;
-
-    @JsonProperty("service.workers")
-    private int workers;
+public class GrpcFilterConfig {
+  @JsonProperty("enableAccessLogs")
+  private boolean enableAccessLogs = true;
 }

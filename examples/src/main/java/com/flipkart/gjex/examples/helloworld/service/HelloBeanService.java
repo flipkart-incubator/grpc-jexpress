@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.flipkart.gjex.core.filter.ApplicationHeaders;
+import com.flipkart.gjex.core.filter.grpc.ApplicationHeaders;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.task.AsyncResult;
 import com.flipkart.gjex.core.task.ConcurrentTask;
