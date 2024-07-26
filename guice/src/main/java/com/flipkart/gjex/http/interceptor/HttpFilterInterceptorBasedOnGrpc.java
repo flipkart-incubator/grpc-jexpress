@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Singleton
-@Named("HttpFilterInterceptor")
-public class HttpFilterInterceptor implements javax.servlet.Filter {
+@Named("HttpFilterInterceptorBasedOnGrpc")
+public class HttpFilterInterceptorBasedOnGrpc implements javax.servlet.Filter {
 
     private static class ServletPathFiltersHolder {
         ServletPathSpec spec;

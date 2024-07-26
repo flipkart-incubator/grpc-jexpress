@@ -18,7 +18,9 @@ package com.flipkart.gjex.guice;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.http.GenericHttpFilterInterceptor;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
+import com.flipkart.gjex.core.filter.http.JavaxFilterParams;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
@@ -73,6 +75,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	private List<ScheduledJob> scheduledJobs;
 	private List<ResourceConfig> resourceConfigs;
 	private List<HttpFilterParams> httpFilterParamsList;
+	private GenericHttpFilterInterceptor genericHttpFilterInterceptor;
 	private Optional<Class<T>> configurationClass;
 	private GJEXEnvironmentModule gjexEnvironmentModule;
 
@@ -176,7 +179,13 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 
 		// Add all custom http filters
 		httpFilterParamsList = getInstances(baseInjector, HttpFilterParams.class);
-		apiServer.registerFilters(httpFilterParamsList, configuration.getApiService().getHttpFilterConfig());
+		List<GenericHttpFilterInterceptor> genericHttpFiltersList = getInstances(baseInjector,
+				GenericHttpFilterInterceptor.class);
+		if (!genericHttpFiltersList.isEmpty()){
+			genericHttpFilterInterceptor = genericHttpFiltersList.get(0);
+		}
+		apiServer.registerFilters(httpFilterParamsList, genericHttpFilterInterceptor,
+				configuration.getApiService().getHttpFilterConfig());
 	}
 
 	@SuppressWarnings("unchecked")

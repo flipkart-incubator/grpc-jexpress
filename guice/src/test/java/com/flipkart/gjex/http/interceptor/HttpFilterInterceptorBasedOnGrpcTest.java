@@ -4,11 +4,9 @@ import com.flipkart.gjex.core.filter.http.AccessLogHttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
-import org.eclipse.jetty.http.pathmap.RegexPathSpec;
 import org.eclipse.jetty.http.pathmap.ServletPathSpec;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,13 +14,13 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 
-public class HttpFilterInterceptorTest {
+public class HttpFilterInterceptorBasedOnGrpcTest {
 
-    private HttpFilterInterceptor interceptor;
+    private HttpFilterInterceptorBasedOnGrpc interceptor;
 
     @Before
     public void setUp() {
-        interceptor = new HttpFilterInterceptor();
+        interceptor = new HttpFilterInterceptorBasedOnGrpc();
     }
 
     @Test

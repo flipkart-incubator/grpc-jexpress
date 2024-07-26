@@ -63,6 +63,7 @@ dependencies {
     implementation 'io.prometheus:prometheus-metrics-core:1.2.0'
     implementation 'io.prometheus:prometheus-metrics-instrumentation-dropwizard5:1.2.0'
     implementation 'io.prometheus:prometheus-metrics-exporter-common:1.2.0'
+    implementation 'org.eclipse.jetty:jetty-server:9.4.22.v20191022'
     implementation libraries.grpc_stub
     implementation libraries.grpc_services
     implementation libraries.lombok

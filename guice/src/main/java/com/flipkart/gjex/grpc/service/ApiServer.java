@@ -16,12 +16,15 @@
 package com.flipkart.gjex.grpc.service;
 
 import com.flipkart.gjex.core.filter.http.AccessLogHttpFilter;
+import com.flipkart.gjex.core.filter.http.GenericHttpFilterInterceptor;
 import com.flipkart.gjex.core.filter.http.HttpFilterConfig;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
+import com.flipkart.gjex.core.filter.http.JavaxFilterParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
-import com.flipkart.gjex.http.interceptor.HttpFilterInterceptor;
+import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
+import com.flipkart.gjex.http.interceptor.HttpFilterInterceptorBasedOnGrpc;
 import com.flipkart.gjex.web.ResourceRegistrar;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -49,17 +52,20 @@ public class ApiServer extends AbstractService implements Logging {
 	private final Server apiServer;
 	private final ResourceRegistrar resourceRegistrar;
 	private final ServletContextHandler context;
-	private HttpFilterInterceptor httpFilterInterceptor;
+	private HttpFilterInterceptorBasedOnGrpc httpFilterInterceptorBasedOnGrpc;
+	private GenericHttpFilterInterceptor genericHttpFilterInterceptor;
 	private List<ResourceConfig> resourceConfigs = new ArrayList<>();
 
 	@Inject
 	public ApiServer(@Named("APIJettyServer") Server apiServer,
 									 @Named("ApiServletContext") ServletContextHandler context,
-									 @Named("HttpFilterInterceptor") HttpFilterInterceptor httpFilterInterceptor,
+									 @Named("HttpFilterInterceptor") HttpFilterInterceptorBasedOnGrpc httpFilterInterceptorBasedOnGrpc,
+									 @Named("GenericHttpFilterInterceptor") GenericHttpFilterInterceptor genericHttpFilterInterceptor,
 									 ResourceRegistrar resourceRegistrar) {
 		this.apiServer = apiServer;
 		this.context = context;
-		this.httpFilterInterceptor = httpFilterInterceptor;
+		this.httpFilterInterceptorBasedOnGrpc = httpFilterInterceptorBasedOnGrpc;
+		this.genericHttpFilterInterceptor = genericHttpFilterInterceptor;
 		this.resourceRegistrar = resourceRegistrar;
 	}
 	
@@ -67,10 +73,15 @@ public class ApiServer extends AbstractService implements Logging {
 		this.resourceConfigs.addAll(resourceConfigs);
 	}
 
-	public void registerFilters(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig){
+	public void registerFilters(List<HttpFilterParams> httpFilterParamsList,
+															GenericHttpFilterInterceptor genericHttpFilterInterceptor,
+															HttpFilterConfig httpFilterConfig){
 		configureAccessLog(httpFilterParamsList, httpFilterConfig);
-		httpFilterInterceptor.registerFilters(httpFilterParamsList);
-		context.addFilter(new FilterHolder(httpFilterInterceptor), "/*", EnumSet.of(DispatcherType.REQUEST));
+		httpFilterInterceptorBasedOnGrpc.registerFilters(httpFilterParamsList);
+		context.addFilter(new FilterHolder(httpFilterInterceptorBasedOnGrpc), "/*", EnumSet.of(DispatcherType.REQUEST));
+		if (genericHttpFilterInterceptor != null){
+			context.addFilter(new FilterHolder(genericHttpFilterInterceptor), "/*", EnumSet.of(DispatcherType.REQUEST));
+		}
 	}
 
 	private void configureAccessLog(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig){
