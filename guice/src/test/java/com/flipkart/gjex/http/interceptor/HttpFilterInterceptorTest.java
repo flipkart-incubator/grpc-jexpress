@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class HttpFilterInterceptorTest {
 
     private HttpFilterInterceptor interceptor;
+    String pathSpec = "/test/*";
 
     @Before
     public void setUp() {
@@ -27,13 +28,13 @@ public class HttpFilterInterceptorTest {
 
     @Test
     public void registerFiltersAddsFiltersToMap() {
-        String pathSpec = "/test/*";
         List<HttpFilter> filters = new ArrayList<>();
         filters.add(new AccessLogHttpFilter());
         assertEquals(1, filters.size());
         List<HttpFilterParams> httpFilterParamsList = new ArrayList<>();
         httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter()).build());
         interceptor.registerFilters(httpFilterParamsList);
+        assertEquals(1, interceptor.getMatchingFilters("/test/path").size());
     }
 
     @Test
