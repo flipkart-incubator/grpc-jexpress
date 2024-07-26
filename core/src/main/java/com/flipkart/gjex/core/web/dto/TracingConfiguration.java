@@ -25,7 +25,7 @@ public class TracingConfiguration {
 	private String apiName;
 	private String componentName;
 	private float samplingRate;
-	
+
 	public TracingConfiguration() {}
 	public TracingConfiguration(String apiName, String componentName, float samplingRate) {
 		this.apiName = apiName;
@@ -55,5 +55,5 @@ public class TracingConfiguration {
 	public String toString() {
 		return "TracingConfiguration - " + componentName + " : " + samplingRate;
 	}
-	
+
 }

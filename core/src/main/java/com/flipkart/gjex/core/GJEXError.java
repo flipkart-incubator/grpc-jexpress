@@ -18,15 +18,15 @@ package com.flipkart.gjex.core;
 
 /**
  * <code>GJEXError</code> defines an error in the GJEX runtime.
- * 
+ *
  * @author regunath.balasubramanian
- * 
+ *
  */
 public class GJEXError extends RuntimeException {
-	
+
 	/** Default serial version UID */
 	private static final long serialVersionUID = 1L;
-	
+
 	/** Default Fill in stack trace setting*/
 	private static final boolean DEFAULT_FILL_IN_STACK_TRACE = true;
 
@@ -34,13 +34,13 @@ public class GJEXError extends RuntimeException {
     public enum ErrorType {
         runtime,timeout,retriable
     }
-    
+
 	/** The type of error*/
     private ErrorType type;
-    
+
     /** The flag for filling in the stack trace*/
     private boolean fillInStackTrace = DEFAULT_FILL_IN_STACK_TRACE;
-    
+
     /** Constructors */
 	public GJEXError(ErrorType type, String errorMessage, Throwable rootCause) {
 		super(errorMessage, rootCause);
@@ -50,7 +50,7 @@ public class GJEXError extends RuntimeException {
 		this(type, errorMessage, rootCause);
 		this.fillInStackTrace = fillInStackTrace;
 	}
-	
+
 	/**
 	 * Fills in the stack trace based on how this Exception was created
 	 * @see java.lang.Throwable#fillInStackTrace()
@@ -70,5 +70,5 @@ public class GJEXError extends RuntimeException {
 	public void setType(ErrorType type) {
 		this.type = type;
 	}
-    
+
 }

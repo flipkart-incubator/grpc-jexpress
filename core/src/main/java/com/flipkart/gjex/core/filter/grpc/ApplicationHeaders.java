@@ -20,13 +20,13 @@ import com.flipkart.gjex.core.context.GJEXContext;
 import io.grpc.Metadata;
 
 /**
- * Provides way for GJEX applications to access gRPC headers within the service implementation classes 
- * 
+ * Provides way for GJEX applications to access gRPC headers within the service implementation classes
+ *
  * @author regu.b
  *
  */
 public class ApplicationHeaders {
-	
+
 	/**
 	 * Returns forwarded headers, if any
 	 * @return null or forwarded headers
@@ -34,5 +34,5 @@ public class ApplicationHeaders {
 	public static Metadata getHeaders() {
 		return GJEXContext.activeHeaders();
 	}
-	
+
 }

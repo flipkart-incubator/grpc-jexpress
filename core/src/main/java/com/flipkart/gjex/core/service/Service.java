@@ -27,8 +27,8 @@ import java.util.EventListener;
  */
 
 public interface Service {
-	
-	
+
+
 	/**
 	 * Starts the service. This method blocks until the service has completely started.
 	*/
@@ -38,42 +38,42 @@ public interface Service {
 	 * Stops the service. This method blocks until the service has completely shut down.
 	 */
 	void stop();
-	
+
 	/**
      * @return true if the Service is starting or has been started.
      */
 	boolean isRunning();
-	
+
 	/**
      * @return true if the Service has been started.
      * @see #start()
      * @see #isStarting()
      */
-    boolean isStarted();	
-    
+    boolean isStarted();
+
     /**
      * @return true if the Service is starting.
      * @see #isStarted()
      */
-    boolean isStarting();    
-    
+    boolean isStarting();
+
     /**
      * @return true if the Service is stopping.
      * @see #isStopped()
      */
-    boolean isStopping();  
-    
+    boolean isStopping();
+
     /**
      * @return true if the Service has been stopped.
      * @see #stop()
      * @see #isStopping()
      */
-    boolean isStopped();   
-    
+    boolean isStopped();
+
     /**
      * @return true if the Service has failed to start or has failed to stop.
      */
-    boolean isFailed();  
+    boolean isFailed();
 
     /**
      * Methods to add/remove Service lifecycle listeners.
@@ -81,7 +81,7 @@ public interface Service {
     public void addServiceListener(Service.Listener listener);
     public void removeServiceListener(Service.Listener listener);
 
-    /** 
+    /**
      * A listener for Service events.
      */
     public interface Listener extends EventListener
@@ -91,5 +91,5 @@ public interface Service {
         public default void serviceFailure(Service service,Throwable cause) {}
         public default void serviceStopping(Service service) {}
         public default void serviceStopped(Service service) {}
-    }    
+    }
 }

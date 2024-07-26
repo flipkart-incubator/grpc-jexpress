@@ -25,7 +25,7 @@ public class ChannelConfig {
     private String hostname;
     private int port;
     private long deadlineInMs=Long.MAX_VALUE;
-    
+
 	public ChannelConfig(String hostname, int port) {
 		super();
 		this.hostname = hostname;

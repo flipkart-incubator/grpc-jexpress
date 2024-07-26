@@ -17,15 +17,15 @@ package com.flipkart.gjex;
 
 /**
  * <code>Constants</code> maintains constant variables which would be used across GJEX modules.
- * 
+ *
  *  @author regunath.balasubramanian
  */
 public interface Constants {
-	
+
 	String LOGGING_ID = "loggingId";
 
 	String CONFIG_FILE_PROPERTY = "gjex.configurationFile";
-	
+
     /**
      * Root for all packaged configs.
      */
@@ -40,13 +40,13 @@ public interface Constants {
      * Config file name for GRPC Service module class names
      */
     String GRPC_MODULE_NAMES_CONFIG = "grpc_modules.yml";
-    
+
     /**
      * The GRPC Service modules property name
      */
     String GRPC_MODULE_NAMES = "GJEX.grpc.module.names";
-    
+
 	/** Static name for GJEX core application name used to distinguish Resources added by the framework with custom ones added by the GJEX applications */
 	String GJEX_CORE_APPLICATION = "@@GJEXCoreApplication@@";
-    
+
 }

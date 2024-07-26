@@ -38,7 +38,7 @@ import java.util.List;
 
 /**
  * <code>ApiServer</code> is a {@link Service} implementation that manages the GJEX API Jetty Server instance lifecycle
- * 
+ *
  * @author regunath.balasubramanian
  */
 
@@ -62,7 +62,7 @@ public class ApiServer extends AbstractService implements Logging {
 		this.httpFilterInterceptor = httpFilterInterceptor;
 		this.resourceRegistrar = resourceRegistrar;
 	}
-	
+
 	public void registerResources(List<ResourceConfig> resourceConfigs) {
 		this.resourceConfigs.addAll(resourceConfigs);
 	}

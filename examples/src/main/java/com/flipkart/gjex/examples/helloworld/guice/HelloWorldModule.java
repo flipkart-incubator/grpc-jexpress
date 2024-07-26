@@ -40,7 +40,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class HelloWorldModule extends AbstractModule {
 
 	public HelloWorldModule() {}
-	
+
 	@Override
 	protected void configure() {
 		ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",50051)

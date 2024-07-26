@@ -55,12 +55,12 @@ import java.util.Map;
 
 /**
  * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashboard components.
- * 
+ *
  * @author regunath.balasubramanian
  */
 @SuppressWarnings("rawtypes")
 public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule implements Logging {
-	
+
 	private final Bootstrap<T,U> bootstrap;
 
 	public DashboardModule(Bootstrap<T,U> bootstrap) {
@@ -71,7 +71,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	protected void configure() {
 		// do nothing
 	}
-	
+
 	/**
 	 * Creates the Jetty server instance for the admin Dashboard and configures it with the @Named("DashboardContext").
 	 *
@@ -166,7 +166,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		tracingResourceConfig.register(provider);
 		ServletHolder tracingServlet = new ServletHolder(new ServletContainer(tracingResourceConfig));
 		context.addServlet(tracingServlet, "/tracingconfig"); // registering Tracing config servlet under the /tracingconfig path
-		
+
 		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
 		context.setAttribute(TracingSamplerHolder.TRACING_SAMPLER_HOLDER_NAME, tracingSamplerHolder);
 
@@ -207,14 +207,14 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		provider.setMapper(objectMapper);
 		return provider;
 	}
-	
+
 	@Named("ApiServletContext")
 	@Singleton
 	@Provides
 	public ServletContextHandler getApiServletContext(@Named("APIVanillaJettyServer")Server server) {
 		return new ServletContextHandler(server, "/");
 	}
-	
+
 	@Named("HealthCheckResourceConfig")
 	@Singleton
 	@Provides
@@ -254,7 +254,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
 		return resourceConfig;
 	}
-	
+
 	@Named("DashboardResourceConfig")
 	@Singleton
 	@Provides

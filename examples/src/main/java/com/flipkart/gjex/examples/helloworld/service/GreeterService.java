@@ -47,10 +47,10 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 
 	/** Flag to return bad values in Validation check*/
 	private final boolean isFailValidation = false;
-	
+
 	/** Property read from configuration*/
 	private String greeting;
-	
+
 	/** Injected business logic class where validation is performed */
 	private HelloBeanService helloBeanService;
 
@@ -71,10 +71,10 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
 	@Traced(withSamplingRate=0.0f) // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-		
+
 		info("Saying hello in Greeter service");
 		info("Headers in service : " + ApplicationHeaders.getHeaders());
-		
+
 		try {
 			// invoke business logic implemented in a separate injected class
 			helloBeanService.sayHelloInBean(this.getHelloBean());
@@ -82,13 +82,13 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 			this.handleException(exception, responseObserver);
 			return;
 		}
-		
+
 		// build a reply for this method invocation
 		HelloReply reply = HelloReply.newBuilder().setMessage(this.greeting + req.getName()).build();
-		
+
 		// invoke external gRPC call
 		//this.invokeGrpcCall(req, reply);
-		
+
 		responseObserver.onNext(reply);
 		responseObserver.onCompleted();
 	}
@@ -100,7 +100,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	private HelloBean getHelloBean() {
 		return this.isFailValidation() ? new HelloBean() : new HelloBean("hello",10);
 	}
-	
+
 	/** Handle exceptions in invoking delegate methods.*/
 	private void handleException(Exception e, StreamObserver<HelloReply> responseObserver) {
 		if (TaskException.class.isAssignableFrom(e.getClass())) {
@@ -109,10 +109,10 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 				responseObserver.onError((StatusException)te.getCause());
 				return;
 			}
-		} 
+		}
 		responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage()), new Metadata()));
 	}
-	
+
 	/** Invoke an external gRPC call as a client*/
 	@SuppressWarnings("unused")
 	private void invokeGrpcCall(HelloRequest req, HelloReply reply) {
@@ -153,6 +153,6 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 		return requestObserver;
 	}
 
-	
+
 }
 

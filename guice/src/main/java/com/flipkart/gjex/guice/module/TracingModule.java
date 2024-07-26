@@ -58,11 +58,11 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
 /**
  * An implementation of Guice {@link AbstractModule} that initializes OpenTracing and intercepts methods annotated with {@link Traced}
  * annotation
- * 
+ *
  * @author regu.b
  */
 public class TracingModule<T> extends AbstractModule implements Logging {
-	
+
 	@Override
     protected void configure() {
 		TracedMethodInterceptor methodInterceptor = new TracedMethodInterceptor();
@@ -70,7 +70,7 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 		bindInterceptor(Matchers.any(), new TracedMethodMatcher(), methodInterceptor);
 		bind(TracingSamplerHolder.class).annotatedWith(Names.named("TracingSamplerHolder")).to(TracingSamplerHolder.class);
 	}
-	
+
 	/**
 	 * Creates an OpenTracing Tracer over the Openzipkin-Brave tracer
 	 */
@@ -86,17 +86,17 @@ public class TracingModule<T> extends AbstractModule implements Logging {
                  .build();
 		 return BraveTracer.create(tracing);
 	}
-	
+
 	/**
 	 * The Tracing method interceptor
 	 */
 	class TracedMethodInterceptor implements MethodInterceptor {
-		
+
 		/** The OpenTracing Tracer instance*/
 		@Inject
 		@Named("Tracer")
 		private Provider<Tracer> tracerProvider;
-		
+
 		/**
 		 * Starts a Trace(implicitly) or adds a Span for every method annotated with {@link Traced}. Nesting of spans is implicit
 		 */
@@ -106,16 +106,16 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 			Scope parentScope = null;
 			Scope scope = null;
 			/*
-			 * Initializing method invocation span as null means the current active span may get unset if there is no parent active span or the Tracing sampler returns 
+			 * Initializing method invocation span as null means the current active span may get unset if there is no parent active span or the Tracing sampler returns
 			 * negative for sampling the request
 			 */
-			io.opentracing.Span methodInvocationSpan = null;  
+			io.opentracing.Span methodInvocationSpan = null;
 			Callable<Object> methodCallable = new MethodCallable(invocation);
 			if (GJEXContext.activeSpan() != null) {
 				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
 				// check and warn if TracingSampler is used for non BindableService classes
 				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass()) && invocation.getMethod().getAnnotation(Traced.class).withTracingSampler() != TracingSampler.class) {
-					warn("TracingSampler declarations are interpreted only for sub-types of gRPC BindableService. TracingSampler declared for : " 
+					warn("TracingSampler declarations are interpreted only for sub-types of gRPC BindableService. TracingSampler declared for : "
 							+ methodInvoked + " will not be interpreted/honored");
 				}
 				TracingSampler tracingSampler = GJEXContext.activeTracingSampler();
@@ -123,16 +123,16 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 				Tracer tracer = tracerProvider.get();
 				if (tracingSampler.isSampled(methodInvoked)) {
 					/*
-					 * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor) 
+					 * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor)
 					 * but not activated because it has to be sampled here.
 					 */
 					if (tracer.scopeManager().active() == null || (tracer.scopeManager().active().span() != GJEXContext.activeSpan())) {
 						parentScope = tracer.scopeManager().activate(GJEXContext.activeSpan(), true);
-					} 
+					}
 					methodInvocationSpan = tracer.buildSpan(methodInvoked)
 							.asChildOf(GJEXContext.activeSpan())
 							.start();
-					scope = tracer.scopeManager().activate(methodInvocationSpan, true);					
+					scope = tracer.scopeManager().activate(methodInvocationSpan, true);
 				}
 				// Set the Method invocation Span as the current span - may be null too and this means subsequent methods will not get traced
 				methodCallable = Context.current().withValue(GJEXContext.getKeyActiveSpan(), methodInvocationSpan).wrap(methodCallable);
@@ -142,7 +142,7 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 				result = methodCallable.call();
 				if (result != null && FutureDecorator.class.isAssignableFrom(result.getClass())) {
 					((FutureDecorator)result).whenComplete(new AsyncScopeCloserConsumer(scope, parentScope)); // scopes will be closed when the callback executes
-					return result; 
+					return result;
 				}
 			} catch(Exception ex) { // we want to log errors to the trace only once
 				TaskException tex = null;
@@ -158,12 +158,12 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 				}
 				closeScopes(scope, parentScope); // close any open scopes
 				throw tex;
-			} 
+			}
 			closeScopes(scope, parentScope);
 			return result;
 		}
-	}	
-	
+	}
+
 	/** Convenience class to extract Scope closing in {@link FutureDecorator#whenComplete(BiConsumer)}*/
 	class AsyncScopeCloserConsumer implements BiConsumer<T,Throwable> {
 		Scope scope;
@@ -177,7 +177,7 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 			closeScopes(scope, parentScope);
 		}
 	}
-	
+
 	/**
 	 * The Matcher that matches methods with the {@link Traced} annotation
 	 */
@@ -195,7 +195,7 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 	        return matches;
 	    }
 	}
-	
+
 	/** Wraps a MethodInvocation as a Callable for use with gRPC Context*/
 	class MethodCallable implements Callable<Object> {
 		MethodInvocation invocation ;
@@ -213,17 +213,17 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 			}
 		}
 	}
-	
+
 	/** Helper method to close Scope instances*/
 	private void closeScopes(Scope scope, Scope parentScope) {
 		if (scope != null) {
 			scope.close();
-		}		
+		}
 		if (parentScope != null && parentScope.span() == GJEXContext.activeRootSpan()) { // close the parent span only if it is the root span
-			parentScope.close(); 
-		}		
-	}	
-	
+			parentScope.close();
+		}
+	}
+
 	/** Helper to log error to the traced Span*/
 	private void logErrorToSpan(io.opentracing.Span methodInvocationSpan, Exception ex) {
 		if (methodInvocationSpan != null) {
@@ -231,5 +231,5 @@ public class TracingModule<T> extends AbstractModule implements Logging {
 		    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
 		}
 	}
-	
+
 }

@@ -35,14 +35,14 @@ public interface ActiveSpanSource {
             return null;
         }
     };
-    
+
     /**
      * ActiveSpanSource implementation that returns the
      *  current span stored in the GRPC context under
      *  {@link GJEXContextKey}
      */
     public static ActiveSpanSource GRPC_CONTEXT = new ActiveSpanSource() {
-        @Override 
+        @Override
         public Span getActiveSpan() {
             return GJEXContext.activeSpan();
         }

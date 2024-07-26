@@ -34,7 +34,7 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
  */
 @SuppressWarnings("rawtypes")
 public interface Bundle<T extends GJEXConfiguration, U extends Map> {
-	
+
     /**
      * Initializes this Bundle with the application bootstrap.
      *
@@ -48,25 +48,25 @@ public interface Bundle<T extends GJEXConfiguration, U extends Map> {
      * @param environment the application environment
      */
     void run(T configuration, U configMap, Environment environment);
-    
+
     /**
      * Returns Service instances loaded by this Bundle
      * @return List containing Service instances
      */
     List<Service> getServices();
-    
+
     /**
      * Returns Filter instances loaded by this Bundle
      * @return List containing Filter instances
      */
 	List<GrpcFilter> getGrpcFilters();
-    
+
     /**
      * Returns HealthCheck instances loaded by this Bundle
      * @return List containing HealthCheck instances
      */
     List<HealthCheck> getHealthChecks();
-    
+
     /**
      * Returns the TracingSampler instances loaded by this Bundle
      * @return the TracingSampler instances

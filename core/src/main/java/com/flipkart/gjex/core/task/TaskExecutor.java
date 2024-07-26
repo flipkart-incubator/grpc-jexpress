@@ -39,25 +39,25 @@ public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 
 	/** The MethodInvocation to execute asynchronously*/
 	private final MethodInvocation invocation;
-	
+
 	/** The currently active gRPC Context*/
 	private Context currentContext;
-	
+
 	/** The completion BiConsumer*/
 	private BiConsumer<T, Throwable> completionConsumer;
-	
+
 	/** Indicates if requests may be hedged within the configured timeout duration*/
 	private boolean withRequestHedging;
-	
+
 	/** The rolling tail latency as seen by Hystrix*/
 	private long rollingTailLatency;
-	
+
 	/** Attributes stored for cloning*/
 	private String groupKey;
 	private String name;
 	private int concurrency;
 	private int timeout;
-		
+
 	public TaskExecutor(MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout, boolean withRequestHedging) {
 		super(Setter
                 .withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
@@ -72,7 +72,7 @@ public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 		this.timeout = timeout;
 		this.withRequestHedging = withRequestHedging;
 		this.rollingTailLatency = HystrixCommandMetrics.getInstance(HystrixCommandKey.Factory.asKey(name)).getTotalTimePercentile(95);
-		
+
 		// attributes copied for cloning, if needed
 		this.groupKey = groupKey;
 		this.name = name;
@@ -127,5 +127,5 @@ public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 			this.currentContext.detach(previous); // unset the current gRPC context
 		}
 	}
-	
+
 }

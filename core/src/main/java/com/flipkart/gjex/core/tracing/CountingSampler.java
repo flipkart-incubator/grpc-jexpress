@@ -21,11 +21,11 @@ import java.util.Random;
 /**
  * A counting sampler that check if sampling must happen based on a counter initialized for a sampling rate ranging from 0.0 to 1.0.
  * This implementation is based on the Openzipkin-Brave {@linkplain https://github.com/openzipkin/brave/blob/master/brave/src/main/java/brave/sampler/CountingSampler.java}
- * 
+ *
  * Description from source:
- * This initializes a random bitset of size 100 (corresponding to 1% granularity). This means that it is accurate in units of 100 
+ * This initializes a random bitset of size 100 (corresponding to 1% granularity). This means that it is accurate in units of 100
  * traces. At runtime, this loops through the bitset, returning the value according to a counter.
- * 
+ *
  * @author regu.b
  *
  */
@@ -33,7 +33,7 @@ public class CountingSampler {
 
 	private int i; // counter
 	private final BitSet sampleDecisions;
-	
+
 	public CountingSampler (float rate) {
 		if (rate < 0.0f || rate > 1) {
 			throw new IllegalArgumentException("rate should be between 0.0 and 1: was " + rate);
@@ -45,13 +45,13 @@ public class CountingSampler {
 		    this.sampleDecisions = this.randomBitSet(100, outOf100, new Random());
 		}
 	}
-	
+
 	public boolean isSampled() {
 		boolean result = sampleDecisions.get(i++);
 		if (i == 100) i = 0;
 		return result;
 	}
-	
+
 	/**
 	 * Reservoir sampling algorithm borrowed from Stack Overflow.
 	 *

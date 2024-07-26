@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for specifying an API in GJEX that can define such properties like execution timeout
- * 
+ *
  * @author regu.b
  *
  */
@@ -32,15 +32,15 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Api {
-	
+
 	/**
      * Defines the maximum time GJEX can "expect" the Api to run for. This value is used to set the gRPC Context's Deadline and is evaluated when invoking {@link ConcurrentTask}
-     * executions within Api methods.   
+     * executions within Api methods.
      */
-    int deadline() default 0;	
-    
+    int deadline() default 0;
+
     /**
-     * Deadline configured as a Config property. Note that {@link Api#deadline()} overrides this value 
+     * Deadline configured as a Config property. Note that {@link Api#deadline()} overrides this value
      */
-    String deadlineConfig() default "";	
+    String deadlineConfig() default "";
 }

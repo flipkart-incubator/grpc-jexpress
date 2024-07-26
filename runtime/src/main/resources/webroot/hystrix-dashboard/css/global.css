@@ -57,12 +57,12 @@ img {
 
 
 @media screen and (min-width: 1500px) {
-	
+
 	#header .header_nav {
 		top:13px;
 		right:130px;
 	}
-	
+
 	#header {
 		height: 65px;
 	}

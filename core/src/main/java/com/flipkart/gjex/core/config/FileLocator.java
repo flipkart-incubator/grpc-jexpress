@@ -28,11 +28,11 @@ import java.util.Enumeration;
 *
 * The <code>FileLocator</code> is a utility for locating configuration files deployed under the projects root. This class provides methods to locate
 * all occurrences of a file with the specified name. This class looks into specific directories under the project root folder to locate files.
-*  
+*
 * @author regunath.balasubramanian
 */
 public class FileLocator {
-	
+
 	/**
 	 * The Log instance for this class
 	 */
@@ -53,7 +53,7 @@ public class FileLocator {
 	public static File findUniqueFile(String fileName) throws ConfigurationException {
 		return findUniqueFile(fileName, null);
 	}
-	
+
 	/**
 	 * Finds the unique instance of config file with name as the specified string.
 	 * @param fileName name of the file
@@ -87,7 +87,7 @@ public class FileLocator {
 		}
 		return files[0];
 	}
-	
+
 	/**
 	 * Returns an array of files that match the specified name located under
 	 * the projects' configuration folders.
@@ -99,7 +99,7 @@ public class FileLocator {
 	public static File[] findFiles(String fileName) {
 		return findFiles(fileName,null);
 	}
-	
+
 	/**
 	 * Returns an array of files that match the specified name located under
 	 * the projects' configuration folders.
@@ -112,7 +112,7 @@ public class FileLocator {
 	public static File[] findFiles(String fileName,String path) {
 		return findFiles(fileName, path, false);
 	}
-	
+
 	/**
 	 * Returns an array of directories that match the specified name located under
 	 * the projects' configuration folders.
@@ -125,7 +125,7 @@ public class FileLocator {
 	public static File[] findDirectories(String directoryName,String path) {
 		return findFiles(directoryName, path, true);
 	}
-	
+
 	/**
 	 * Returns an array of files that match the specified name located under
 	 * the projects' configuration folders.
@@ -165,15 +165,15 @@ public class FileLocator {
 			} catch (IOException e) {
 				// log the error and return an empty array
 				LOGGER.error("Unable to locate files that match: " + fileName, e);
-			}			
+			}
 		}
 		return (File[])locatedFiles.toArray(new File[locatedFiles.size()]);
 	}
-    
+
     /**
      * Helper method to create a physical temporary file containing the contents read from the specified InputStream
      * @param fileName the File name prefix for the temporary file
-     * @param input the InputStream to read contents from 
+     * @param input the InputStream to read contents from
      * @return temporary File
      * @throws IOException
      */
@@ -188,13 +188,13 @@ public class FileLocator {
         out.flush();
         out.close();
         input.close();
-        tempFile.deleteOnExit();    	
+        tempFile.deleteOnExit();
     		return tempFile;
     }
-	
+
 	/**
 	 * Helper method to recursively look for files with the specified name
-	 * under the specified folder or match the specified name with the specified file name. 
+	 * under the specified folder or match the specified name with the specified file name.
 	 * @param fileName the name of the file to search for
 	 * @param locatedFiles ArrayList containing File instances post matching
 	 * @param isConfigFolder true if the specified file is a config folder or one of its sub folders
@@ -202,7 +202,7 @@ public class FileLocator {
 	 *                    if false, find only file.
 	 * @param file file or folder to match filename against
 	 */
-	private static void locateFiles(String fileName, ArrayList<File> locatedFiles, 
+	private static void locateFiles(String fileName, ArrayList<File> locatedFiles,
 			File file, boolean isConfigFolder, boolean isDirectory) {
 		// trim any leading and trailing spaces in the specified file name
 		fileName = fileName.trim();
@@ -215,7 +215,7 @@ public class FileLocator {
 				for (int i = 0; i < files.length; i++) {
 					locateFiles(fileName, locatedFiles, files[i], isConfigFolder, isDirectory);
 				}
-			} 
+			}
 			if (isConfigFolder && file.getName().equalsIgnoreCase(fileName)) {
 				if(isDirectory ^ file.isFile()) {
 					locatedFiles.add(file);
@@ -223,5 +223,5 @@ public class FileLocator {
 			}
 		}
 	}
-	
+
 }

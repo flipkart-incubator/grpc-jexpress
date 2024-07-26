@@ -29,7 +29,7 @@ public class AnnotationUtils {
 	 * create a CGLIB proxy sub-type for instances and annotations are not copied to the sub-type.
 	 * Cannot use @Inherited annotation as a workaround because it applies only to Type/Class level annotations and not for Method-level ones.
 	 * @see https://github.com/google/guice/issues/101
-	 * 
+	 *
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static List<Pair<?,Method>> getAnnotatedMethods(Class<?> cls, Class<? extends Annotation> anno) {
@@ -45,5 +45,5 @@ public class AnnotationUtils {
 		}
 		return methods;
 	}
-	
+
 }

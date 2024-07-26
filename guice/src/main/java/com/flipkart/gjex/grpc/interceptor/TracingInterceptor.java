@@ -56,7 +56,7 @@ import io.opentracing.propagation.TextMapExtractAdapter;
  * An implementation of the gRPC {@link ServerInterceptor} for Distributed Tracing that retrieves active traces initialized by clients and lets
  * server side spans participate in the trace.
  * This implementation is based on {@linkplain https://github.com/opentracing-contrib/java-grpc/blob/master/src/main/java/io/opentracing/contrib/grpc/ServerTracingInterceptor.java}
- * 
+ *
  * @author regu.b
  *
  */
@@ -69,7 +69,7 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 	private final Tracer tracer;
 
 	@Inject
-	public TracingInterceptor(@Named("Tracer")Tracer tracer, 
+	public TracingInterceptor(@Named("Tracer")Tracer tracer,
 			@Named("TracingSamplerHolder")TracingSamplerHolder samplerMap) {
 		this.samplerMap = samplerMap;
 		this.tracer = tracer;
@@ -99,9 +99,9 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 				});
 			}
 		});
-		
+
 	}
-	
+
 	@Override
 	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,ServerCallHandler<ReqT, RespT> next) {
 		TracingSampler tracingSampler = this.samplerMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
@@ -116,7 +116,7 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 				headerMap.put(key, value);
 			}
 		}
-		
+
 		final Span span = getSpanFromHeaders(call,headerMap);
 		/*
 		 *  Set the client side initiated Trace and Span in the Context.
@@ -126,14 +126,14 @@ public class TracingInterceptor implements ServerInterceptor, Logging {
 				GJEXContext.getKeyActiveSpan(), span,
 				GJEXContext.getSpanContextKey(), span.context(),
 				GJEXContext.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
-		
+
 		ServerCall.Listener<ReqT> listenerWithContext = Contexts.interceptCall(ctxWithSpan, call, headers, next);
-		    
+
 		return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {};
 	}
-	
+
 	/**
-	 * Creates and returns a Span from gRPC headers, if any. 
+	 * Creates and returns a Span from gRPC headers, if any.
 	 */
 	private <ReqT, RespT> Span getSpanFromHeaders(ServerCall<ReqT, RespT> call, Map<String, String> headers) {
 		String methodInvoked = call.getMethodDescriptor().getFullMethodName();

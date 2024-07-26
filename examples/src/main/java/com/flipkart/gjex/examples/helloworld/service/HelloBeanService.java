@@ -32,12 +32,12 @@ import io.reactivex.functions.BiFunction;
 
 /**
  * A sample business logic implementation that is called with an entity that is validated for correctness
- * 
+ *
  * @author regu.b
  *
  */
 public class HelloBeanService implements Logging {
-	
+
 	/** Method params with javax.validation annotations to force validation*/
 	@Traced
 	public void sayHelloInBean(@NotNull @Valid HelloBean helloBean) {
@@ -45,17 +45,17 @@ public class HelloBeanService implements Logging {
 		addToTrace("Request", helloBean.toString());
 		this.tracedMethod1();
 	}
-	
+
 	// ------- Methods to demonstrate Tracing flow and async execution
-	
+
 	/** Traced method with serial invocation of next method*/
 	@Traced
-	public void tracedMethod1() {		
-		info("Invoked trace method1");		
+	public void tracedMethod1() {
+		info("Invoked trace method1");
 		this.tracedMethod2();
 	}
-	
-	/** 
+
+	/**
 	 * Traced method with following
 	 * 1. Invoke two methods concurrently
 	 * 2. Compose response
@@ -67,7 +67,7 @@ public class HelloBeanService implements Logging {
 		ResponseEntity entity = new ResponseEntity();
 		FutureDecorator<ResponseEntity> future1 = (FutureDecorator<ResponseEntity>)this.tracedMethod3(entity);
 		FutureDecorator<ResponseEntity> future2 = (FutureDecorator<ResponseEntity>)this.tracedMethod4(entity);
-		ResponseEntity finalEntity = FutureDecorator.compose(future1, future2, 
+		ResponseEntity finalEntity = FutureDecorator.compose(future1, future2,
 				new BiFunction<ResponseEntity,ResponseEntity,ResponseEntity>() {
 					@Override
 					public ResponseEntity apply(ResponseEntity t1, ResponseEntity t2) throws Exception {
@@ -77,13 +77,13 @@ public class HelloBeanService implements Logging {
 							finalEntity.method3 = entity.method3; // we use the value only if the call was successful, else it is null
 						}
 						finalEntity.method4 = t2.method4;
-						return finalEntity; 
+						return finalEntity;
 					}
 		});
 		this.tracedMethod5(finalEntity);
 		info("Final response : " + finalEntity.method5);
 	}
-	
+
 	/**
 	 * A Concurrent Traced task executing in its own threadpool via HystrixCommand. Modifies the entity passed to it
 	 * Here timeout is configured as an explicit value. This method is also marked as {@link ConcurrentTask.Completion#Optional}
@@ -101,12 +101,12 @@ public class HelloBeanService implements Logging {
             		entity.method3 = "InvokedMethod3";
             		return entity;
             }
-        };		
+        };
 	}
-	
-	/** 
+
+	/**
 	 * A Concurrent Traced task executing in its own threadpool via HystrixCommand. Modifies the entity passed to it
-	 * Timeout is configured as a config property in application configuration i.e. hello_world_config.yml in this example 
+	 * Timeout is configured as a config property in application configuration i.e. hello_world_config.yml in this example
 	 * This method is implicitly(default) marked as {@link ConcurrentTask.Completion#Mandatory}
 	 */
 	@Traced
@@ -120,9 +120,9 @@ public class HelloBeanService implements Logging {
             		entity.method4 = "InvokedMethod4";
             		return entity;
             }
-        };		
+        };
 	}
-	
+
 	/** Traced method invoking the next method serially*/
 	@Traced
 	public void tracedMethod5(ResponseEntity entity) {
@@ -130,13 +130,13 @@ public class HelloBeanService implements Logging {
 		entity.method5 = entity.method3 + "-" + entity.method4;
 		this.tracedMethod6();
 	}
-	
+
 	/** Traced method that doesnot invoke anything else*/
 	@Traced
 	public void tracedMethod6() {
 		info("Invoked trace method6");
 	}
-	
+
 	/** Collector/Entity to collect/hold data from multiple concurrent task executions*/
 	class ResponseEntity {
 		String method2;
@@ -144,7 +144,7 @@ public class HelloBeanService implements Logging {
 		String method4;
 		String method5;
 	}
-	
+
 	/** Puts the current Thread to sleep*/
 	private void sleep(long millis) {
 		try {
