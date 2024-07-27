@@ -11,6 +11,10 @@ import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Example filter extending {@link Filter}
+ * @author ajay.jalgaonkar
+ */
 public class ExampleJavaxFilter implements Logging, Filter {
   public AtomicInteger number = new AtomicInteger();
 
