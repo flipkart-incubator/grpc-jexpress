@@ -29,9 +29,6 @@ public class HttpFilterInterceptorTest {
 
     @Test
     public void registerFiltersAddsFiltersToMap() {
-        List<HttpFilter> filters = new ArrayList<>();
-        filters.add(new AccessLogHttpFilter());
-        assertEquals(1, filters.size());
         List<HttpFilterParams> httpFilterParamsList = new ArrayList<>();
         httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter()).build());
         interceptor.registerFilters(httpFilterParamsList);
@@ -43,5 +40,16 @@ public class HttpFilterInterceptorTest {
         ServletPathSpec spec = new ServletPathSpec("/test/*");
         assertTrue(spec.matches("/test/path"));
     }
+
+
+    @Test
+    public void registerFiltersAddsFiltersToMap2() {
+        List<HttpFilterParams> httpFilterParamsList = new ArrayList<>();
+        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter()).build());
+        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter()).build());
+        interceptor.registerFilters(httpFilterParamsList);
+        assertEquals(2, interceptor.getMatchingFilters("/test/path").size());
+    }
+
 
 }
