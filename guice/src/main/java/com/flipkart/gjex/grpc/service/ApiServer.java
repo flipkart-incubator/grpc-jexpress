@@ -18,6 +18,7 @@ package com.flipkart.gjex.grpc.service;
 import com.flipkart.gjex.core.filter.http.AccessLogHttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterConfig;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
+import com.flipkart.gjex.core.filter.http.JavaxFilterParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
@@ -67,10 +68,15 @@ public class ApiServer extends AbstractService implements Logging {
 		this.resourceConfigs.addAll(resourceConfigs);
 	}
 
-	public void registerFilters(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig){
+	public void registerFilters(List<HttpFilterParams> httpFilterParamsList,
+                                List<JavaxFilterParams> javaxFilterParamsList,
+                                HttpFilterConfig httpFilterConfig){
 		configureAccessLog(httpFilterParamsList, httpFilterConfig);
 		httpFilterInterceptor.registerFilters(httpFilterParamsList);
 		context.addFilter(new FilterHolder(httpFilterInterceptor), "/*", EnumSet.of(DispatcherType.REQUEST));
+        for (JavaxFilterParams javaxFilterParams: javaxFilterParamsList){
+            context.addFilter(new FilterHolder(javaxFilterParams.getFilter()), javaxFilterParams.getPathSpec(), EnumSet.of(DispatcherType.REQUEST));
+        }
 	}
 
 	private void configureAccessLog(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig){
