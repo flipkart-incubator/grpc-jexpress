@@ -54,14 +54,13 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
             }
             filtersMap.get(httpFilterParams.getPathSpec()).filters.add(httpFilterParams.getFilter());
         }
+        for (ServletPathFiltersHolder servletPathFiltersHolder : filtersMap.values()){
+            pathSpecToFilterMap.computeIfAbsent(servletPathFiltersHolder.spec,
+                k-> new ArrayList<>()).addAll(servletPathFiltersHolder.filters);
+        }
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {
-       for (ServletPathFiltersHolder servletPathFiltersHolder : filtersMap.values()){
-           pathSpecToFilterMap.computeIfAbsent(servletPathFiltersHolder.spec,
-               k-> new ArrayList<>()).addAll(servletPathFiltersHolder.filters);
-       }
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     /**
      * The core method that processes incoming requests and responses. It captures the request and response objects,
