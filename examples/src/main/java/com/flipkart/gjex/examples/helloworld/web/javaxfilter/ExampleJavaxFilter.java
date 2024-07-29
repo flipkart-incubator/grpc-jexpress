@@ -26,6 +26,7 @@ public class ExampleJavaxFilter implements Logging, Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     info("printing from ExampleJavaxFilter: " + number.getAndIncrement());
+    chain.doFilter(request, response);
   }
 
   @Override
