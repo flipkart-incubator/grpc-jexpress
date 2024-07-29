@@ -108,7 +108,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
      * @param request The ServletRequest object containing the client's request
      * @return The real IP address of the client
      */
-    private String getClientIp(ServletRequest request) {
+    protected String getClientIp(ServletRequest request) {
         String remoteAddr = request.getRemoteAddr();
         String xForwardedFor = ((HttpServletRequest) request).getHeader("X-Forwarded-For");
         if (xForwardedFor != null) {
@@ -117,7 +117,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
         return remoteAddr;
     }
 
-    private List<HttpFilter> getMatchingFilters(String path) {
+    protected List<HttpFilter> getMatchingFilters(String path) {
         return pathSpecToFilterMap.keySet().stream().filter(key -> key.matches(path))
             .map(k-> pathSpecToFilterMap.get(k)).flatMap(List::stream)
             .map(filter -> filter.getInstance()).collect(Collectors.toList());
