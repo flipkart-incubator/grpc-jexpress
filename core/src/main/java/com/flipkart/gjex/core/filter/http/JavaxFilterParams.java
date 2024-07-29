@@ -12,6 +12,7 @@ import javax.servlet.Filter;
 
 @Data
 @Builder
+@Deprecated
 public class JavaxFilterParams {
 
     // The filter instance to be applied.
