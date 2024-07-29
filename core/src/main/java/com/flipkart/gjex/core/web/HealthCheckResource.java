@@ -15,7 +15,8 @@
  */
 package com.flipkart.gjex.core.web;
 
-import java.util.SortedMap;
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
+import io.dropwizard.metrics5.health.HealthCheck;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -26,9 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import io.dropwizard.metrics5.health.HealthCheck;
-import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
+import java.util.SortedMap;
 
 /**
  * Servlet Resource for the HealthCheck API
@@ -38,7 +37,7 @@ import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 
 @Singleton
 @Path("/")
-@Named
+@Named("HealthCheckResource")
 public class HealthCheckResource {
 
 	@Context

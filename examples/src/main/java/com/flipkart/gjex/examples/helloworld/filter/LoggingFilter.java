@@ -15,39 +15,41 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
-import javax.inject.Named;
-
-import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.logging.Logging;
-
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
-import io.grpc.examples.helloworld.HelloReply;
-import io.grpc.examples.helloworld.HelloRequest;
+
+import javax.inject.Named;
 
 /**
- * An implementation of the {@link Filter} interface as example that simply logs Request information
+ * An implementation of the {@link GrpcFilter} interface as example that simply logs Request information
  * @author regu.b
  */
 @Named("LoggingFilter")
-public class LoggingFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> implements Filter<Req, Res>, Logging {
+public class LoggingFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> extends GrpcFilter<Req, Res> implements Logging {
 
 	/** Custom response key to indicate request was logged on the server*/
     static final Metadata.Key<String> CUSTOM_HEADER_KEY = Metadata.Key.of("request_response_logged_header_key", Metadata.ASCII_STRING_MARSHALLER);
 
     @Override
-    public void doProcessRequest(Req request) {
-        info("Logging from filter. Request payload is : " + request.toString());
+    public GrpcFilter<Req, Res> getInstance(){
+        return new LoggingFilter<>();
     }
 
     @Override
-    public void doProcessResponseHeaders(Metadata reponseHeaders) {
-        reponseHeaders.put(CUSTOM_HEADER_KEY, "loggedRequestResponse");
+    public void doProcessRequest(Req req, RequestParams<Metadata> requestParams) {
+        info("Logging from filter. Request payload is : " + req.toString());
+    }
+
+    @Override
+    public void doProcessResponseHeaders(Metadata responseHeaders) {
+        responseHeaders.put(CUSTOM_HEADER_KEY, "loggedRequestResponse");
     }
 
     @Override
     public void doProcessResponse(Res response) {
         info("Logging from filter. Response payload is : " + response.toString());
     }
-
 }

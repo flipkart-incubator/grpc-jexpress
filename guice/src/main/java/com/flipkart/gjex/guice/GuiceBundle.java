@@ -15,20 +15,11 @@
  */
 package com.flipkart.gjex.guice;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import com.flipkart.gjex.core.job.ScheduledJob;
-import com.flipkart.gjex.grpc.service.ScheduledJobManager;
-import io.grpc.health.v1.HealthGrpc;
-import org.glassfish.jersey.server.ResourceConfig;
-
-import io.dropwizard.metrics5.health.HealthCheck;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilterParams;
+import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
@@ -36,6 +27,7 @@ import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.service.ApiServer;
 import com.flipkart.gjex.grpc.service.GrpcServer;
+import com.flipkart.gjex.grpc.service.ScheduledJobManager;
 import com.flipkart.gjex.guice.module.ApiModule;
 import com.flipkart.gjex.guice.module.ConfigModule;
 import com.flipkart.gjex.guice.module.DashboardModule;
@@ -53,13 +45,20 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
-
+import io.dropwizard.metrics5.health.HealthCheck;
 import io.grpc.BindableService;
+import io.grpc.health.v1.HealthGrpc;
+import org.glassfish.jersey.server.ResourceConfig;
 import ru.vyarus.guice.validator.ImplicitValidationModule;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * A Guice GJEX Bundle implementation. Multiple Guice Modules may be added to this Bundle.
- * 
+ *
  * @author regu.b
  *
  */
@@ -69,11 +68,12 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	private List<Module> modules;
 	private Injector baseInjector;
 	private List<Service> services;
-	private List<Filter> filters;
+	private List<GrpcFilter> grpcFilters;
 	private List<HealthCheck> healthchecks;
 	private List<TracingSampler> tracingSamplers;
 	private List<ScheduledJob> scheduledJobs;
 	private List<ResourceConfig> resourceConfigs;
+	private List<HttpFilterParams> httpFilterParamsList;
 	private Optional<Class<T>> configurationClass;
 	private GJEXEnvironmentModule gjexEnvironmentModule;
 
@@ -106,7 +106,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
         this.modules = modules;
         this.configurationClass = configurationClass;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(Bootstrap<?, ?> bootstrap) {
@@ -152,8 +152,8 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		grpcServer.registerServices(bindableServices);
 
 		// Add all Grpc Filters to the Grpc Server
-		filters = getInstances(baseInjector, Filter.class);
-		grpcServer.registerFilters(filters, bindableServices);
+		grpcFilters = getInstances(baseInjector, GrpcFilter.class);
+		grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc().getGrpcFilterConfig());
 
 		// Add all Grpc Filters to the Grpc Server
 		tracingSamplers = getInstances(baseInjector, TracingSampler.class);
@@ -171,11 +171,15 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		services = getInstances(baseInjector, Service.class);
 		// Lookup all HealthCheck implementations
 		healthchecks = getInstances(baseInjector, HealthCheck.class);
-		
+
 		ApiServer apiServer = baseInjector.getInstance(ApiServer.class);
 		// Add all custom web resources
 		resourceConfigs = getInstances(baseInjector, ResourceConfig.class);
-		apiServer.registerResources(resourceConfigs);		
+		apiServer.registerResources(resourceConfigs);
+
+		// Add all custom http filters
+		httpFilterParamsList = getInstances(baseInjector, HttpFilterParams.class);
+		apiServer.registerFilters(httpFilterParamsList, configuration.getApiService().getHttpFilterConfig());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -184,25 +188,25 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 	}
 
 	@Override
-	public List<Service> getServices() {		
+	public List<Service> getServices() {
         Preconditions.checkState(baseInjector != null,
                 "Service(s) are only available after GuiceBundle.run() is called");
 		return this.services;
-	} 
+	}
 
 	@Override
-	public List<Filter> getFilters() {		
+	public List<GrpcFilter> getGrpcFilters() {
         Preconditions.checkState(baseInjector != null,
                 "Filter(s) are only available after GuiceBundle.run() is called");
-		return this.filters;
-	} 
-	
+		return this.grpcFilters;
+	}
+
 	@Override
-	public List<HealthCheck> getHealthChecks() {		
+	public List<HealthCheck> getHealthChecks() {
         Preconditions.checkState(baseInjector != null,
                 "HealthCheck(s) are only available after GuiceBundle.run() is called");
 		return this.healthchecks;
-	} 
+	}
 
 	@Override
 	public List<TracingSampler> getTracingSamplers() {
@@ -224,13 +228,13 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
                 "ResourceConfig(s) is only available after GuiceBundle.run() is called");
         return this.resourceConfigs;
 	}
-	
+
 	public Injector getInjector() {
         Preconditions.checkState(baseInjector != null,
                 "Injector is only available after GuiceBundle.initialize() is called");
         return baseInjector;
-    }	
-		
+    }
+
     private <S> List<S> getInstances(Injector injector, Class<S> type) {
         List<S> instances = new ArrayList<S>();
         List<Binding<S>> bindings = injector.findBindingsByType(TypeLiteral.get(type));

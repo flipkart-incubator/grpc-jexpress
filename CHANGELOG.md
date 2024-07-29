@@ -1,6 +1,6 @@
 ## 1.36
 - Bug fixes: Fixed headers being sent in RPC response
-- Adding prefix to dashboard & api instrumentation 
+- Adding prefix to dashboard & api instrumentation
 
 ## 1.33 (Nov 9, 2019)
 - Bug fixes
@@ -20,6 +20,6 @@
   - Distributed Tracing - using opentracing and the openzipkin implementation
   - Concurrent execution, Circuit breaking using Hystrix and Dispatch-Compose through a FutureDecorator API
   - Deadlining for APIs - ability to specify execution timeouts for gRPC stubs at service end
-  - Task/Upstream request retries using Hedged Requests 
+  - Task/Upstream request retries using Hedged Requests
   - Tool recommendations for testing
-  
+

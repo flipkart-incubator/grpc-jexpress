@@ -19,14 +19,14 @@ package com.flipkart.gjex.core.web;
 import com.flipkart.gjex.core.GJEXError;
 
 /**
- * The <code>ResourceException</code> is sub-type of the {@link GJEXError} for reporting errors in handling GJEX resources  
- * 
+ * The <code>ResourceException</code> is sub-type of the {@link GJEXError} for reporting errors in handling GJEX resources
+ *
  * @author regunath.balasubramanian
  */
 public class ResourceException extends GJEXError {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * Constructor for ResourceException.
 	 * @param msg the detail message
@@ -38,10 +38,10 @@ public class ResourceException extends GJEXError {
 	/**
 	 * Constructor for ResourceException.
 	 * @param msg the detail message
-	 * @param cause the root cause 
+	 * @param cause the root cause
 	 */
 	public ResourceException(String msg, Throwable cause) {
 		super(GJEXError.ErrorType.runtime, msg, cause);
 	}
-	
+
 }

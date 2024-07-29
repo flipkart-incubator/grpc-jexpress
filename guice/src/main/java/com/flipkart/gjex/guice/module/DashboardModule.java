@@ -50,12 +50,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.flipkart.gjex.Constants;
 import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
-import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import com.flipkart.gjex.core.tracing.TracingSamplerHolder;
+import com.flipkart.gjex.core.web.DashboardHealthCheckResource;
 import com.flipkart.gjex.core.web.DashboardResource;
 import com.flipkart.gjex.core.web.HealthCheckResource;
+import com.flipkart.gjex.core.web.RotationManagementResource;
 import com.flipkart.gjex.core.web.TracingResource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -63,12 +65,12 @@ import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServl
 
 /**
  * <code>DashboardModule</code> is a Guice {@link AbstractModule} implementation used for wiring GJEX Dashboard components.
- * 
+ *
  * @author regunath.balasubramanian
  */
 @SuppressWarnings("rawtypes")
 public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule implements Logging {
-	
+
 	private final Bootstrap<T,U> bootstrap;
 
 	public DashboardModule(Bootstrap<T,U> bootstrap) {
@@ -79,7 +81,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	protected void configure() {
 		// do nothing
 	}
-	
+
 	/**
 	 * Creates the Jetty server instance for the admin Dashboard and configures it with the @Named("DashboardContext").
 	 *
@@ -90,10 +92,11 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Singleton
 	Server getDashboardJettyServer(@Named("Dashboard.service.port") int port,
 								   @Named("DashboardResourceConfig")ResourceConfig resourceConfig,
+									 @Named("DashboardHealthCheckResourceConfig")ResourceConfig dashboardHealthCheckResourceConfig,
 								   @Named("Dashboard.service.acceptors") int acceptorThreads,
 								   @Named("Dashboard.service.selectors") int selectorThreads,
 								   @Named("Dashboard.service.workers") int maxWorkerThreads,
-								   @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider,
+								   @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider
 								   Resilience4jMetricsStreamServlet resilience4jMetricsStreamServlet) {
 		resourceConfig.register(provider);
 		QueuedThreadPool threadPool = new QueuedThreadPool();
@@ -121,9 +124,12 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		context.getMimeTypes().addMimeMapping("txt", "text/plain;charset=utf-8");
 		server.setHandler(context);
 
+		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
+		/** Add the Servlet for serving the HealthCheck resource */
+		context.addServlet(new ServletHolder(new ServletContainer(dashboardHealthCheckResourceConfig)), "/healthcheck");
+
 		/** Add the Servlet for serving the Dashboard resource */
-		ServletHolder servlet = new ServletHolder(new ServletContainer(resourceConfig));
-		context.addServlet(servlet, "/admin/*");
+		context.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), "/admin/*");
 
 		/** Add the Hystrix metrics stream servlets */
 		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.command.local");
@@ -176,7 +182,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		tracingResourceConfig.register(provider);
 		ServletHolder tracingServlet = new ServletHolder(new ServletContainer(tracingResourceConfig));
 		context.addServlet(tracingServlet, "/tracingconfig"); // registering Tracing config servlet under the /tracingconfig path
-		
+
 		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
 		context.setAttribute(TracingSamplerHolder.TRACING_SAMPLER_HOLDER_NAME, tracingSamplerHolder);
 
@@ -217,20 +223,30 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		provider.setMapper(objectMapper);
 		return provider;
 	}
-	
+
 	@Named("ApiServletContext")
 	@Singleton
 	@Provides
 	public ServletContextHandler getApiServletContext(@Named("APIVanillaJettyServer")Server server) {
 		return new ServletContextHandler(server, "/");
 	}
-	
+
 	@Named("HealthCheckResourceConfig")
 	@Singleton
 	@Provides
 	ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(healthCheckResource);
+		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+		return resourceConfig;
+	}
+
+	@Named("DashboardHealthCheckResourceConfig")
+	@Singleton
+	@Provides
+	ResourceConfig getAPIResourceConfig(DashboardHealthCheckResource dashboardHealthCheckResource) {
+		ResourceConfig resourceConfig = new ResourceConfig();
+		resourceConfig.register(dashboardHealthCheckResource);
 		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
 		return resourceConfig;
 	}
@@ -254,7 +270,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
 		return resourceConfig;
 	}
-	
+
 	@Named("DashboardResourceConfig")
 	@Singleton
 	@Provides

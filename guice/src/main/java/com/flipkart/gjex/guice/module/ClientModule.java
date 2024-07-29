@@ -37,7 +37,7 @@ import javax.inject.Named;
 
 /**
  * {@link ClientModule} is a guice module to get an Instrumented, Traced instance of GRPC client
- * 
+ *
  * @param <T> type of the required Grpc Service's stub eg: GreeterGrpc.GreeterBlockingStub
  */
 public class ClientModule<T extends AbstractStub<T>> extends AbstractModule {
@@ -46,7 +46,7 @@ public class ClientModule<T extends AbstractStub<T>> extends AbstractModule {
 
 	@Inject @Named("Tracer")
 	Tracer tracer;
-	
+
 	public ClientModule(Class<T> clazz, ChannelConfig channelConfig) {
 		this.clazz = clazz;
 		this.channelConfig = channelConfig;

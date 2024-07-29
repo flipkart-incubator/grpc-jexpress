@@ -16,7 +16,8 @@
 package com.flipkart.gjex.grpc.service;
 
 import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.core.filter.Filter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
@@ -24,7 +25,12 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.grpc.interceptor.FilterInterceptor;
 import com.flipkart.gjex.grpc.interceptor.StatusMetricInterceptor;
 import com.flipkart.gjex.grpc.interceptor.TracingInterceptor;
-import io.grpc.*;
+import io.grpc.BindableService;
+import io.grpc.Grpc;
+import io.grpc.InsecureServerCredentials;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 import io.grpc.internal.GrpcUtil;
 import io.grpc.protobuf.services.ProtoReflectionService;
 
@@ -36,7 +42,7 @@ import java.util.concurrent.Executors;
 
 /**
  * <code>GrpcServer</code> is a {@link Service} implementation that manages the GJEX Grpc Server instance lifecycle
- * 
+ *
  * @author regunath.balasubramanian
  */
 
@@ -53,12 +59,12 @@ public class GrpcServer extends AbstractService implements Logging {
 	/** The core Grpc Server instance and its builder*/
 	private ServerBuilder<?> grpcServerBuilder;
 	private Server grpcServer;
-	
+
 	/** The ServerInterceptors*/
 	private FilterInterceptor filterInterceptor;
 	private TracingInterceptor tracingInterceptor;
 	private StatusMetricInterceptor statusMetricInterceptor;
-	
+
 	@Inject
 	public GrpcServer(GJEXConfiguration configuration,
 					  @Named("FilterInterceptor") FilterInterceptor filterInterceptor,
@@ -87,7 +93,7 @@ public class GrpcServer extends AbstractService implements Logging {
 		this.tracingInterceptor = tracingInterceptor;
 		this.statusMetricInterceptor = statusMetricInterceptor;
 	}
-	
+
 	@Override
 	public void doStart() throws Exception {
 		this.grpcServer = this.grpcServerBuilder.addService(ProtoReflectionService.newInstance()).build().start();
@@ -107,10 +113,10 @@ public class GrpcServer extends AbstractService implements Logging {
 		info("GJEX GrpcServer stopped.");
 	}
 
-	public void registerFilters(@SuppressWarnings("rawtypes") List<Filter> filters, List<BindableService> services) {
-		this.filterInterceptor.registerFilters(filters, services);
+	public void registerFilters(@SuppressWarnings("rawtypes") List<GrpcFilter> grpcFilters, List<BindableService> services, GrpcFilterConfig grpcFilterConfig) {
+		this.filterInterceptor.registerFilters(grpcFilters, services, grpcFilterConfig);
 	}
-	
+
 	public void registerTracingSamplers(List<TracingSampler> samplers, List<BindableService> services) {
 		this.tracingInterceptor.registerTracingSamplers(samplers, services);
 	}

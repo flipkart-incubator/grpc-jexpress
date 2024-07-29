@@ -27,7 +27,7 @@ import com.flipkart.gjex.core.service.Service;
 
 /**
  * <code>DashboardServer</code> is a {@link Service} implementation that manages the GJEX Dashboard Jetty Server instance lifecycle
- * 
+ *
  * @author regunath.balasubramanian
  */
 
@@ -41,7 +41,7 @@ public class DashboardServer extends AbstractService implements Logging {
 	public DashboardServer(@Named("DashboardJettyServer") Server dashboardServer) {
 		this.dashboardServer = dashboardServer;
 	}
-	
+
 	@Override
 	public void doStart() throws Exception {
 		this.dashboardServer.start();

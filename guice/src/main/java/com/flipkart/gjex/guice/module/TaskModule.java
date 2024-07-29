@@ -42,16 +42,16 @@ import java.lang.reflect.Method;
  *
  */
 public class TaskModule<T> extends AbstractModule implements Logging {
-	
+
 	@Override
     protected void configure() {
 		TaskMethodInterceptor methodInterceptor = new TaskMethodInterceptor();
 		requestInjection(methodInterceptor);
 		bindInterceptor(Matchers.any(), new TaskMethodMatcher(), methodInterceptor);
 	}
-	
+
 	class TaskMethodInterceptor implements MethodInterceptor {
-		
+
 		@Inject
 		@Named("GlobalFlattenedConfig")
 		private Provider<Configuration> globalConfigurationProvider;
@@ -148,7 +148,7 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 		}
 		return concurrency;
 	}
-	
+
 	/**
 	 * The Matcher that matches methods with the {@link ConcurrentTask} annotation
 	 */
@@ -165,5 +165,5 @@ public class TaskModule<T> extends AbstractModule implements Logging {
 	        }
 	        return matches;
 	    }
-	}	
+	}
 }

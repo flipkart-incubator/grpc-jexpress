@@ -19,11 +19,11 @@ package com.flipkart.gjex.core;
 import java.util.List;
 import java.util.Map;
 
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import io.dropwizard.metrics5.health.HealthCheck;
-import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
@@ -34,7 +34,7 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
  */
 @SuppressWarnings("rawtypes")
 public interface Bundle<T extends GJEXConfiguration, U extends Map> {
-	
+
     /**
      * Initializes this Bundle with the application bootstrap.
      *
@@ -48,25 +48,25 @@ public interface Bundle<T extends GJEXConfiguration, U extends Map> {
      * @param environment the application environment
      */
     void run(T configuration, U configMap, Environment environment);
-    
+
     /**
      * Returns Service instances loaded by this Bundle
      * @return List containing Service instances
      */
     List<Service> getServices();
-    
+
     /**
      * Returns Filter instances loaded by this Bundle
      * @return List containing Filter instances
      */
-	List<Filter> getFilters();
-    
+	List<GrpcFilter> getGrpcFilters();
+
     /**
      * Returns HealthCheck instances loaded by this Bundle
      * @return List containing HealthCheck instances
      */
     List<HealthCheck> getHealthChecks();
-    
+
     /**
      * Returns the TracingSampler instances loaded by this Bundle
      * @return the TracingSampler instances

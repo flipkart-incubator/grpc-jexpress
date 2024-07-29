@@ -21,7 +21,7 @@ repositories {
 def jexpressVersion = '1.40-SNAPSHOT'
 def grpcVersion = '1.60.0'
 def protobufVersion = '3.25.2'
-def protocVersion = protobufVersion 
+def protocVersion = protobufVersion
 
 dependencies {
     //For Development
@@ -45,9 +45,10 @@ dependencies {
     implementation 'org.glassfish:javax.el:3.0.1-b08'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
-    implementation 'org.projectlombok:lombok:1.18.6'
+    implementation 'org.projectlombok:lombok:1.18.30'
     implementation 'org.glassfish.jersey.containers:jersey-container-servlet:2.6'
     implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.7'
+    implementation 'javax.servlet:javax.servlet-api:3.1.0'
 }
 
 protobuf {

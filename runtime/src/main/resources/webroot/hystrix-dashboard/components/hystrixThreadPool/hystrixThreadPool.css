@@ -32,24 +32,24 @@
 .dependencyThreadPools div.monitor p.name {
 	font-weight:bold;
 	font-size: 10pt;
-	text-align: right;	
+	text-align: right;
 	padding-bottom: 5px;
 }
 
 .dependencyThreadPools div.monitor_data {
-	margin: 0 auto;	
+	margin: 0 auto;
 }
 
 .dependencyThreadPools span.smaller {
 	font-size: 8pt;
-	color: grey;	
+	color: grey;
 }
 
 
 .dependencyThreadPools div.tableRow {
 	width:100%;
 	white-space: nowrap;
-	font-size: 8pt;	
+	font-size: 8pt;
 	margin: 0 auto;
 	clear:both;
 }
@@ -96,12 +96,12 @@
 /* override the HREF when we have specified it as a tooltip to not act like a link */
 .dependencyThreadPools div.monitor_data a.tooltip {
 	text-decoration: none;
-	cursor: default;	
+	cursor: default;
 }
 
 .dependencyThreadPools div.monitor_data a.rate {
 	font-weight:bold;
-	color: black;	
+	color: black;
 	font-size: 11pt;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .dependencyThreadPools span.rate_value {
-	font-weight:bold;	
+	font-weight:bold;
 }
 
 

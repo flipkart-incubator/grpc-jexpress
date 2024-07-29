@@ -33,21 +33,21 @@
 
 	margin: 0 auto;
 	overflow: hidden;
-	
+
 	font-size: 80%;
 	font-family:'Bookman Old Style',Bookman,'URW Bookman L','Palatino Linotype',serif;
-	
+
 	float:left;
 }
 
 .menubar .title {
 	float: left;
 	padding-right: 20px;
-	
+
 	font-size: 110%;
 	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 	font-weight: bold;
-	
+
 	vertical-align: bottom;
 }
 
@@ -61,7 +61,7 @@
 	float: right;
 	position:relative;
 	top: 4px;
-	
+
 }
 
 h3.sectionHeader {
@@ -75,10 +75,10 @@ h3.sectionHeader {
 }
 
 .success {
-	color: green;	
+	color: green;
 }
 .shortCircuited {
-	color: blue;	
+	color: blue;
 }
 .latent {
 	color: #FFCC00;	/* shade of dark yellow */
@@ -87,13 +87,13 @@ h3.sectionHeader {
 	color: #FF9900;	 /* shade of orange */
 }
 .failure {
-	color: red;	
+	color: red;
 }
 
 .rejected {
 	color: purple;
 }
-	
+
 .exceptionsThrown {
 	color: brown;
 }

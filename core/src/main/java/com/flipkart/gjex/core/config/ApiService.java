@@ -16,9 +16,12 @@
 package com.flipkart.gjex.core.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.flipkart.gjex.core.filter.http.HttpFilterConfig;
+import lombok.Data;
 
 import javax.validation.constraints.Min;
 
+@Data
 public class ApiService {
 
     @Min(1)
@@ -38,43 +41,6 @@ public class ApiService {
     @JsonProperty("scheduledexecutor.threadpool.size")
     private int scheduledExecutorThreadPoolSize;
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public int getAcceptors() {
-        return acceptors;
-    }
-
-    public void setAcceptors(int acceptors) {
-        this.acceptors = acceptors;
-    }
-
-    public int getSelectors() {
-        return selectors;
-    }
-
-    public void setSelectors(int selectors) {
-        this.selectors = selectors;
-    }
-
-    public int getWorkers() {
-        return workers;
-    }
-
-    public void setWorkers(int workers) {
-        this.workers = workers;
-    }
-
-    public int getScheduledExecutorThreadPoolSize() {
-        return scheduledExecutorThreadPoolSize;
-    }
-
-    public void setScheduledExecutorThreadPoolSize(int scheduledExecutorThreadPoolSize) {
-        this.scheduledExecutorThreadPoolSize = scheduledExecutorThreadPoolSize;
-    }
+    @JsonProperty("filterConfig")
+    private HttpFilterConfig httpFilterConfig;
 }

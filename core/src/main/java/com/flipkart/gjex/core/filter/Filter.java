@@ -15,59 +15,37 @@
  */
 package com.flipkart.gjex.core.filter;
 
-import com.google.protobuf.GeneratedMessageV3;
-
-import io.grpc.Metadata;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
+import com.flipkart.gjex.core.logging.Logging;
 
 /**
- * A Filter interface for processing Request, Request-Headers, Response and Response-Headers around gRPC method invocation
- *  
- * @author regu.b
+ * A Filter interface for processing Request, Request-Headers, Response and Response-Headers
+ * around gRPC and HTTP method invocation
  *
- * @param <Req> Proto V3 message
- * @param <Res> Proto V3 message
+ * @author regu.b
  */
-public interface Filter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> {
-	
-	/** Lifecycle methods for initializing and cleaning up resources used by this Filter*/
-	default void init() {}
-	default void destroy() {}
-	
-	/**
-	 * Call-back to process Request headers and Filter out processing of the next incoming Request Proto V3 body/message. 
-	 * @param requestHeaders Request Headers
-	 * @throws StatusRuntimeException thrown with suitable {@link Status} to indicate reason for failing the request
-	 */
-	default void doFilterRequest(Metadata requestHeaders) throws StatusRuntimeException{}
-	
-	/**
-	 * Call-back to decorate or inspect the Reauest Proto V3 body/message. This Filter cannot fail processing of the Request body and hence there is no support for indicating failure.
-	 * This method should be viewed almost like a proxy for the Request body.
-	 * @param request the Request Proto V3 body/message
-	 */
-	default void doProcessRequest(Req request) {}
-	
-	/**
-	 * Call-back to decorate or inspect the Response headers. Implementations may use this method to set additional headers in the response.
-	 * @param responseHeaders the Response Headers
-	 */
-	default void doProcessResponseHeaders(Metadata responseHeaders) {}
-	
-	/**
-	 * Call-back to decorate or inspect the Response Proto V3 body/message. This Filter cannot fail processing of the Response body and hence there is no support for indicating failure.
-	 * This method should be viewed almost like a proxy for the Response body.
-	 * @param response the Response Proto V3 body/message
-	 */
-	default void doProcessResponse(Res response) {}
-	
-	/**
-	 * Returns array of {@link Key} identifiers for headers to be forwarded
-	 * @return array of {@link Key}
-	 */
-	@SuppressWarnings("rawtypes")
-	default Metadata.Key[] getForwardHeaderKeys(){
-		return new Metadata.Key[] {};
-	}
+public abstract class Filter<Req, Res, M>  {
+
+  /** Lifecycle methods for cleaning up resources used by this Filter*/
+  public void destroy(){}
+
+  /**
+   * Call-back to decorate or inspect the Request body/message. This Filter cannot fail processing of the Request body and hence there is no support for indicating failure.
+   * This method should be viewed almost like a proxy for the Request body.
+   * @param req the Request body/message
+   * @param requestParams prams
+   */
+  public void doProcessRequest(Req req, RequestParams<M> requestParams){}
+
+  /**
+   * Call-back to decorate or inspect the Response headers. Implementations may use this method to set additional headers in the response.
+   * @param responseHeaders the Response Headers
+   */
+  public void doProcessResponseHeaders(M responseHeaders) {}
+
+  /**
+   * Call-back to decorate or inspect the Response body/message. This Filter cannot fail processing of the Response body and hence there is no support for indicating failure.
+   * This method should be viewed almost like a proxy for the Response body.
+   * @param response the Response body/message
+   */
+  public void doProcessResponse(Res response) {}
 }

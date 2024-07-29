@@ -16,9 +16,9 @@
 package com.flipkart.gjex.core.tracing;
 
 /**
- * Interface to permit sampling of Traces. Implementations determine sampling based on static configuration or dynamic switches to 
- * enable/disable tracing. 
- * 
+ * Interface to permit sampling of Traces. Implementations determine sampling based on static configuration or dynamic switches to
+ * enable/disable tracing.
+ *
  * @author regu.b
  *
  */
@@ -33,7 +33,7 @@ public interface TracingSampler {
 	default boolean isSampled(String component) {
 		return Traced.BOOLEAN_NEVER_SAMPLE;
 	}
-	
+
 	/**
 	 * Registers for sampling of the component traces at the specified rate
 	 * @param component the component identifier

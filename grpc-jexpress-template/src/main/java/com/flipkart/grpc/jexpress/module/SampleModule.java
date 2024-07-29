@@ -11,14 +11,15 @@ import com.flipkart.grpc.jexpress.tracing.AllWhitelistTracingSampler;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import io.grpc.BindableService;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 
 public class SampleModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(BindableService.class).annotatedWith(Names.named("SampleService")).to(SampleService.class);
         bind(HealthCheck.class).to(AllIsWellHealthCheck.class);
-        bind(Filter.class).annotatedWith(Names.named("GetLoggingFilter")).to(GetLoggingFilter.class);
-        bind(Filter.class).annotatedWith(Names.named("CreateLoggingFilter")).to(CreateLoggingFilter.class);
+        bind(GrpcFilter.class).annotatedWith(Names.named("GetLoggingFilter")).to(GetLoggingFilter.class);
+        bind(GrpcFilter.class).annotatedWith(Names.named("CreateLoggingFilter")).to(CreateLoggingFilter.class);
         bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
     }
 }

@@ -15,19 +15,29 @@
  */
 package com.flipkart.grpc.jexpress.filter;
 
-import com.flipkart.gjex.core.filter.Filter;
-import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.grpc.jexpress.GetRequest;
 import com.flipkart.grpc.jexpress.GetResponse;
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
+import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.logging.Logging;
 
 import javax.inject.Named;
 
 @Named("GetLoggingFilter")
-public class GetLoggingFilter implements Filter<GetRequest, GetResponse>, Logging {
+public class GetLoggingFilter<GetRequest extends GeneratedMessageV3,
+    GetResponse extends GeneratedMessageV3> extends GrpcFilter<GetRequest, GetResponse> implements Logging {
+
+    public GetLoggingFilter(){}
 
     @Override
-    public void doProcessRequest(GetRequest request) {
+    public GrpcFilter<GetRequest,GetResponse> getInstance(){
+        return new GetLoggingFilter<GetRequest,GetResponse>();
+    }
+
+    @Override
+    public void doProcessRequest(GetRequest request, RequestParams<Metadata> requestParams) {
         info("Request: " + request);
     }
 
@@ -37,7 +47,7 @@ public class GetLoggingFilter implements Filter<GetRequest, GetResponse>, Loggin
 
     @Override
     public void doProcessResponse(GetResponse response) {
-        info("Response:");
+        info("Response: " + response);
     }
 
 }

@@ -15,31 +15,37 @@
  */
 package com.flipkart.grpc.jexpress.filter;
 
-import com.flipkart.gjex.core.filter.Filter;
-import com.flipkart.gjex.core.logging.Logging;
+
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.grpc.jexpress.CreateRequest;
 import com.flipkart.grpc.jexpress.CreateResponse;
-import com.flipkart.grpc.jexpress.GetRequest;
-import com.flipkart.grpc.jexpress.GetResponse;
+import com.google.protobuf.GeneratedMessageV3;
+import com.flipkart.gjex.core.filter.RequestParams;
 import io.grpc.Metadata;
+import com.flipkart.gjex.core.logging.Logging;
 
 import javax.inject.Named;
 
 @Named("CreateLoggingFilter")
-public class CreateLoggingFilter implements Filter<CreateRequest, CreateResponse>, Logging {
+public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,CreateResponse extends GeneratedMessageV3>
+    extends GrpcFilter<CreateRequest, CreateResponse> implements Logging {
 
     @Override
-    public void doProcessRequest(CreateRequest request) {
+    public GrpcFilter<CreateRequest,CreateResponse> getInstance(){
+        return new CreateLoggingFilter<CreateRequest,CreateResponse>();
+    }
+
+    @Override
+    public void doProcessRequest(CreateRequest request, RequestParams<Metadata> requestParams) {
         info("Request: " + request);
     }
 
     @Override
-    public void doProcessResponseHeaders(Metadata reponseHeaders) {
-    }
+    public void doProcessResponseHeaders(Metadata responseHeaders) {}
 
     @Override
     public void doProcessResponse(CreateResponse response) {
-        info("Response:");
+        info("Response: " + response);
     }
 
 }

@@ -23,17 +23,17 @@ import com.flipkart.gjex.core.logging.Logging;
 /**
  * An implementation of {@link TracingSampler} that maintains component specific configuration overrides for tracing and for enabled
  * traces, a {@link CountingSampler} per component that determines if the call must be traced
- * 
+ *
  * @author regu.b
  *
  */
 public class ConfigurableTracingSampler implements TracingSampler, Logging {
-	
+
 	/** Map of components and their respective samplers */
 	private Map<String, CountingSampler> componentMap = new HashMap<String, CountingSampler>();
-	
+
 	/**
-	 * Interface method implementation. 
+	 * Interface method implementation.
 	 * @see com.flipkart.gjex.core.tracing.TracingSampler#isSampled(java.lang.String)
 	 */
 	@Override
@@ -45,9 +45,9 @@ public class ConfigurableTracingSampler implements TracingSampler, Logging {
 		}
 		return isSampled;
 	}
-	
+
 	/**
-	 * Interface method implementation.Initializes a {@link CountingSampler} for the specified component with the specified 
+	 * Interface method implementation.Initializes a {@link CountingSampler} for the specified component with the specified
 	 * sampling rate
 	 * @param component the component/method endpoint/URI path
 	 * @param rate the sampling rate
@@ -60,7 +60,7 @@ public class ConfigurableTracingSampler implements TracingSampler, Logging {
 			this.componentMap.put(component, sampler);
 		}
 	}
-	
+
 	/**
 	 * Updates/Replaces the CountingSampler for the specified component with the new sampling rate
 	 * @param component the component identifier
@@ -69,5 +69,5 @@ public class ConfigurableTracingSampler implements TracingSampler, Logging {
 	public void updateSamplingRate(String component, float rate) {
 		this.componentMap.put(component, new CountingSampler(rate));
 	}
-	
+
 }
