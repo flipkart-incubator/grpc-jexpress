@@ -96,7 +96,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 								   @Named("Dashboard.service.acceptors") int acceptorThreads,
 								   @Named("Dashboard.service.selectors") int selectorThreads,
 								   @Named("Dashboard.service.workers") int maxWorkerThreads,
-								   @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider
+								   @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider,
 								   Resilience4jMetricsStreamServlet resilience4jMetricsStreamServlet) {
 		resourceConfig.register(provider);
 		QueuedThreadPool threadPool = new QueuedThreadPool();
