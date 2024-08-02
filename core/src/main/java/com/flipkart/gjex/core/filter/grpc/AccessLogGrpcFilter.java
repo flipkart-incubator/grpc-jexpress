@@ -79,14 +79,12 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
    */
   @Override
   public void doProcessResponse(S response) {
-    String size = null;
+    String size = "-";
     if (response != null){
       size = String.valueOf(response.getSerializedSize());
     }
-    if (logger.isInfoEnabled()){
-      logger.info("{} {} {} {}",
-              requestParams.getClientIp(), requestParams.getResourcePath(), size, System.currentTimeMillis()-startTime);
-    }
+    logger.info("{} {} {} {}", requestParams.getClientIp(), requestParams.getResourcePath(),
+        size, System.currentTimeMillis()-startTime);
   }
 
   /**
