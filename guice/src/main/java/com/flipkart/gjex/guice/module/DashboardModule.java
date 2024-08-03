@@ -153,9 +153,11 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 							@Named("TracingSamplerHolder")TracingSamplerHolder tracingSamplerHolder,
 							@Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) throws URISyntaxException, UnknownHostException {
 		healthCheckResourceConfig.register(provider);
+        String healthCheckPath =
+            bootstrap.getConfiguration().getApiService().getHttpHealthCheckConfig().getHealthCheckPath();
 		ServletHolder healthCheckServlet =
 				new ServletHolder(new ServletContainer(healthCheckResourceConfig));
-		context.addServlet(healthCheckServlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
+		context.addServlet(healthCheckServlet, healthCheckPath); // registering Health Check servlet under the /healthcheck path
 
 		rotationManagementResourceConfig.register(provider);
 		ServletHolder rotationManagementServlet =

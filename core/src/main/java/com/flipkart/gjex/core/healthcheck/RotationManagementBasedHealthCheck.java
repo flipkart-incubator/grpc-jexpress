@@ -28,21 +28,21 @@ public class RotationManagementBasedHealthCheck extends HealthCheck implements L
     }
   }
 
-  public String getStatus() {
+  public static String getStatus() {
     return inRotation() ? BIR : OOR;
   }
 
-  public String makeOor() {
+  public static String makeOor() {
     rotationStatus.set(false);
     return OOR;
   }
 
-  public String makeBir() {
+  public static String makeBir() {
     rotationStatus.set(true);
     return BIR;
   }
 
-  public boolean inRotation() {
+  public static boolean inRotation() {
     return rotationStatus.get();
   }
 
