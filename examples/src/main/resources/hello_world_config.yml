@@ -18,6 +18,8 @@ Api:
     scheduledexecutor.threadpool.size: 1
     filterConfig:
         enableAccessLogs: true
+    healthCheckConfig:
+        healthCheckPath: "/elb-healthcheck"
 
 Tracing:
     collector.endpoint: http://localhost:9411/api/v2/spans
