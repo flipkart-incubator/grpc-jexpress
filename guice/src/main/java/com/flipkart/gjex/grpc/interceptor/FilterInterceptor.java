@@ -36,6 +36,7 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
@@ -63,6 +64,9 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
      */
     @SuppressWarnings("rawtypes")
     private final Map<String, List<GrpcFilter>> filtersMap = new HashMap<>();
+
+    @Inject
+    private AccessLogGrpcFilter accessLogGrpcFilter;
 
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
@@ -217,7 +221,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,
                                     @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
         if (grpcFilterConfig.isEnableAccessLogs()){
-            filtersForMethod.add(new AccessLogGrpcFilter<>());
+            filtersForMethod.add(accessLogGrpcFilter.getInstance());
         }
     }
 }

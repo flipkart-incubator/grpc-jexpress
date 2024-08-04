@@ -7,7 +7,7 @@ import javax.servlet.Filter;
 
 /**
  * This should be used for registering {@link Filter} present in libraries
- * and which cannot be edited.
+ * which cannot be edited like CrossOriginFilter
  *
  * @author ajay.jalgaonkar
  */
