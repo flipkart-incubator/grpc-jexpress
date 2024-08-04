@@ -1,5 +1,6 @@
 package com.flipkart.gjex.core.healthcheck;
 
+import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.health.v1.HealthGrpc;
@@ -22,6 +23,7 @@ public class GrpcHealthCheckService extends HealthGrpc.HealthImplBase {
   }
 
   @Override
+  @MethodFilters({})
   public void check(HealthCheckRequest request,
                     StreamObserver<HealthCheckResponse> responseObserver) {
     HealthCheckResponse.Builder builder = HealthCheckResponse.newBuilder();
