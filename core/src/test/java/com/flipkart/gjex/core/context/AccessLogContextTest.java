@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class AccessLogContextTest {
@@ -16,7 +17,7 @@ public class AccessLogContextTest {
 
     @Test
     public void testSimpleRender() {
-        AccessLogContext context = new AccessLogContext("127.0.0.1", "/path", 100, 1000L, Map.of("x-header", "value"));
+        AccessLogContext context = new AccessLogContext("127.0.0.1", "/path", 100, 1000L, Collections.singletonMap("x-header", "value"));
         String result = context.format(template);
         Assert.assertEquals("Formatted 127.0.0.1 /path 100 1000 value", result);
     }
