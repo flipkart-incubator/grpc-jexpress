@@ -31,7 +31,7 @@ public class FileConfigurationSourceProviderTest {
     @Test
     public void readsFileContents() throws Exception {
         try (InputStream input = provider.open(Resources.getResource("example.txt").getFile());
-             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[1024];
             int length;
             while ((length = input.read(buffer)) != -1) {

@@ -31,30 +31,30 @@ import java.util.Collection;
 public abstract class ConfigurationException extends Exception {
 
     /** Default */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     protected static final String NEWLINE = String.format("%n");
 
     private final Collection<String> errors;
 
     /**
-     * Creates a new ConfigurationException for the given path with the given errors.
-     *
-     * @param path   the bad configuration path
-     * @param errors the errors in the path
-     */
+    * Creates a new ConfigurationException for the given path with the given errors.
+    *
+    * @param path   the bad configuration path
+    * @param errors the errors in the path
+    */
     public ConfigurationException(String path, Collection<String> errors) {
         super(formatMessage(path, errors));
         this.errors = errors;
     }
 
     /**
-     * Creates a new ConfigurationException for the given path with the given errors and cause.
-     *
-     * @param path   the bad configuration path
-     * @param errors the errors in the path
-     * @param cause  the cause of the error(s)
-     */
+    * Creates a new ConfigurationException for the given path with the given errors and cause.
+    *
+    * @param path   the bad configuration path
+    * @param errors the errors in the path
+    * @param cause  the cause of the error(s)
+    */
     public ConfigurationException(String path, Collection<String> errors, Throwable cause) {
         super(formatMessage(path, errors), cause);
         this.errors = errors;

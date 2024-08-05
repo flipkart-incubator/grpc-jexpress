@@ -20,15 +20,15 @@ public class ExampleHttpFilter extends AccessLogHttpFilter {
   @Override
   public void doProcessResponse(ServletResponse response) {
     if (logger.isInfoEnabled()){
-      HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-      logger.info("{} {} {} {} {} {}",
-          this.getClass().getSimpleName(),
-          requestParams.getClientIp(),
-          requestParams.getResourcePath(),
-          httpServletResponse.getStatus(),
-          httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
-          System.currentTimeMillis()-startTime
-      );
+    HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+    logger.info("{} {} {} {} {} {}",
+        this.getClass().getSimpleName(),
+        requestParams.getClientIp(),
+        requestParams.getResourcePath(),
+        httpServletResponse.getStatus(),
+        httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
+        System.currentTimeMillis()-startTime
+    );
     }
   }
 }

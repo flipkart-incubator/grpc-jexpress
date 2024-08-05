@@ -24,21 +24,21 @@ package com.flipkart.gjex.core.tracing;
  */
 public interface TracingSampler {
 
-	/**
-	 * Determines if tracing must happen for the specified component
-	 * Default is to never sample {@link Traced#BOOLEAN_NEVER_SAMPLE}
-	 * @param component the name of the service or method endpoint where tracing originates
-	 * @return boolean true or false
-	 */
-	default boolean isSampled(String component) {
-		return Traced.BOOLEAN_NEVER_SAMPLE;
-	}
+    /**
+    * Determines if tracing must happen for the specified component
+    * Default is to never sample {@link Traced#BOOLEAN_NEVER_SAMPLE}
+    * @param component the name of the service or method endpoint where tracing originates
+    * @return boolean true or false
+    */
+    default boolean isSampled(String component) {
+        return Traced.BOOLEAN_NEVER_SAMPLE;
+    }
 
-	/**
-	 * Registers for sampling of the component traces at the specified rate
-	 * @param component the component identifier
-	 * @param rate the sampling rate in the range 0.0f to 1.0f
-	 */
-	void initializeSamplerFor(String component, float rate);
+    /**
+    * Registers for sampling of the component traces at the specified rate
+    * @param component the component identifier
+    * @param rate the sampling rate in the range 0.0f to 1.0f
+    */
+    void initializeSamplerFor(String component, float rate);
 
 }

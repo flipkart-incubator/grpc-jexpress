@@ -75,8 +75,8 @@ do
     ls=$( ls -ld "$app_path" )
     link=${ls#*' -> '}
     case $link in             #(
-      /*)   app_path=$link ;; #(
-      *)    app_path=$APP_HOME$link ;;
+    /*)   app_path=$link ;; #(
+    *)    app_path=$APP_HOME$link ;;
     esac
 done
 
@@ -142,13 +142,13 @@ fi
 # Increase the maximum file descriptors if we can.
 if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
     case $MAX_FD in #(
-      max*)
+    max*)
         MAX_FD=$( ulimit -H -n ) ||
             warn "Could not query maximum file descriptor limit"
     esac
     case $MAX_FD in  #(
-      '' | soft) :;; #(
-      *)
+    '' | soft) :;; #(
+    *)
         ulimit -n "$MAX_FD" ||
             warn "Could not set maximum file descriptor limit to $MAX_FD"
     esac
@@ -173,10 +173,10 @@ if "$cygwin" || "$msys" ; then
     for arg do
         if
             case $arg in                                #(
-              -*)   false ;;                            # don't mess with options #(
-              /?*)  t=${arg#/} t=/${t%%/*}              # looks like a POSIX filepath
+            -*)   false ;;                            # don't mess with options #(
+            /?*)  t=${arg#/} t=/${t%%/*}              # looks like a POSIX filepath
                     [ -e "$t" ] ;;                      #(
-              *)    false ;;
+            *)    false ;;
             esac
         then
             arg=$( cygpath --path --ignore --mixed "$arg" )

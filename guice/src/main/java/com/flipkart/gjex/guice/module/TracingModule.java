@@ -63,173 +63,173 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
  */
 public class TracingModule<T> extends AbstractModule implements Logging {
 
-	@Override
+    @Override
     protected void configure() {
-		TracedMethodInterceptor methodInterceptor = new TracedMethodInterceptor();
-		requestInjection(methodInterceptor);
-		bindInterceptor(Matchers.any(), new TracedMethodMatcher(), methodInterceptor);
-		bind(TracingSamplerHolder.class).annotatedWith(Names.named("TracingSamplerHolder")).to(TracingSamplerHolder.class);
-	}
+        TracedMethodInterceptor methodInterceptor = new TracedMethodInterceptor();
+        requestInjection(methodInterceptor);
+        bindInterceptor(Matchers.any(), new TracedMethodMatcher(), methodInterceptor);
+        bind(TracingSamplerHolder.class).annotatedWith(Names.named("TracingSamplerHolder")).to(TracingSamplerHolder.class);
+    }
 
-	/**
-	 * Creates an OpenTracing Tracer over the Openzipkin-Brave tracer
-	 */
-	@Named("Tracer")
-	@Provides
-	@Singleton
-	Tracer getTracer(GJEXConfiguration configuration) {
-		String endPoint = configuration.getTracing().getCollectorEndpoint();
-		AsyncReporter<Span> spanReporter = AsyncReporter.create(OkHttpSender.create(endPoint));
-		Tracing tracing = Tracing.newBuilder()
-                 .localServiceName("GJEX")
-                 .spanReporter(spanReporter)
-                 .build();
-		 return BraveTracer.create(tracing);
-	}
+    /**
+    * Creates an OpenTracing Tracer over the Openzipkin-Brave tracer
+    */
+    @Named("Tracer")
+    @Provides
+    @Singleton
+    Tracer getTracer(GJEXConfiguration configuration) {
+        String endPoint = configuration.getTracing().getCollectorEndpoint();
+        AsyncReporter<Span> spanReporter = AsyncReporter.create(OkHttpSender.create(endPoint));
+        Tracing tracing = Tracing.newBuilder()
+                .localServiceName("GJEX")
+                .spanReporter(spanReporter)
+                .build();
+        return BraveTracer.create(tracing);
+    }
 
-	/**
-	 * The Tracing method interceptor
-	 */
-	class TracedMethodInterceptor implements MethodInterceptor {
+    /**
+    * The Tracing method interceptor
+    */
+    class TracedMethodInterceptor implements MethodInterceptor {
 
-		/** The OpenTracing Tracer instance*/
-		@Inject
-		@Named("Tracer")
-		private Provider<Tracer> tracerProvider;
+        /** The OpenTracing Tracer instance*/
+        @Inject
+        @Named("Tracer")
+        private Provider<Tracer> tracerProvider;
 
-		/**
-		 * Starts a Trace(implicitly) or adds a Span for every method annotated with {@link Traced}. Nesting of spans is implicit
-		 */
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public Object invoke(MethodInvocation invocation) throws Throwable {
-			Scope parentScope = null;
-			Scope scope = null;
-			/*
-			 * Initializing method invocation span as null means the current active span may get unset if there is no parent active span or the Tracing sampler returns
-			 * negative for sampling the request
-			 */
-			io.opentracing.Span methodInvocationSpan = null;
-			Callable<Object> methodCallable = new MethodCallable(invocation);
-			if (GJEXContext.activeSpan() != null) {
-				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
-				// check and warn if TracingSampler is used for non BindableService classes
-				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass()) && invocation.getMethod().getAnnotation(Traced.class).withTracingSampler() != TracingSampler.class) {
-					warn("TracingSampler declarations are interpreted only for sub-types of gRPC BindableService. TracingSampler declared for : "
-							+ methodInvoked + " will not be interpreted/honored");
-				}
-				TracingSampler tracingSampler = GJEXContext.activeTracingSampler();
-				tracingSampler.initializeSamplerFor(methodInvoked, invocation.getMethod().getAnnotation(Traced.class).withSamplingRate());
-				Tracer tracer = tracerProvider.get();
-				if (tracingSampler.isSampled(methodInvoked)) {
-					/*
-					 * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor)
-					 * but not activated because it has to be sampled here.
-					 */
-					if (tracer.scopeManager().active() == null || (tracer.scopeManager().active().span() != GJEXContext.activeSpan())) {
-						parentScope = tracer.scopeManager().activate(GJEXContext.activeSpan(), true);
-					}
-					methodInvocationSpan = tracer.buildSpan(methodInvoked)
-							.asChildOf(GJEXContext.activeSpan())
-							.start();
-					scope = tracer.scopeManager().activate(methodInvocationSpan, true);
-				}
-				// Set the Method invocation Span as the current span - may be null too and this means subsequent methods will not get traced
-				methodCallable = Context.current().withValue(GJEXContext.getKeyActiveSpan(), methodInvocationSpan).wrap(methodCallable);
-			}
-			Object result = null;
-			try  {
-				result = methodCallable.call();
-				if (result != null && FutureDecorator.class.isAssignableFrom(result.getClass())) {
-					((FutureDecorator)result).whenComplete(new AsyncScopeCloserConsumer(scope, parentScope)); // scopes will be closed when the callback executes
-					return result;
-				}
-			} catch(Exception ex) { // we want to log errors to the trace only once
-				TaskException tex = null;
-				if (TaskException.class.isAssignableFrom(ex.getClass())) {
-					tex = (TaskException)ex;
-					if (tex.isTraced()) {
-						logErrorToSpan(methodInvocationSpan, ex);
-						tex.setTraced(false);
-					}
-				} else {
-					logErrorToSpan(methodInvocationSpan, ex);
-					tex = new TaskException(ex,false);
-				}
-				closeScopes(scope, parentScope); // close any open scopes
-				throw tex;
-			}
-			closeScopes(scope, parentScope);
-			return result;
-		}
-	}
+        /**
+        * Starts a Trace(implicitly) or adds a Span for every method annotated with {@link Traced}. Nesting of spans is implicit
+        */
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+            Scope parentScope = null;
+            Scope scope = null;
+            /*
+            * Initializing method invocation span as null means the current active span may get unset if there is no parent active span or the Tracing sampler returns
+            * negative for sampling the request
+            */
+            io.opentracing.Span methodInvocationSpan = null;
+            Callable<Object> methodCallable = new MethodCallable(invocation);
+            if (GJEXContext.activeSpan() != null) {
+                String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
+                // check and warn if TracingSampler is used for non BindableService classes
+                if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass()) && invocation.getMethod().getAnnotation(Traced.class).withTracingSampler() != TracingSampler.class) {
+                    warn("TracingSampler declarations are interpreted only for sub-types of gRPC BindableService. TracingSampler declared for : "
+                            + methodInvoked + " will not be interpreted/honored");
+                }
+                TracingSampler tracingSampler = GJEXContext.activeTracingSampler();
+                tracingSampler.initializeSamplerFor(methodInvoked, invocation.getMethod().getAnnotation(Traced.class).withSamplingRate());
+                Tracer tracer = tracerProvider.get();
+                if (tracingSampler.isSampled(methodInvoked)) {
+                    /*
+                    * We check and activate the parent span - cases where the parent span has been defined (say in the gRPC ServerInterceptor like TracingInterceptor)
+                    * but not activated because it has to be sampled here.
+                    */
+                    if (tracer.scopeManager().active() == null || (tracer.scopeManager().active().span() != GJEXContext.activeSpan())) {
+                        parentScope = tracer.scopeManager().activate(GJEXContext.activeSpan(), true);
+                    }
+                    methodInvocationSpan = tracer.buildSpan(methodInvoked)
+                            .asChildOf(GJEXContext.activeSpan())
+                            .start();
+                    scope = tracer.scopeManager().activate(methodInvocationSpan, true);
+                }
+                // Set the Method invocation Span as the current span - may be null too and this means subsequent methods will not get traced
+                methodCallable = Context.current().withValue(GJEXContext.getKeyActiveSpan(), methodInvocationSpan).wrap(methodCallable);
+            }
+            Object result = null;
+            try  {
+                result = methodCallable.call();
+                if (result != null && FutureDecorator.class.isAssignableFrom(result.getClass())) {
+                    ((FutureDecorator)result).whenComplete(new AsyncScopeCloserConsumer(scope, parentScope)); // scopes will be closed when the callback executes
+                    return result;
+                }
+            } catch(Exception ex) { // we want to log errors to the trace only once
+                TaskException tex = null;
+                if (TaskException.class.isAssignableFrom(ex.getClass())) {
+                    tex = (TaskException)ex;
+                    if (tex.isTraced()) {
+                        logErrorToSpan(methodInvocationSpan, ex);
+                        tex.setTraced(false);
+                    }
+                } else {
+                    logErrorToSpan(methodInvocationSpan, ex);
+                    tex = new TaskException(ex,false);
+                }
+                closeScopes(scope, parentScope); // close any open scopes
+                throw tex;
+            }
+            closeScopes(scope, parentScope);
+            return result;
+        }
+    }
 
-	/** Convenience class to extract Scope closing in {@link FutureDecorator#whenComplete(BiConsumer)}*/
-	class AsyncScopeCloserConsumer implements BiConsumer<T,Throwable> {
-		Scope scope;
-		Scope parentScope;
-		AsyncScopeCloserConsumer(Scope scope, Scope parentScope) {
-			this.scope = scope;
-			this.parentScope = parentScope;
-		}
-		@Override
-		public void accept(T t, Throwable u) {
-			closeScopes(scope, parentScope);
-		}
-	}
+    /** Convenience class to extract Scope closing in {@link FutureDecorator#whenComplete(BiConsumer)}*/
+    class AsyncScopeCloserConsumer implements BiConsumer<T,Throwable> {
+        Scope scope;
+        Scope parentScope;
+        AsyncScopeCloserConsumer(Scope scope, Scope parentScope) {
+            this.scope = scope;
+            this.parentScope = parentScope;
+        }
+        @Override
+        public void accept(T t, Throwable u) {
+            closeScopes(scope, parentScope);
+        }
+    }
 
-	/**
-	 * The Matcher that matches methods with the {@link Traced} annotation
-	 */
-	class TracedMethodMatcher extends AbstractMatcher<Method> {
-		@Override
-	    public boolean matches(final Method method) {
-	        boolean matches = false;
-	        for (Annotation ann : method.getAnnotations()) {
-	            final Class<? extends Annotation> annotationType = ann.annotationType();
-	            if (Traced.class.equals(annotationType)) {
-	                matches = true;
-	                break;
-	            }
-	        }
-	        return matches;
-	    }
-	}
+    /**
+    * The Matcher that matches methods with the {@link Traced} annotation
+    */
+    class TracedMethodMatcher extends AbstractMatcher<Method> {
+        @Override
+        public boolean matches(final Method method) {
+            boolean matches = false;
+            for (Annotation ann : method.getAnnotations()) {
+                final Class<? extends Annotation> annotationType = ann.annotationType();
+                if (Traced.class.equals(annotationType)) {
+                    matches = true;
+                    break;
+                }
+            }
+            return matches;
+        }
+    }
 
-	/** Wraps a MethodInvocation as a Callable for use with gRPC Context*/
-	class MethodCallable implements Callable<Object> {
-		MethodInvocation invocation ;
-		MethodCallable(MethodInvocation invocation) {
-			this.invocation = invocation;
-		}
-		public Object call() throws Exception {
-			try {
-				return this.invocation.proceed();
-			} catch (Throwable e) {
-				if (Exception.class.isAssignableFrom(e.getClass())) {
-					throw (Exception)e;
-				}
-				throw new RuntimeException(e);
-			}
-		}
-	}
+    /** Wraps a MethodInvocation as a Callable for use with gRPC Context*/
+    class MethodCallable implements Callable<Object> {
+        MethodInvocation invocation ;
+        MethodCallable(MethodInvocation invocation) {
+            this.invocation = invocation;
+        }
+        public Object call() throws Exception {
+            try {
+                return this.invocation.proceed();
+            } catch (Throwable e) {
+                if (Exception.class.isAssignableFrom(e.getClass())) {
+                    throw (Exception)e;
+                }
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
-	/** Helper method to close Scope instances*/
-	private void closeScopes(Scope scope, Scope parentScope) {
-		if (scope != null) {
-			scope.close();
-		}
-		if (parentScope != null && parentScope.span() == GJEXContext.activeRootSpan()) { // close the parent span only if it is the root span
-			parentScope.close();
-		}
-	}
+    /** Helper method to close Scope instances*/
+    private void closeScopes(Scope scope, Scope parentScope) {
+        if (scope != null) {
+            scope.close();
+        }
+        if (parentScope != null && parentScope.span() == GJEXContext.activeRootSpan()) { // close the parent span only if it is the root span
+            parentScope.close();
+        }
+    }
 
-	/** Helper to log error to the traced Span*/
-	private void logErrorToSpan(io.opentracing.Span methodInvocationSpan, Exception ex) {
-		if (methodInvocationSpan != null) {
-			Tags.ERROR.set(methodInvocationSpan, true);
-		    methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
-		}
-	}
+    /** Helper to log error to the traced Span*/
+    private void logErrorToSpan(io.opentracing.Span methodInvocationSpan, Exception ex) {
+        if (methodInvocationSpan != null) {
+            Tags.ERROR.set(methodInvocationSpan, true);
+            methodInvocationSpan.log(ImmutableMap.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
+        }
+    }
 
 }

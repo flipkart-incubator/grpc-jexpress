@@ -28,10 +28,10 @@ public class SampleService extends UserServiceGrpc.UserServiceImplBase implement
 
     @Inject
     public SampleService(SampleConfiguration sampleConfiguration,
-                         @Named("GlobalFlattenedConfig") Configuration flattenedConfig,
-                         @Named("GlobalMapConfig") Map mapConfig,
-                         @Named("database.driverClass") String driverClass,
-                         @Named("database.properties.hibernate.session.events.log") boolean hibernateGenerateEventLog)
+                        @Named("GlobalFlattenedConfig") Configuration flattenedConfig,
+                        @Named("GlobalMapConfig") Map mapConfig,
+                        @Named("database.driverClass") String driverClass,
+                        @Named("database.properties.hibernate.session.events.log") boolean hibernateGenerateEventLog)
     {
         this.sampleConfiguration = sampleConfiguration;
         this.flattenedConfig = flattenedConfig;

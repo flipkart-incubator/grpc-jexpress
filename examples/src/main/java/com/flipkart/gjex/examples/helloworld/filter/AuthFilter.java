@@ -36,41 +36,40 @@ import javax.inject.Named;
 @Named("AuthFilter")
 public class AuthFilter extends GrpcFilter<HelloRequest, HelloReply> implements Logging {
 
-	/** Fictitious authentication key*/
-	@SuppressWarnings("rawtypes")
-	static final Metadata.Key AUTH_KEY = Metadata.Key.of("DUMMY_AUTH_TOKEN", Metadata.ASCII_STRING_MARSHALLER);
+    /** Fictitious authentication key*/
+    @SuppressWarnings("rawtypes")
+    static final Metadata.Key AUTH_KEY = Metadata.Key.of("DUMMY_AUTH_TOKEN", Metadata.ASCII_STRING_MARSHALLER);
 
-	/** Flag to control authentication check*/
-	private final boolean isAuth = false;
+    /** Flag to control authentication check*/
+    private final boolean isAuth = false;
 
-	@Override
-	public GrpcFilter<HelloRequest, HelloReply> getInstance(){
-		return new AuthFilter();
-	}
+    @Override
+    public GrpcFilter<HelloRequest, HelloReply> getInstance(){
+        return new AuthFilter();
+    }
 
-	@Override
-	public void doProcessRequest(HelloRequest request, RequestParams<Metadata> requestParams) throws StatusRuntimeException {
-		info("Headers found in the request : " + requestParams.getMetadata().toString());
-		this.checkAuth(requestParams.getMetadata());
-	}
+    @Override
+    public void doProcessRequest(HelloRequest request, RequestParams<Metadata> requestParams) throws StatusRuntimeException {
+        info("Headers found in the request : " + requestParams.getMetadata().toString());
+        this.checkAuth(requestParams.getMetadata());
+    }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Metadata.Key[] getForwardHeaderKeys() {
-		return new  Metadata.Key[] {AUTH_KEY};
-	}
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Metadata.Key[] getForwardHeaderKeys() {
+        return new  Metadata.Key[] {AUTH_KEY};
+    }
 
-	@SuppressWarnings("unchecked")
-	private void checkAuth(Metadata requestHeaders) throws StatusRuntimeException {
-		if (this.isAuth() && requestHeaders.get(AUTH_KEY) == null) {
-			error("Rejecting this request as it is unauthenticated!");
-			throw new StatusRuntimeException(Status.UNAUTHENTICATED.withDescription("Auth token is missing in request headers!"), requestHeaders);
-		}
-	}
+    @SuppressWarnings("unchecked")
+    private void checkAuth(Metadata requestHeaders) throws StatusRuntimeException {
+        if (this.isAuth() && requestHeaders.get(AUTH_KEY) == null) {
+            error("Rejecting this request as it is unauthenticated!");
+            throw new StatusRuntimeException(Status.UNAUTHENTICATED.withDescription("Auth token is missing in request headers!"), requestHeaders);
+        }
+    }
 
-	public boolean isAuth() {
-		return this.isAuth;
-	}
+    public boolean isAuth() {
+        return this.isAuth;
+    }
 
 }
-

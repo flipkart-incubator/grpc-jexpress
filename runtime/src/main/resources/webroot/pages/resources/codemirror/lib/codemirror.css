@@ -101,7 +101,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 /* STOP */
 
 /* The rest of this file contains styles related to the mechanics of
-   the editor. You probably shouldn't touch them. */
+    the editor. You probably shouldn't touch them. */
 
 .CodeMirror {
   line-height: 1;
@@ -123,8 +123,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 
 /* The fake, visible scrollbars. Used to force redraw during scrolling
-   before actuall scrolling happens, thus preventing shaking and
-   flickering artifacts. */
+    before actuall scrolling happens, thus preventing shaking and
+    flickering artifacts. */
 .CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler {
   position: absolute;
   z-index: 6;

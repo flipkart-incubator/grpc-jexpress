@@ -41,4 +41,3 @@ database:
     charSet: UTF-8
     hibernate.generate_statistics: false
     hibernate.session.events.log: false
-

@@ -35,29 +35,29 @@ public class HelloWorldClientInterceptor implements ClientInterceptor {
 
   @VisibleForTesting
   static final Metadata.Key<String> CUSTOM_HEADER_KEY =
-      Metadata.Key.of("DUMMY_AUTH_TOKEN", Metadata.ASCII_STRING_MARSHALLER);
+    Metadata.Key.of("DUMMY_AUTH_TOKEN", Metadata.ASCII_STRING_MARSHALLER);
 
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
-      CallOptions callOptions, Channel next) {
+    CallOptions callOptions, Channel next) {
     return new SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
 
-      @Override
-      public void start(Listener<RespT> responseListener, Metadata headers) {
+    @Override
+    public void start(Listener<RespT> responseListener, Metadata headers) {
         /* put custom header */
         headers.put(CUSTOM_HEADER_KEY, "dummyAuthPrincipal");
         super.start(new SimpleForwardingClientCallListener<RespT>(responseListener) {
-          @Override
-          public void onHeaders(Metadata headers) {
+        @Override
+        public void onHeaders(Metadata headers) {
             /**
-             * if you don't need receive header from server,
-             * you can use {@link io.grpc.stub.MetadataUtils#attachHeaders}
-             * directly to send header
-             */
+            * if you don't need receive header from server,
+            * you can use {@link io.grpc.stub.MetadataUtils#attachHeaders}
+            * directly to send header
+            */
             super.onHeaders(headers);
-          }
+        }
         }, headers);
-      }
+    }
     };
   }
 }

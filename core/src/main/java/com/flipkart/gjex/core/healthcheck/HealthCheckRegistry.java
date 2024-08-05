@@ -27,20 +27,20 @@ import io.dropwizard.metrics5.health.HealthCheck;
  */
 public class HealthCheckRegistry extends io.dropwizard.metrics5.health.HealthCheckRegistry {
 
-	/** Name for this HealthCheckRegistry*/
-	public static final String HEALTHCHECK_REGISTRY_NAME = "GJEX_HealthCheckRegistry";
+    /** Name for this HealthCheckRegistry*/
+    public static final String HEALTHCHECK_REGISTRY_NAME = "GJEX_HealthCheckRegistry";
 
-	private ExecutorService executorService;
+    private ExecutorService executorService;
 
     public HealthCheckRegistry(ExecutorService executorService) {
-    		this.executorService = executorService;
-	}
+            this.executorService = executorService;
+    }
 
     /**
-     * Runs HealthChecks concurrently using the ExecutorService
-     */
+    * Runs HealthChecks concurrently using the ExecutorService
+    */
     @Override
     public SortedMap<String, HealthCheck.Result> runHealthChecks() {
-    		return this.runHealthChecks(this.executorService);
+            return this.runHealthChecks(this.executorService);
     }
 }

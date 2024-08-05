@@ -30,31 +30,31 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Environment {
 
-	private final String name;
+    private final String name;
     private final MetricRegistry metricRegistry;
     private final HealthCheckRegistry healthCheckRegistry;
 
     public Environment(String name, MetricRegistry metricRegistry) {
-    		this.name = name;
-    		this.metricRegistry = metricRegistry;
+            this.name = name;
+            this.metricRegistry = metricRegistry;
 
-    		// Creating a cached threadpool as the number of HealthCheck instances are anyway unknown and hence no point in bounding it to a number
-    		this.healthCheckRegistry = new HealthCheckRegistry(Executors.newCachedThreadPool(new NamedThreadFactory("GJEX-healthcheck-")));
+            // Creating a cached threadpool as the number of HealthCheck instances are anyway unknown and hence no point in bounding it to a number
+            this.healthCheckRegistry = new HealthCheckRegistry(Executors.newCachedThreadPool(new NamedThreadFactory("GJEX-healthcheck-")));
     }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public MetricRegistry getMetricRegistry() {
-		return metricRegistry;
-	}
+    public MetricRegistry getMetricRegistry() {
+        return metricRegistry;
+    }
 
-	public HealthCheckRegistry getHealthCheckRegistry() {
-		return healthCheckRegistry;
-	}
+    public HealthCheckRegistry getHealthCheckRegistry() {
+        return healthCheckRegistry;
+    }
 
-	private static class NamedThreadFactory implements ThreadFactory {
+    private static class NamedThreadFactory implements ThreadFactory {
 
         private final ThreadGroup group;
         private final AtomicInteger threadNumber = new AtomicInteger(1);

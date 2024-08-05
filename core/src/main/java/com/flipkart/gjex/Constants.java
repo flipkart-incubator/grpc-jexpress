@@ -22,31 +22,31 @@ package com.flipkart.gjex;
  */
 public interface Constants {
 
-	String LOGGING_ID = "loggingId";
+    String LOGGING_ID = "loggingId";
 
-	String CONFIG_FILE_PROPERTY = "gjex.configurationFile";
+    String CONFIG_FILE_PROPERTY = "gjex.configurationFile";
 
     /**
-     * Root for all packaged configs.
-     */
+    * Root for all packaged configs.
+    */
     String CONFIG_ROOT = "packaged";
 
     /**
-     * Configuration yml resource path.
-     */
+    * Configuration yml resource path.
+    */
     String CONFIGURATION_YML = CONFIG_ROOT + "/configuration.yml";
 
     /**
-     * Config file name for GRPC Service module class names
-     */
+    * Config file name for GRPC Service module class names
+    */
     String GRPC_MODULE_NAMES_CONFIG = "grpc_modules.yml";
 
     /**
-     * The GRPC Service modules property name
-     */
+    * The GRPC Service modules property name
+    */
     String GRPC_MODULE_NAMES = "GJEX.grpc.module.names";
 
-	/** Static name for GJEX core application name used to distinguish Resources added by the framework with custom ones added by the GJEX applications */
-	String GJEX_CORE_APPLICATION = "@@GJEXCoreApplication@@";
+    /** Static name for GJEX core application name used to distinguish Resources added by the framework with custom ones added by the GJEX applications */
+    String GJEX_CORE_APPLICATION = "@@GJEXCoreApplication@@";
 
 }

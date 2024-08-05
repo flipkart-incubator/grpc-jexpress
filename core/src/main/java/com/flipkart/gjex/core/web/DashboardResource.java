@@ -37,14 +37,14 @@ import org.glassfish.jersey.server.mvc.Viewable;
 @Named
 public class DashboardResource {
 
-	@Context
-	private ServletContext servletContext;
+    @Context
+    private ServletContext servletContext;
 
-	@GET
-	@Path("/dashboard")
-	@Produces(MediaType.TEXT_HTML)
-	public Viewable getHystrixDashboard() {
-		return new Viewable("/dashboard.ftl");
-	}
+    @GET
+    @Path("/dashboard")
+    @Produces(MediaType.TEXT_HTML)
+    public Viewable getHystrixDashboard() {
+        return new Viewable("/dashboard.ftl");
+    }
 
 }

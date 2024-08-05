@@ -22,9 +22,9 @@ public class RotationManagementBasedHealthCheck extends HealthCheck implements L
   @Override
   protected Result check() {
     if (inRotation()) {
-      return Result.healthy("Server is " + getStatus());
+    return Result.healthy("Server is " + getStatus());
     } else {
-      return Result.unhealthy("Server is " + getStatus());
+    return Result.unhealthy("Server is " + getStatus());
     }
   }
 

@@ -13,31 +13,31 @@ public abstract class ScheduledJob implements Runnable, Logging {
 
     public enum IntervalType {
         /**
-         * Schedule using {@link java.util.concurrent.ScheduledExecutorService#scheduleAtFixedRate}
-         */
+        * Schedule using {@link java.util.concurrent.ScheduledExecutorService#scheduleAtFixedRate}
+        */
         RATE,
 
         /**
-         * Schedule using {@link java.util.concurrent.ScheduledExecutorService#scheduleWithFixedDelay}
-         */
+        * Schedule using {@link java.util.concurrent.ScheduledExecutorService#scheduleWithFixedDelay}
+        */
         DELAY
     }
 
     /**
-     * @return interval type for scheduling
-     */
+    * @return interval type for scheduling
+    */
     @NotNull
     public abstract IntervalType getIntervalType();
 
     /**
-     * @return interval for scheduling. Must be >= 1ms
-     */
+    * @return interval for scheduling. Must be >= 1ms
+    */
     @NotNull
     public abstract Duration getInterval();
 
     /**
-     * Implement job logic here
-     */
+    * Implement job logic here
+    */
     public abstract void doJob();
 
     @Override

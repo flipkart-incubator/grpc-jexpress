@@ -31,24 +31,24 @@ import com.flipkart.gjex.core.GJEXError.ErrorType;
 @Named("TracingSamplerHolder")
 public class TracingSamplerHolder extends HashMap<String, TracingSampler> {
 
-	/** Name for this TracingSamplerHolder*/
-	public static final String TRACING_SAMPLER_HOLDER_NAME = "GJEX_TracingSamplerHolder";
+    /** Name for this TracingSamplerHolder*/
+    public static final String TRACING_SAMPLER_HOLDER_NAME = "GJEX_TracingSamplerHolder";
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Updates the tracing sampler for the component specified with the specified sampling rate
-	 * @param serviceName the service name
-	 * @param samplerComponentName the sampled component name
-	 * @param samplerRate the rate of sampling
-	 */
-	public void updateTracingSampler(String serviceName, String samplerComponentName, float samplerRate) {
-		ConfigurableTracingSampler tracingSampler = (ConfigurableTracingSampler)this.get(serviceName);
-		if (tracingSampler == null) {
-			throw new GJEXError(ErrorType.runtime, "No tracing configuration found for : " + samplerComponentName, null);
-		}
-		tracingSampler.updateSamplingRate(samplerComponentName, samplerRate);
-	}
+    /**
+    * Updates the tracing sampler for the component specified with the specified sampling rate
+    * @param serviceName the service name
+    * @param samplerComponentName the sampled component name
+    * @param samplerRate the rate of sampling
+    */
+    public void updateTracingSampler(String serviceName, String samplerComponentName, float samplerRate) {
+        ConfigurableTracingSampler tracingSampler = (ConfigurableTracingSampler)this.get(serviceName);
+        if (tracingSampler == null) {
+            throw new GJEXError(ErrorType.runtime, "No tracing configuration found for : " + samplerComponentName, null);
+        }
+        tracingSampler.updateSamplingRate(samplerComponentName, samplerRate);
+    }
 
 
 }

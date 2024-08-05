@@ -27,12 +27,12 @@ import io.grpc.Metadata;
  */
 public class ApplicationHeaders {
 
-	/**
-	 * Returns forwarded headers, if any
-	 * @return null or forwarded headers
-	 */
-	public static Metadata getHeaders() {
-		return GJEXContext.activeHeaders();
-	}
+    /**
+    * Returns forwarded headers, if any
+    * @return null or forwarded headers
+    */
+    public static Metadata getHeaders() {
+        return GJEXContext.activeHeaders();
+    }
 
 }

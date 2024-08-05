@@ -51,8 +51,8 @@ public class ClientTracingInterceptor implements ClientInterceptor {
     private final ActiveSpanSource activeSpanSource;
 
     /**
-     * @param tracer to use to trace requests
-     */
+    * @param tracer to use to trace requests
+    */
     public ClientTracingInterceptor(Tracer tracer) {
         this.tracer = tracer;
         this.operationNameConstructor = OperationNameConstructor.DEFAULT;
@@ -60,10 +60,10 @@ public class ClientTracingInterceptor implements ClientInterceptor {
     }
 
     /**
-     * Use this intercepter to trace requests made by this client channel.
-     * @param channel to be traced
-     * @return intercepted channel
-     */
+    * Use this intercepter to trace requests made by this client channel.
+    * @param channel to be traced
+    * @return intercepted channel
+    */
     public Channel intercept(Channel channel) {
         return ClientInterceptors.intercept(channel, this);
     }
@@ -74,59 +74,59 @@ public class ClientTracingInterceptor implements ClientInterceptor {
 
         Span activeSpan = this.activeSpanSource.getActiveSpan();
         if (activeSpan != null) {
-	    		final String operationName = operationNameConstructor.constructOperationName(method);
+                final String operationName = operationNameConstructor.constructOperationName(method);
 
-	        final Span span = createSpanFromParent(activeSpan, operationName);
+            final Span span = createSpanFromParent(activeSpan, operationName);
 
-	        if (callOptions.getDeadline() == null) {
-	            span.setTag("grpc.deadline_millis", "null");
-	        } else {
-	            span.setTag("grpc.deadline_millis", callOptions.getDeadline().timeRemaining(TimeUnit.MILLISECONDS));
-	        }
+            if (callOptions.getDeadline() == null) {
+                span.setTag("grpc.deadline_millis", "null");
+            } else {
+                span.setTag("grpc.deadline_millis", callOptions.getDeadline().timeRemaining(TimeUnit.MILLISECONDS));
+            }
 
-	        return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
+            return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
 
-				@Override
-				public void start(Listener<RespT> responseListener, Metadata headers) {
-					tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new TextMap() {
-						@Override
-						public void put(String key, String value) {
-							Metadata.Key<String> headerKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
-							headers.put(headerKey, value);
-						}
-						@Override
-						public Iterator<Entry<String, String>> iterator() {
-							throw new UnsupportedOperationException(
-									"TextMapInjectAdapter should only be used with Tracer.inject()");
-						}
-					});
-					Listener<RespT> tracingResponseListener = new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(
-							responseListener) {
-						@Override
-						public void onClose(Status status, Metadata trailers) {
-							span.finish();
-							delegate().onClose(status, trailers);
-						}
-					};
-					delegate().start(tracingResponseListener, headers);
-				}
+                @Override
+                public void start(Listener<RespT> responseListener, Metadata headers) {
+                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new TextMap() {
+                        @Override
+                        public void put(String key, String value) {
+                            Metadata.Key<String> headerKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
+                            headers.put(headerKey, value);
+                        }
+                        @Override
+                        public Iterator<Entry<String, String>> iterator() {
+                            throw new UnsupportedOperationException(
+                                    "TextMapInjectAdapter should only be used with Tracer.inject()");
+                        }
+                    });
+                    Listener<RespT> tracingResponseListener = new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(
+                            responseListener) {
+                        @Override
+                        public void onClose(Status status, Metadata trailers) {
+                            span.finish();
+                            delegate().onClose(status, trailers);
+                        }
+                    };
+                    delegate().start(tracingResponseListener, headers);
+                }
 
-				@Override
-				public void cancel(@Nullable String message, @Nullable Throwable cause) {
-					String errorMessage;
-					if (message == null) {
-						errorMessage = "Error";
-					} else {
-						errorMessage = message;
-					}
-					if (cause == null) {
-						span.log(errorMessage);
-					} else {
-						span.log(ImmutableMap.of(errorMessage, cause.getMessage()));
-					}
-					delegate().cancel(message, cause);
-				}
-			};
+                @Override
+                public void cancel(@Nullable String message, @Nullable Throwable cause) {
+                    String errorMessage;
+                    if (message == null) {
+                        errorMessage = "Error";
+                    } else {
+                        errorMessage = message;
+                    }
+                    if (cause == null) {
+                        span.log(errorMessage);
+                    } else {
+                        span.log(ImmutableMap.of(errorMessage, cause.getMessage()));
+                    }
+                    delegate().cancel(message, cause);
+                }
+            };
         }
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)){};
     }

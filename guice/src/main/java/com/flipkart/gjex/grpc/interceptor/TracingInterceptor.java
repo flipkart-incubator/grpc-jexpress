@@ -64,89 +64,89 @@ import io.opentracing.propagation.TextMapExtractAdapter;
 @Named("TracingInterceptor")
 public class TracingInterceptor implements ServerInterceptor, Logging {
 
-	/** Map of ConfigurableTracingSampler instance mapped to Service and its method*/
-	private final TracingSamplerHolder samplerMap;
-	private final Tracer tracer;
+    /** Map of ConfigurableTracingSampler instance mapped to Service and its method*/
+    private final TracingSamplerHolder samplerMap;
+    private final Tracer tracer;
 
-	@Inject
-	public TracingInterceptor(@Named("Tracer")Tracer tracer,
-			@Named("TracingSamplerHolder")TracingSamplerHolder samplerMap) {
-		this.samplerMap = samplerMap;
-		this.tracer = tracer;
-	}
+    @Inject
+    public TracingInterceptor(@Named("Tracer")Tracer tracer,
+            @Named("TracingSamplerHolder")TracingSamplerHolder samplerMap) {
+        this.samplerMap = samplerMap;
+        this.tracer = tracer;
+    }
 
-	public void registerTracingSamplers(List<TracingSampler> samplers, List<BindableService> services) {
-		Map<Class<?>, TracingSampler> classToInstanceMap = samplers.stream()
-				.collect(Collectors.toMap(Object::getClass, Function.identity()));
-		services.forEach(service -> {
-			List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), Traced.class);
-			if(annotatedMethods != null) {
-				annotatedMethods.forEach(pair -> {
-					Arrays.asList(pair.getValue().getAnnotation(Traced.class).withTracingSampler()).forEach(samplerClass -> {
-						// Key is of the form <Service Name>+ "/" +<Method Name>
-						// reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
-						String samplerComponentName = (service.bindService().getServiceDescriptor().getName() + "/"
-								+ pair.getValue().getName()).toLowerCase();
-						if (samplerClass == TracingSampler.class) {
-							samplerMap.put(samplerComponentName, new ConfigurableTracingSampler());
-						} else {
-							if (!classToInstanceMap.containsKey(samplerClass)) {
-								throw new RuntimeException("TracingSampler instance not bound for TracingSampler class :" + samplerClass.getName());
-							}
-							samplerMap.put(samplerComponentName, classToInstanceMap.get(samplerClass));
-						}
-					});
-				});
-			}
-		});
+    public void registerTracingSamplers(List<TracingSampler> samplers, List<BindableService> services) {
+        Map<Class<?>, TracingSampler> classToInstanceMap = samplers.stream()
+                .collect(Collectors.toMap(Object::getClass, Function.identity()));
+        services.forEach(service -> {
+            List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), Traced.class);
+            if(annotatedMethods != null) {
+                annotatedMethods.forEach(pair -> {
+                    Arrays.asList(pair.getValue().getAnnotation(Traced.class).withTracingSampler()).forEach(samplerClass -> {
+                        // Key is of the form <Service Name>+ "/" +<Method Name>
+                        // reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
+                        String samplerComponentName = (service.bindService().getServiceDescriptor().getName() + "/"
+                                + pair.getValue().getName()).toLowerCase();
+                        if (samplerClass == TracingSampler.class) {
+                            samplerMap.put(samplerComponentName, new ConfigurableTracingSampler());
+                        } else {
+                            if (!classToInstanceMap.containsKey(samplerClass)) {
+                                throw new RuntimeException("TracingSampler instance not bound for TracingSampler class :" + samplerClass.getName());
+                            }
+                            samplerMap.put(samplerComponentName, classToInstanceMap.get(samplerClass));
+                        }
+                    });
+                });
+            }
+        });
 
-	}
+    }
 
-	@Override
-	public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,ServerCallHandler<ReqT, RespT> next) {
-		TracingSampler tracingSampler = this.samplerMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
-		if (tracingSampler == null) {
-			return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
-					new SimpleForwardingServerCall<ReqT, RespT>(call){},headers)){};
-		}
-		Map<String, String> headerMap = new HashMap<String, String>();
-		for (String key : headers.keys()) {
-			if (!key.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-				String value = headers.get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER));
-				headerMap.put(key, value);
-			}
-		}
+    @Override
+    public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,ServerCallHandler<ReqT, RespT> next) {
+        TracingSampler tracingSampler = this.samplerMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
+        if (tracingSampler == null) {
+            return new SimpleForwardingServerCallListener<ReqT>(next.startCall(
+                    new SimpleForwardingServerCall<ReqT, RespT>(call){},headers)){};
+        }
+        Map<String, String> headerMap = new HashMap<String, String>();
+        for (String key : headers.keys()) {
+            if (!key.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
+                String value = headers.get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER));
+                headerMap.put(key, value);
+            }
+        }
 
-		final Span span = getSpanFromHeaders(call,headerMap);
-		/*
-		 *  Set the client side initiated Trace and Span in the Context.
-		 *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
-		 */
-		Context ctxWithSpan = Context.current().withValues(GJEXContext.getKeyRoot(), span, // root span and active span are the same
-				GJEXContext.getKeyActiveSpan(), span,
-				GJEXContext.getSpanContextKey(), span.context(),
-				GJEXContext.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
+        final Span span = getSpanFromHeaders(call,headerMap);
+        /*
+        *  Set the client side initiated Trace and Span in the Context.
+        *  Note : we do not active the Span. This will be done in the TracingModule based on sampling enabled/not-enabled for the service's method
+        */
+        Context ctxWithSpan = Context.current().withValues(GJEXContext.getKeyRoot(), span, // root span and active span are the same
+                GJEXContext.getKeyActiveSpan(), span,
+                GJEXContext.getSpanContextKey(), span.context(),
+                GJEXContext.getTracingSamplerKey(), tracingSampler); // pass on the TracingSampler for use in downstream calls for e.g. in TracingModule
 
-		ServerCall.Listener<ReqT> listenerWithContext = Contexts.interceptCall(ctxWithSpan, call, headers, next);
+        ServerCall.Listener<ReqT> listenerWithContext = Contexts.interceptCall(ctxWithSpan, call, headers, next);
 
-		return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {};
-	}
+        return new SimpleForwardingServerCallListener<ReqT>(listenerWithContext) {};
+    }
 
-	/**
-	 * Creates and returns a Span from gRPC headers, if any.
-	 */
-	private <ReqT, RespT> Span getSpanFromHeaders(ServerCall<ReqT, RespT> call, Map<String, String> headers) {
-		String methodInvoked = call.getMethodDescriptor().getFullMethodName();
-		Span span = null;
-		try {
-			SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers));
-			span = tracer.buildSpan(methodInvoked).asChildOf(parentSpanCtx).start();
-			//Service name can be added as a Tag from opentracing-java version v0.31.1 onwards
-			//Tags.SERVICE.set(span, MethodDescriptor.extractFullServiceName(methodInvoked));
-		} catch (IllegalArgumentException iae) {
-			span = tracer.buildSpan(methodInvoked).withTag("Error", "Extract failed and an IllegalArgumentException was thrown")
-					.start();
-		}
-		return span;
-	}
+    /**
+    * Creates and returns a Span from gRPC headers, if any.
+    */
+    private <ReqT, RespT> Span getSpanFromHeaders(ServerCall<ReqT, RespT> call, Map<String, String> headers) {
+        String methodInvoked = call.getMethodDescriptor().getFullMethodName();
+        Span span = null;
+        try {
+            SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers));
+            span = tracer.buildSpan(methodInvoked).asChildOf(parentSpanCtx).start();
+            //Service name can be added as a Tag from opentracing-java version v0.31.1 onwards
+            //Tags.SERVICE.set(span, MethodDescriptor.extractFullServiceName(methodInvoked));
+        } catch (IllegalArgumentException iae) {
+            span = tracer.buildSpan(methodInvoked).withTag("Error", "Extract failed and an IllegalArgumentException was thrown")
+                    .start();
+        }
+        return span;
+    }
 }

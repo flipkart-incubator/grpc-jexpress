@@ -34,23 +34,23 @@ import io.grpc.BindableService;
 @Documented
 public @interface Traced {
 
-	/** Convenience sampling constants */
-	public static final float RATE_NEVER_SAMPLE = 0f;
-	public static final float RATE_ALWAYS_SAMPLE = 1f;
-	public static final boolean BOOLEAN_NEVER_SAMPLE = false;
+    /** Convenience sampling constants */
+    public static final float RATE_NEVER_SAMPLE = 0f;
+    public static final float RATE_ALWAYS_SAMPLE = 1f;
+    public static final boolean BOOLEAN_NEVER_SAMPLE = false;
 
-	/**
-     * Returns the sampling rate on a scale of 0.0 to 1.0, where 0.0 indicates no sampling and 1.0 indicates all requests are sampled
-     * Default value is to sample always {@link Traced#RATE_ALWAYS_SAMPLE}
-     * Note that this property is overriden by {@link #withTracingSampler()}, if any is specified
-     */
-	float withSamplingRate() default Traced.RATE_ALWAYS_SAMPLE;
+    /**
+    * Returns the sampling rate on a scale of 0.0 to 1.0, where 0.0 indicates no sampling and 1.0 indicates all requests are sampled
+    * Default value is to sample always {@link Traced#RATE_ALWAYS_SAMPLE}
+    * Note that this property is overriden by {@link #withTracingSampler()}, if any is specified
+    */
+    float withSamplingRate() default Traced.RATE_ALWAYS_SAMPLE;
 
-	/**
-	 * Tracing is delegated to the specified sampler. Note that specifying a TracingSampler overrides any {@link #withSamplingRate()} setting.
-	 * NOTE : In GJEX, this attribute is interpreted and used only when specified for gRPC services i.e. sub-types of {@link BindableService}
-	 * @return null or a TracingSampler implementation
-	 */
-	Class<? extends TracingSampler> withTracingSampler() default TracingSampler.class;
+    /**
+    * Tracing is delegated to the specified sampler. Note that specifying a TracingSampler overrides any {@link #withSamplingRate()} setting.
+    * NOTE : In GJEX, this attribute is interpreted and used only when specified for gRPC services i.e. sub-types of {@link BindableService}
+    * @return null or a TracingSampler implementation
+    */
+    Class<? extends TracingSampler> withTracingSampler() default TracingSampler.class;
 
 }

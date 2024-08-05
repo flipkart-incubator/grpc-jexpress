@@ -30,7 +30,7 @@ import javax.inject.Named;
 @Named("LoggingFilter")
 public class LoggingFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> extends GrpcFilter<Req, Res> implements Logging {
 
-	/** Custom response key to indicate request was logged on the server*/
+    /** Custom response key to indicate request was logged on the server*/
     static final Metadata.Key<String> CUSTOM_HEADER_KEY = Metadata.Key.of("request_response_logged_header_key", Metadata.ASCII_STRING_MARSHALLER);
 
     @Override

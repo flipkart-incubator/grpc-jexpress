@@ -57,10 +57,10 @@ public class GJEXEnvironmentModule<T extends GJEXConfiguration, U extends Map> e
     }
 
     /**
-     *  This method is called from GuiceBundle.run() method to set actual generated Configuration instance
+    *  This method is called from GuiceBundle.run() method to set actual generated Configuration instance
         (constructed using either yml file or other sources like config-service).
         This instance will be returned when we try to inject GJEXConfiguration or its subclass class
-     */
+    */
     public void setEnvironmentData(T configuration, Environment environment) {
         this.configuration = configuration;
         this.environment = environment;

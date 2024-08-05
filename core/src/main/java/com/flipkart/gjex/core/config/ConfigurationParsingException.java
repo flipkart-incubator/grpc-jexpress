@@ -32,9 +32,9 @@ import java.util.*;
 public class ConfigurationParsingException extends ConfigurationException {
 
     /** Default */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static class Builder {
+    public static class Builder {
 
         private static final int MAX_SUGGESTIONS = 5;
         private String summary;
@@ -52,93 +52,93 @@ public class ConfigurationParsingException extends ConfigurationException {
         }
 
         /**
-         * Returns a brief message summarizing the error.
-         *
-         * @return a brief message summarizing the error.
-         */
+        * Returns a brief message summarizing the error.
+        *
+        * @return a brief message summarizing the error.
+        */
         public String getSummary() {
             return summary.trim();
         }
 
         /**
-         * Returns a detailed description of the error.
-         *
-         * @return a detailed description of the error or the empty String if there is none.
-         */
+        * Returns a detailed description of the error.
+        *
+        * @return a detailed description of the error or the empty String if there is none.
+        */
         public String getDetail() {
             return detail.trim();
         }
 
         /**
-         * Determines if a detailed description of the error has been set.
-         *
-         * @return true if there is a detailed description of the error; false if there is not.
-         */
+        * Determines if a detailed description of the error has been set.
+        *
+        * @return true if there is a detailed description of the error; false if there is not.
+        */
         public boolean hasDetail() {
             return detail != null && !detail.isEmpty();
         }
 
         /**
-         * Returns the path to the problematic JSON field, if there is one.
-         *
-         * @return a {@link List} with each element in the path in order, beginning at the root; or
-         *         an empty list if there is no JSON field in the context of this error.
-         */
+        * Returns the path to the problematic JSON field, if there is one.
+        *
+        * @return a {@link List} with each element in the path in order, beginning at the root; or
+        *         an empty list if there is no JSON field in the context of this error.
+        */
         public List<JsonMappingException.Reference> getFieldPath() {
             return fieldPath;
         }
 
         /**
-         * Determines if the path to a JSON field has been set.
-         *
-         * @return true if the path to a JSON field has been set for the error; false if no path has
-         *         yet been set.
-         */
+        * Determines if the path to a JSON field has been set.
+        *
+        * @return true if the path to a JSON field has been set for the error; false if no path has
+        *         yet been set.
+        */
         public boolean hasFieldPath() {
             return fieldPath != null && !fieldPath.isEmpty();
         }
 
         /**
-         * Returns the line number of the source of the problem.
-         * <p/>
-         * Note: the line number is indexed from zero.
-         *
-         * @return the line number of the source of the problem, or -1 if unknown.
-         */
+        * Returns the line number of the source of the problem.
+        * <p/>
+        * Note: the line number is indexed from zero.
+        *
+        * @return the line number of the source of the problem, or -1 if unknown.
+        */
         public int getLine() {
             return line;
         }
 
         /**
-         * Returns the column number of the source of the problem.
-         * <p/>
-         * Note: the column number is indexed from zero.
-         *
-         * @return the column number of the source of the problem, or -1 if unknown.
-         */
+        * Returns the column number of the source of the problem.
+        * <p/>
+        * Note: the column number is indexed from zero.
+        *
+        * @return the column number of the source of the problem, or -1 if unknown.
+        */
         public int getColumn() {
             return column;
         }
 
         /**
-         * Determines if a location (line and column numbers) have been set.
-         *
-         * @return true if both a line and column number has been set; false if only one or neither
-         *         have been set.
-         */
+        * Determines if a location (line and column numbers) have been set.
+        *
+        * @return true if both a line and column number has been set; false if only one or neither
+        *         have been set.
+        */
         public boolean hasLocation() {
             return line > -1 && column > -1;
         }
 
         /**
-         * Returns a list of suggestions.
-         * <p/>
-         * If a {@link #getSuggestionBase() suggestion-base} has been set, the suggestions will be
-         * sorted according to the suggestion-base such that suggestions close to the base appear
-         * first in the list.
-         *
-         * @return a list of suggestions, or the empty list if there are no suggestions available.
-         */
+        * Returns a list of suggestions.
+        * <p/>
+        * If a {@link #getSuggestionBase() suggestion-base} has been set, the suggestions will be
+        * sorted according to the suggestion-base such that suggestions close to the base appear
+        * first in the list.
+        *
+        * @return a list of suggestions, or the empty list if there are no suggestions available.
+        */
         public List<String> getSuggestions() {
 
             if (suggestionsSorted || !hasSuggestionBase()) {
@@ -152,50 +152,50 @@ public class ConfigurationParsingException extends ConfigurationException {
         }
 
         /**
-         * Determines whether suggestions are available.
-         *
-         * @return true if suggestions are available; false if they are not.
-         */
+        * Determines whether suggestions are available.
+        *
+        * @return true if suggestions are available; false if they are not.
+        */
         public boolean hasSuggestions() {
             return suggestions != null && !suggestions.isEmpty();
         }
 
         /**
-         * Returns the base for ordering suggestions.
-         * <p/>
-         * Suggestions will be ordered such that suggestions closer to the base will appear first.
-         *
-         * @return the base for suggestions.
-         */
+        * Returns the base for ordering suggestions.
+        * <p/>
+        * Suggestions will be ordered such that suggestions closer to the base will appear first.
+        *
+        * @return the base for suggestions.
+        */
         public String getSuggestionBase() {
             return suggestionBase;
         }
 
         /**
-         * Determines whether a suggestion base is available.
-         * <p/>
-         * If no base is available, suggestions will not be sorted.
-         *
-         * @return true if a base is available for suggestions; false if there is none.
-         */
+        * Determines whether a suggestion base is available.
+        * <p/>
+        * If no base is available, suggestions will not be sorted.
+        *
+        * @return true if a base is available for suggestions; false if there is none.
+        */
         public boolean hasSuggestionBase() {
             return suggestionBase != null && !suggestionBase.isEmpty();
         }
 
         /**
-         * Returns the {@link Exception} that encapsulates the problem itself.
-         *
-         * @return an Exception representing the cause of the problem, or null if there is none.
-         */
+        * Returns the {@link Exception} that encapsulates the problem itself.
+        *
+        * @return an Exception representing the cause of the problem, or null if there is none.
+        */
         public Exception getCause() {
             return cause;
         }
 
         /**
-         * Determines whether a cause has been set.
-         *
-         * @return true if there is a cause; false if there is none.
-         */
+        * Determines whether a cause has been set.
+        *
+        * @return true if there is a cause; false if there is none.
+        */
         public boolean hasCause() {
             return cause != null;
         }
@@ -315,17 +315,17 @@ public class ConfigurationParsingException extends ConfigurationException {
             }
 
             /**
-             * Compares two Strings with respect to the base String, by Levenshtein distance.
-             * <p/>
-             * The input that is the closest match to the base String will sort before the other.
-             *
-             * @param a an input to compare relative to the base.
-             * @param b an input to compare relative to the base.
-             *
-             * @return -1 if {@code a} is closer to the base than {@code b}; 1 if {@code b} is
-             *         closer to the base than {@code a}; 0 if both {@code a} and {@code b} are
-             *         equally close to the base.
-             */
+            * Compares two Strings with respect to the base String, by Levenshtein distance.
+            * <p/>
+            * The input that is the closest match to the base String will sort before the other.
+            *
+            * @param a an input to compare relative to the base.
+            * @param b an input to compare relative to the base.
+            *
+            * @return -1 if {@code a} is closer to the base than {@code b}; 1 if {@code b} is
+            *         closer to the base than {@code a}; 0 if both {@code a} and {@code b} are
+            *         equally close to the base.
+            */
             @Override
             public int compare(String a, String b) {
 
@@ -354,33 +354,33 @@ public class ConfigurationParsingException extends ConfigurationException {
     }
 
     /**
-     * Create a mutable {@link Builder} to incrementally build a {@link ConfigurationParsingException}.
-     *
-     * @param brief the brief summary of the error.
-     *
-     * @return a mutable builder to incrementally build a {@link ConfigurationParsingException}.
-     */
+    * Create a mutable {@link Builder} to incrementally build a {@link ConfigurationParsingException}.
+    *
+    * @param brief the brief summary of the error.
+    *
+    * @return a mutable builder to incrementally build a {@link ConfigurationParsingException}.
+    */
     public static Builder builder(String brief) {
         return new Builder(brief);
     }
 
     /**
-     * Creates a new ConfigurationParsingException for the given path with the given error.
-     *
-     * @param path   the bad configuration path
-     * @param msg    the full error message
-     */
+    * Creates a new ConfigurationParsingException for the given path with the given error.
+    *
+    * @param path   the bad configuration path
+    * @param msg    the full error message
+    */
     private ConfigurationParsingException(String path, String msg) {
         super(path, ImmutableSet.of(msg));
     }
 
     /**
-     * Creates a new ConfigurationParsingException for the given path with the given error.
-     *
-     * @param path   the bad configuration path
-     * @param msg    the full error message
-     * @param cause  the cause of the parsing error.
-     */
+    * Creates a new ConfigurationParsingException for the given path with the given error.
+    *
+    * @param path   the bad configuration path
+    * @param msg    the full error message
+    * @param cause  the cause of the parsing error.
+    */
     private ConfigurationParsingException(String path, String msg, Throwable cause) {
         super(path, ImmutableSet.of(msg), cause);
     }

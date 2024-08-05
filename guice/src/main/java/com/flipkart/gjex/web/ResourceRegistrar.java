@@ -42,35 +42,35 @@ import com.flipkart.gjex.core.web.ResourceException;
 @Singleton
 public class ResourceRegistrar implements Logging {
 
-	private final ServletContextHandler context;
-	private final JacksonJaxbJsonProvider jaxbProvider;
+    private final ServletContextHandler context;
+    private final JacksonJaxbJsonProvider jaxbProvider;
 
-	@Inject
-	public ResourceRegistrar(@Named("ApiServletContext")ServletContextHandler context,
-			@Named("JSONMarshallingProvider")JacksonJaxbJsonProvider jaxbProvider) {
-		this.context = context;
-		this.jaxbProvider = jaxbProvider;
-	}
+    @Inject
+    public ResourceRegistrar(@Named("ApiServletContext")ServletContextHandler context,
+            @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider jaxbProvider) {
+        this.context = context;
+        this.jaxbProvider = jaxbProvider;
+    }
 
-	public void registerResources(List<ResourceConfig> resourceConfigs) throws Exception {
-		ResourceConfig uniqueResourceConfig = null;
-		for (ResourceConfig resourceConfig : resourceConfigs) {
-			// we check to ensure we are not adding GJEX core application resources again
-			if (resourceConfig.getApplicationName() == null ||
-					!resourceConfig.getApplicationName().equalsIgnoreCase(Constants.GJEX_CORE_APPLICATION)) {
-				if (uniqueResourceConfig == null) {
-					uniqueResourceConfig = resourceConfig;
-				} else {
-					throw new ResourceException("Multiple ResourceConfig instances configured for this GJEX application. Only one may be configured.");
-				}
-			}
-		}
-		if (uniqueResourceConfig == null) {
-			return;
-		}
-		uniqueResourceConfig.register(jaxbProvider);
-		ServletHolder servlet = new ServletHolder(new ServletContainer(uniqueResourceConfig));
-		context.addServlet(servlet, "/*");
-	}
+    public void registerResources(List<ResourceConfig> resourceConfigs) throws Exception {
+        ResourceConfig uniqueResourceConfig = null;
+        for (ResourceConfig resourceConfig : resourceConfigs) {
+            // we check to ensure we are not adding GJEX core application resources again
+            if (resourceConfig.getApplicationName() == null ||
+                    !resourceConfig.getApplicationName().equalsIgnoreCase(Constants.GJEX_CORE_APPLICATION)) {
+                if (uniqueResourceConfig == null) {
+                    uniqueResourceConfig = resourceConfig;
+                } else {
+                    throw new ResourceException("Multiple ResourceConfig instances configured for this GJEX application. Only one may be configured.");
+                }
+            }
+        }
+        if (uniqueResourceConfig == null) {
+            return;
+        }
+        uniqueResourceConfig.register(jaxbProvider);
+        ServletHolder servlet = new ServletHolder(new ServletContainer(uniqueResourceConfig));
+        context.addServlet(servlet, "/*");
+    }
 
 }

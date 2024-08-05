@@ -57,12 +57,12 @@ public abstract class BaseConfigurationFactory<T extends GJEXConfiguration, U ex
     private final JsonFactory parserFactory;
 
     /**
-     * Creates a new configuration factory for the given class.
-     * @param parserFactory  the factory that creates the parser used
-     * @param formatName     the name of the format parsed by this factory (used in exceptions)
-     * @param klass          the configuration class
-     * @param validator      the validator to use
-     */
+    * Creates a new configuration factory for the given class.
+    * @param parserFactory  the factory that creates the parser used
+    * @param formatName     the name of the format parsed by this factory (used in exceptions)
+    * @param klass          the configuration class
+    * @param validator      the validator to use
+    */
     public BaseConfigurationFactory(JsonFactory parserFactory,
                                     String formatName,
                                     Class<T> klass,

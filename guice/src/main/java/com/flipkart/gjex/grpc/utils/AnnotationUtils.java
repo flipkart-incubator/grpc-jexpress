@@ -24,26 +24,26 @@ import java.util.List;
 
 public class AnnotationUtils {
 
-	/**
-	 * Helper method to get annotated methods on a Class. Navigates up the superclass hierarchy to get the methods. This is required when used with DI mechanisms like Guice that
-	 * create a CGLIB proxy sub-type for instances and annotations are not copied to the sub-type.
-	 * Cannot use @Inherited annotation as a workaround because it applies only to Type/Class level annotations and not for Method-level ones.
-	 * @see https://github.com/google/guice/issues/101
-	 *
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Pair<?,Method>> getAnnotatedMethods(Class<?> cls, Class<? extends Annotation> anno) {
-		List<Pair<?,Method>> methods = new ArrayList<>();
-		for (Method m : cls.getDeclaredMethods()) {
-			if (m.getAnnotation(anno) != null) {
-				methods.add(new Pair(cls,m));
-			}
-		}
-		if (methods.isEmpty()) {
-			Class<?> superCls = cls.getSuperclass();
-			return (superCls != null) ? getAnnotatedMethods(superCls, anno) : null;
-		}
-		return methods;
-	}
+    /**
+    * Helper method to get annotated methods on a Class. Navigates up the superclass hierarchy to get the methods. This is required when used with DI mechanisms like Guice that
+    * create a CGLIB proxy sub-type for instances and annotations are not copied to the sub-type.
+    * Cannot use @Inherited annotation as a workaround because it applies only to Type/Class level annotations and not for Method-level ones.
+    * @see https://github.com/google/guice/issues/101
+    *
+    */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static List<Pair<?,Method>> getAnnotatedMethods(Class<?> cls, Class<? extends Annotation> anno) {
+        List<Pair<?,Method>> methods = new ArrayList<>();
+        for (Method m : cls.getDeclaredMethods()) {
+            if (m.getAnnotation(anno) != null) {
+                methods.add(new Pair(cls,m));
+            }
+        }
+        if (methods.isEmpty()) {
+            Class<?> superCls = cls.getSuperclass();
+            return (superCls != null) ? getAnnotatedMethods(superCls, anno) : null;
+        }
+        return methods;
+    }
 
 }

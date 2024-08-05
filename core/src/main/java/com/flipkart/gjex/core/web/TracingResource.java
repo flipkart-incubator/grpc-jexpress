@@ -39,19 +39,19 @@ import com.flipkart.gjex.core.web.dto.TracingConfiguration;
 @Named
 public class TracingResource {
 
-	@Context
-	private ServletContext servletContext;
+    @Context
+    private ServletContext servletContext;
 
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	public TracingConfiguration updateTracingConfiguration(TracingConfiguration tracingConfig) {
-		TracingSamplerHolder tracingSamplerHolder = (TracingSamplerHolder) servletContext
-				.getAttribute(TracingSamplerHolder.TRACING_SAMPLER_HOLDER_NAME);
-		try {
-			tracingSamplerHolder.updateTracingSampler(tracingConfig.getApiName(), tracingConfig.getComponentName(), tracingConfig.getSamplingRate());
-		} catch (GJEXError error) {
-			throw new ResourceException(error.getMessage());
-		}
-		return tracingConfig;
-	}
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public TracingConfiguration updateTracingConfiguration(TracingConfiguration tracingConfig) {
+        TracingSamplerHolder tracingSamplerHolder = (TracingSamplerHolder) servletContext
+                .getAttribute(TracingSamplerHolder.TRACING_SAMPLER_HOLDER_NAME);
+        try {
+            tracingSamplerHolder.updateTracingSampler(tracingConfig.getApiName(), tracingConfig.getComponentName(), tracingConfig.getSamplingRate());
+        } catch (GJEXError error) {
+            throw new ResourceException(error.getMessage());
+        }
+        return tracingConfig;
+    }
 }

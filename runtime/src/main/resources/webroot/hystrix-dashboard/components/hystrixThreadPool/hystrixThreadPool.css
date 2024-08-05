@@ -1,92 +1,92 @@
 .dependencyThreadPools .spacer {
-	width: 100%;
-	margin: 0 auto;
-	padding-top:4px;
-	clear:both;
+    width: 100%;
+    margin: 0 auto;
+    padding-top:4px;
+    clear:both;
 }
 
 
 .dependencyThreadPools .last {
-	margin-right: 0px;
+    margin-right: 0px;
 }
 
 .dependencyThreadPools span.loading {
-	display: block;
-	padding-top: 6%;
-	padding-bottom: 6%;
-	color: gray;
-	text-align: center;
+    display: block;
+    padding-top: 6%;
+    padding-bottom: 6%;
+    color: gray;
+    text-align: center;
 }
 
 .dependencyThreadPools span.loading.failed {
-	color: red;
+    color: red;
 }
 
 
 .dependencyThreadPools div.monitor {
-	float: left;
-	margin-right:5px; /* these are tweaked to look good on desktop and iPad portrait, and fit things densely */
-	margin-top:5px;
+    float: left;
+    margin-right:5px; /* these are tweaked to look good on desktop and iPad portrait, and fit things densely */
+    margin-top:5px;
 }
 
 .dependencyThreadPools div.monitor p.name {
-	font-weight:bold;
-	font-size: 10pt;
-	text-align: right;
-	padding-bottom: 5px;
+    font-weight:bold;
+    font-size: 10pt;
+    text-align: right;
+    padding-bottom: 5px;
 }
 
 .dependencyThreadPools div.monitor_data {
-	margin: 0 auto;
+    margin: 0 auto;
 }
 
 .dependencyThreadPools span.smaller {
-	font-size: 8pt;
-	color: grey;
+    font-size: 8pt;
+    color: grey;
 }
 
 
 .dependencyThreadPools div.tableRow {
-	width:100%;
-	white-space: nowrap;
-	font-size: 8pt;
-	margin: 0 auto;
-	clear:both;
+    width:100%;
+    white-space: nowrap;
+    font-size: 8pt;
+    margin: 0 auto;
+    clear:both;
 }
 
 .dependencyThreadPools div.tableRow .cell {
-	float:left;
+    float:left;
 }
 
 .dependencyThreadPools div.tableRow .header {
-	text-align:right;
-	padding-right:5px;
+    text-align:right;
+    padding-right:5px;
 }
 
 .dependencyThreadPools div.tableRow .header.left {
-	width:85px;
+    width:85px;
 }
 
 .dependencyThreadPools div.tableRow .header.right {
-	width:75px;
+    width:75px;
 }
 
 .dependencyThreadPools div.tableRow .data {
-	font-weight: bold;
-	text-align:right;
+    font-weight: bold;
+    text-align:right;
 }
 
 .dependencyThreadPools div.tableRow .data.left {
-	width:30px;
+    width:30px;
 }
 
 .dependencyThreadPools div.tableRow .data.right {
-	width:45px;
+    width:45px;
 }
 
 .dependencyThreadPools div.monitor {
-	width: 245px; /* we want a fixed width instead of percentage as I want the boxes to be a set size and then fill in as many as can fit in each row ... this allows 3 columns on an iPad */
-	height: 110px;
+    width: 245px; /* we want a fixed width instead of percentage as I want the boxes to be a set size and then fill in as many as can fit in each row ... this allows 3 columns on an iPad */
+    height: 110px;
 }
 
 
@@ -95,24 +95,24 @@
 
 /* override the HREF when we have specified it as a tooltip to not act like a link */
 .dependencyThreadPools div.monitor_data a.tooltip {
-	text-decoration: none;
-	cursor: default;
+    text-decoration: none;
+    cursor: default;
 }
 
 .dependencyThreadPools div.monitor_data a.rate {
-	font-weight:bold;
-	color: black;
-	font-size: 11pt;
+    font-weight:bold;
+    color: black;
+    font-size: 11pt;
 }
 
 .dependencyThreadPools div.rate {
-	padding-top: 1px;
-	clear:both;
-	text-align:right;
+    padding-top: 1px;
+    clear:both;
+    text-align:right;
 }
 
 .dependencyThreadPools span.rate_value {
-	font-weight:bold;
+    font-weight:bold;
 }
 
 
@@ -128,7 +128,7 @@
 }
 
 .dependencyThreadPools div.monitor div.chart svg text {
-	fill: white;
+    fill: white;
 }
 
 .dependencyThreadPools #hidden {
@@ -137,5 +137,3 @@
     background: lightgrey;
     display: none;
 }
-
-

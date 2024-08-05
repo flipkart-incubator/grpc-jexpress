@@ -23,7 +23,7 @@ allprojects {
 }
 
 tasks.withType(GenerateModuleMetadata) {
-	enabled = false
+    enabled = false
 }
 
 def gJEXVersion = '1.40-SNAPSHOT'
@@ -40,10 +40,10 @@ publishing {
             from components.java
             pom {
                 licenses {
-                  license {
+                license {
                     name = "The Apache License, Version 2.0"
                     url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                  }
+                }
                 }
             }
         }
@@ -106,6 +106,3 @@ subprojects {
         ]
     }
 }
-
-
-

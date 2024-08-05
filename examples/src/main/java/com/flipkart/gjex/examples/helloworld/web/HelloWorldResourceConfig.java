@@ -30,11 +30,11 @@ import org.glassfish.jersey.server.ResourceConfig;
 @Named("HelloWorldResourceConfig")
 public class HelloWorldResourceConfig extends ResourceConfig {
 
-	@Inject
-	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1,
-			HelloWorldResource2 helloWorldresource2) {
-		register(helloWorldresource1);
-		register(helloWorldresource2);
-	}
+    @Inject
+    public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1,
+            HelloWorldResource2 helloWorldresource2) {
+        register(helloWorldresource1);
+        register(helloWorldresource2);
+    }
 
 }

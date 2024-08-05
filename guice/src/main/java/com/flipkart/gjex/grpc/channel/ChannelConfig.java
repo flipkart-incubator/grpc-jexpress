@@ -26,27 +26,27 @@ public class ChannelConfig {
     private int port;
     private long deadlineInMs=Long.MAX_VALUE;
 
-	public ChannelConfig(String hostname, int port) {
-		super();
-		this.hostname = hostname;
-		this.port = port;
-	}
-	public String getHostname() {
-		return hostname;
-	}
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
-	}
-	public int getPort() {
-		return port;
-	}
-	public void setPort(int port) {
-		this.port = port;
-	}
-	public long getDeadlineInMs() {
-		return deadlineInMs;
-	}
-	public void setDeadlineInMs(long deadlineInMs) {
-		this.deadlineInMs = deadlineInMs;
-	}
+    public ChannelConfig(String hostname, int port) {
+        super();
+        this.hostname = hostname;
+        this.port = port;
+    }
+    public String getHostname() {
+        return hostname;
+    }
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+    public int getPort() {
+        return port;
+    }
+    public void setPort(int port) {
+        this.port = port;
+    }
+    public long getDeadlineInMs() {
+        return deadlineInMs;
+    }
+    public void setDeadlineInMs(long deadlineInMs) {
+        this.deadlineInMs = deadlineInMs;
+    }
 }

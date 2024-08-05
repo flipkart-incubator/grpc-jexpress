@@ -26,38 +26,38 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class HelloBean {
 
-	@NotBlank
-	private String greeting;
-	@NotNull
-	private Integer age;
+    @NotBlank
+    private String greeting;
+    @NotNull
+    private Integer age;
 
-	public HelloBean() {
-	}
+    public HelloBean() {
+    }
 
-	public HelloBean(String greeting, Integer age) {
-		this.greeting = greeting;
-		this.age = age;
-	}
+    public HelloBean(String greeting, Integer age) {
+        this.greeting = greeting;
+        this.age = age;
+    }
 
-	public String getGreeting() {
-		return greeting;
-	}
+    public String getGreeting() {
+        return greeting;
+    }
 
-	public void setGreeting(String greeting) {
-		this.greeting = greeting;
-	}
+    public void setGreeting(String greeting) {
+        this.greeting = greeting;
+    }
 
-	public Integer getAge() {
-		return age;
-	}
+    public Integer getAge() {
+        return age;
+    }
 
-	public void setAge(Integer age) {
-		this.age = age;
-	}
+    public void setAge(Integer age) {
+        this.age = age;
+    }
 
-	@Override
-	public String toString() {
-		return "Greeting : " + greeting + ", Age : " + age;
-	}
+    @Override
+    public String toString() {
+        return "Greeting : " + greeting + ", Age : " + age;
+    }
 
 }

@@ -45,11 +45,11 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
   }
 
   /**
-   * Processes the incoming request by initializing the start time and storing the request parameters.
-   *
-   * @param req The incoming servlet request.
-   * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
-   */
+    * Processes the incoming request by initializing the start time and storing the request parameters.
+    *
+    * @param req The incoming servlet request.
+    * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
+    */
   @Override
   public void doProcessRequest(ServletRequest req, RequestParams<Set<String>> requestParamsInput) {
     startTime = System.currentTimeMillis();
@@ -57,22 +57,22 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
   }
 
   /**
-   * Processes the outgoing response by logging relevant request and response details.
-   * Logs the client IP, requested URI, response status, content length, and the time taken to process the request.
-   *
-   * @param response The outgoing servlet response.
-   */
+    * Processes the outgoing response by logging relevant request and response details.
+    * Logs the client IP, requested URI, response status, content length, and the time taken to process the request.
+    *
+    * @param response The outgoing servlet response.
+    */
   @Override
   public void doProcessResponse(ServletResponse response) {
     if (logger.isInfoEnabled()) {
-      HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-      logger.info("{} {} {} {} {}",
-              requestParams.getClientIp(),
-              requestParams.getResourcePath(),
-              httpServletResponse.getStatus(),
-              httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
-              System.currentTimeMillis() - startTime
-      );
+    HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+    logger.info("{} {} {} {} {}",
+            requestParams.getClientIp(),
+            requestParams.getResourcePath(),
+            httpServletResponse.getStatus(),
+            httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
+            System.currentTimeMillis() - startTime
+    );
     }
   }
 
