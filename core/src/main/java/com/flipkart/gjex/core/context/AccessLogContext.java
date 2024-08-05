@@ -2,6 +2,7 @@ package com.flipkart.gjex.core.context;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
@@ -10,7 +11,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-@AllArgsConstructor
+@Builder
 public class AccessLogContext {
     String clientIp;
     String resourcePath;

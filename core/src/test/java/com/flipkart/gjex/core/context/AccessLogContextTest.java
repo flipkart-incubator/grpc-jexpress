@@ -17,7 +17,14 @@ public class AccessLogContextTest {
 
     @Test
     public void testSimpleRender() {
-        AccessLogContext context = new AccessLogContext("127.0.0.1", "/path", 100, 1000L, Collections.singletonMap("x-header", "value"));
+        AccessLogContext context =
+            AccessLogContext.builder()
+                .clientIp("127.0.0.1")
+                .resourcePath("/path")
+                .responseTime(1000L)
+                .contentLength(100)
+                .headers(Collections.singletonMap("x-header", "value"))
+                .build();
         String result = context.format(template);
         Assert.assertEquals("Formatted 127.0.0.1 /path 100 1000 value", result);
     }
