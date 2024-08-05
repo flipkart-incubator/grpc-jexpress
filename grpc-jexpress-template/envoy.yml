@@ -7,32 +7,32 @@ static_resources:
   listeners:
   - name: listener1
     address:
-      socket_address: { address: 0.0.0.0, port_value: 51051 }
+    socket_address: { address: 0.0.0.0, port_value: 51051 }
     filter_chains:
     - filters:
-      - name: envoy.http_connection_manager
+    - name: envoy.http_connection_manager
         config:
-          stat_prefix: grpc_json
-          codec_type: AUTO
-          route_config:
+        stat_prefix: grpc_json
+        codec_type: AUTO
+        route_config:
             name: local_route
             virtual_hosts:
             - name: local_service
-              domains: ["*"]
-              routes:
-              - match: { prefix: "/" , grpc: {}}
+            domains: ["*"]
+            routes:
+            - match: { prefix: "/" , grpc: {}}
                 route: { cluster: grpc, timeout: { seconds: 60 } }
-          http_filters:
-          - name: envoy.grpc_json_transcoder
+        http_filters:
+        - name: envoy.grpc_json_transcoder
             config:
-              proto_descriptor: "/tmp/sample_proto_descriptor_set.pb"
-              services: ["service.UserService"]
-              print_options:
+            proto_descriptor: "/tmp/sample_proto_descriptor_set.pb"
+            services: ["service.UserService"]
+            print_options:
                 add_whitespace: true
                 always_print_primitive_fields: true
                 always_print_enums_as_ints: false
                 preserve_proto_field_names: false
-          - name: envoy.router
+        - name: envoy.router
 
   clusters:
   - name: grpc

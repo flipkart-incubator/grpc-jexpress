@@ -44,20 +44,20 @@
  */
 
 h1 {
-	color: #007c00;
-	border-bottom: 1px solid #007c00;
+    color: #007c00;
+    border-bottom: 1px solid #007c00;
 }
 
 h2 {
-	color: #333;
+    color: #333;
 }
 
 h3 {
-	color: #333;
+    color: #333;
 }
 
 h4 {
-	color: #333;
+    color: #333;
 }
 
 
@@ -146,38 +146,38 @@ h4 {
 
  table
  {
- 	color:#666;
+    color:#666;
  }
 
  .bordered-table
  {
- 	border:1px solid #b8c885;
+    border:1px solid #b8c885;
  }
 
  th
  {
- 	color:#333;
+    color:#333;
  }
 
  .bordered-table th
  {
- 	border-bottom: 1px solid #b8c885;
+    border-bottom: 1px solid #b8c885;
  }
 
  .sublevel1-odd {
- 	background:#f8faf0;
+    background:#f8faf0;
  }
 
  .sublevel1-even {
- 	background:#fff;
+    background:#fff;
  }
 
  .name-sublevel1-odd {
- 	background:#f8faf0;
+    background:#f8faf0;
  }
 
  .name-sublevel1-even {
- 	background:#fff;
+    background:#fff;
  }
 
 
@@ -196,8 +196,3 @@ h4 {
     color: #999;
     text-decoration:none;
   }
-
-
-
-
-

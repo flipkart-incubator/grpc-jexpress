@@ -26,9 +26,9 @@ import io.opentracing.Span;
 public interface ActiveSpanSource {
 
     /**
-     * ActiveSpanSource implementation that always returns
-     *  null as the active span
-     */
+    * ActiveSpanSource implementation that always returns
+    *  null as the active span
+    */
     public static ActiveSpanSource NONE = new ActiveSpanSource() {
         @Override
         public Span getActiveSpan() {
@@ -37,10 +37,10 @@ public interface ActiveSpanSource {
     };
 
     /**
-     * ActiveSpanSource implementation that returns the
-     *  current span stored in the GRPC context under
-     *  {@link GJEXContextKey}
-     */
+    * ActiveSpanSource implementation that returns the
+    *  current span stored in the GRPC context under
+    *  {@link GJEXContextKey}
+    */
     public static ActiveSpanSource GRPC_CONTEXT = new ActiveSpanSource() {
         @Override
         public Span getActiveSpan() {
@@ -49,7 +49,7 @@ public interface ActiveSpanSource {
     };
 
     /**
-     * @return the active span
-     */
+    * @return the active span
+    */
     public Span getActiveSpan();
 }

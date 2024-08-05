@@ -24,51 +24,51 @@ package com.flipkart.gjex.core;
  */
 public class GJEXError extends RuntimeException {
 
-	/** Default serial version UID */
-	private static final long serialVersionUID = 1L;
+    /** Default serial version UID */
+    private static final long serialVersionUID = 1L;
 
-	/** Default Fill in stack trace setting*/
-	private static final boolean DEFAULT_FILL_IN_STACK_TRACE = true;
+    /** Default Fill in stack trace setting*/
+    private static final boolean DEFAULT_FILL_IN_STACK_TRACE = true;
 
     /** Enum of error types*/
     public enum ErrorType {
         runtime,timeout,retriable
     }
 
-	/** The type of error*/
+    /** The type of error*/
     private ErrorType type;
 
     /** The flag for filling in the stack trace*/
     private boolean fillInStackTrace = DEFAULT_FILL_IN_STACK_TRACE;
 
     /** Constructors */
-	public GJEXError(ErrorType type, String errorMessage, Throwable rootCause) {
-		super(errorMessage, rootCause);
-		this.type = type;
-	}
-	public GJEXError(ErrorType type, String errorMessage, Throwable rootCause, boolean fillInStackTrace) {
-		this(type, errorMessage, rootCause);
-		this.fillInStackTrace = fillInStackTrace;
-	}
-
-	/**
-	 * Fills in the stack trace based on how this Exception was created
-	 * @see java.lang.Throwable#fillInStackTrace()
-	 */
-    public Throwable fillInStackTrace() {
-	    	if (!fillInStackTrace) {
-	    		return null;
-	    	} else {
-	    		return super.fillInStackTrace();
-	    	}
+    public GJEXError(ErrorType type, String errorMessage, Throwable rootCause) {
+        super(errorMessage, rootCause);
+        this.type = type;
+    }
+    public GJEXError(ErrorType type, String errorMessage, Throwable rootCause, boolean fillInStackTrace) {
+        this(type, errorMessage, rootCause);
+        this.fillInStackTrace = fillInStackTrace;
     }
 
-	/** Accessor/Mutator methods*/
-	public ErrorType getType() {
-		return type;
-	}
-	public void setType(ErrorType type) {
-		this.type = type;
-	}
+    /**
+    * Fills in the stack trace based on how this Exception was created
+    * @see java.lang.Throwable#fillInStackTrace()
+    */
+    public Throwable fillInStackTrace() {
+            if (!fillInStackTrace) {
+                return null;
+            } else {
+                return super.fillInStackTrace();
+            }
+    }
+
+    /** Accessor/Mutator methods*/
+    public ErrorType getType() {
+        return type;
+    }
+    public void setType(ErrorType type) {
+        this.type = type;
+    }
 
 }

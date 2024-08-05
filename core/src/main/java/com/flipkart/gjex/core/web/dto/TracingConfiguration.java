@@ -22,38 +22,38 @@ package com.flipkart.gjex.core.web.dto;
  */
 public class TracingConfiguration {
 
-	private String apiName;
-	private String componentName;
-	private float samplingRate;
+    private String apiName;
+    private String componentName;
+    private float samplingRate;
 
-	public TracingConfiguration() {}
-	public TracingConfiguration(String apiName, String componentName, float samplingRate) {
-		this.apiName = apiName;
-		this.componentName = componentName;
-		this.samplingRate = samplingRate;
-	}
+    public TracingConfiguration() {}
+    public TracingConfiguration(String apiName, String componentName, float samplingRate) {
+        this.apiName = apiName;
+        this.componentName = componentName;
+        this.samplingRate = samplingRate;
+    }
 
-	public String getApiName() {
-		return apiName;
-	}
-	public void setApiName(String apiName) {
-		this.apiName = apiName;
-	}
-	public float getSamplingRate() {
-		return samplingRate;
-	}
-	public void setSamplingRate(float samplingRate) {
-		this.samplingRate = samplingRate;
-	}
-	public String getComponentName() {
-		return componentName;
-	}
-	public void setComponentName(String componentName) {
-		this.componentName = componentName;
-	}
-	@Override
-	public String toString() {
-		return "TracingConfiguration - " + componentName + " : " + samplingRate;
-	}
+    public String getApiName() {
+        return apiName;
+    }
+    public void setApiName(String apiName) {
+        this.apiName = apiName;
+    }
+    public float getSamplingRate() {
+        return samplingRate;
+    }
+    public void setSamplingRate(float samplingRate) {
+        this.samplingRate = samplingRate;
+    }
+    public String getComponentName() {
+        return componentName;
+    }
+    public void setComponentName(String componentName) {
+        this.componentName = componentName;
+    }
+    @Override
+    public String toString() {
+        return "TracingConfiguration - " + componentName + " : " + samplingRate;
+    }
 
 }

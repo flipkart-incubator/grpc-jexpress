@@ -43,8 +43,8 @@ public class StatusMetricInterceptor implements ServerInterceptor {
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call,
-                                                                 Metadata metadata,
-                                                                 ServerCallHandler<ReqT, RespT> next) {
+                                                                Metadata metadata,
+                                                                ServerCallHandler<ReqT, RespT> next) {
         String methodName = call.getMethodDescriptor().getFullMethodName();
         if (!meteredMethods.contains(methodName.toLowerCase())) {
             return next.startCall(new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {

@@ -22,4 +22,3 @@
   - Deadlining for APIs - ability to specify execution timeouts for gRPC stubs at service end
   - Task/Upstream request retries using Hedged Requests
   - Tool recommendations for testing
-

@@ -20,10 +20,10 @@ import com.flipkart.gjex.core.logging.Logging;
 
 public class AllIsWellHealthCheck extends HealthCheck implements Logging {
 
-	@Override
-	protected Result check() throws Exception {
-		info("Returning healthy status.");
-		return Result.healthy("All Is Well");
-	}
+    @Override
+    protected Result check() throws Exception {
+        info("Returning healthy status.");
+        return Result.healthy("All Is Well");
+    }
 
 }

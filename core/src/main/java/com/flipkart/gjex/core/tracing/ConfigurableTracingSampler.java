@@ -29,45 +29,45 @@ import com.flipkart.gjex.core.logging.Logging;
  */
 public class ConfigurableTracingSampler implements TracingSampler, Logging {
 
-	/** Map of components and their respective samplers */
-	private Map<String, CountingSampler> componentMap = new HashMap<String, CountingSampler>();
+    /** Map of components and their respective samplers */
+    private Map<String, CountingSampler> componentMap = new HashMap<String, CountingSampler>();
 
-	/**
-	 * Interface method implementation.
-	 * @see com.flipkart.gjex.core.tracing.TracingSampler#isSampled(java.lang.String)
-	 */
-	@Override
-	public boolean isSampled(String component) {
-		boolean isSampled = false;
-		CountingSampler sampler = this.componentMap.get(component);
-		if (sampler != null) {
-			return sampler.isSampled();
-		}
-		return isSampled;
-	}
+    /**
+    * Interface method implementation.
+    * @see com.flipkart.gjex.core.tracing.TracingSampler#isSampled(java.lang.String)
+    */
+    @Override
+    public boolean isSampled(String component) {
+        boolean isSampled = false;
+        CountingSampler sampler = this.componentMap.get(component);
+        if (sampler != null) {
+            return sampler.isSampled();
+        }
+        return isSampled;
+    }
 
-	/**
-	 * Interface method implementation.Initializes a {@link CountingSampler} for the specified component with the specified
-	 * sampling rate
-	 * @param component the component/method endpoint/URI path
-	 * @param rate the sampling rate
-	 */
-	@Override
-	public void initializeSamplerFor(String component, float rate) {
-		CountingSampler sampler = this.componentMap.get(component);
-		if (sampler == null) {
-			sampler = new CountingSampler(rate);
-			this.componentMap.put(component, sampler);
-		}
-	}
+    /**
+    * Interface method implementation.Initializes a {@link CountingSampler} for the specified component with the specified
+    * sampling rate
+    * @param component the component/method endpoint/URI path
+    * @param rate the sampling rate
+    */
+    @Override
+    public void initializeSamplerFor(String component, float rate) {
+        CountingSampler sampler = this.componentMap.get(component);
+        if (sampler == null) {
+            sampler = new CountingSampler(rate);
+            this.componentMap.put(component, sampler);
+        }
+    }
 
-	/**
-	 * Updates/Replaces the CountingSampler for the specified component with the new sampling rate
-	 * @param component the component identifier
-	 * @param rate the sampling rate
-	 */
-	public void updateSamplingRate(String component, float rate) {
-		this.componentMap.put(component, new CountingSampler(rate));
-	}
+    /**
+    * Updates/Replaces the CountingSampler for the specified component with the new sampling rate
+    * @param component the component identifier
+    * @param rate the sampling rate
+    */
+    public void updateSamplingRate(String component, float rate) {
+        this.componentMap.put(component, new CountingSampler(rate));
+    }
 
 }

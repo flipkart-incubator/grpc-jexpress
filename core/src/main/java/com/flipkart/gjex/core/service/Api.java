@@ -33,14 +33,14 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Api {
 
-	/**
-     * Defines the maximum time GJEX can "expect" the Api to run for. This value is used to set the gRPC Context's Deadline and is evaluated when invoking {@link ConcurrentTask}
-     * executions within Api methods.
-     */
+    /**
+    * Defines the maximum time GJEX can "expect" the Api to run for. This value is used to set the gRPC Context's Deadline and is evaluated when invoking {@link ConcurrentTask}
+    * executions within Api methods.
+    */
     int deadline() default 0;
 
     /**
-     * Deadline configured as a Config property. Note that {@link Api#deadline()} overrides this value
-     */
+    * Deadline configured as a Config property. Note that {@link Api#deadline()} overrides this value
+    */
     String deadlineConfig() default "";
 }

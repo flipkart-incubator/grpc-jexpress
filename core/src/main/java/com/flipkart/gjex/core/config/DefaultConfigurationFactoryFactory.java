@@ -31,13 +31,13 @@ public class DefaultConfigurationFactoryFactory<T extends GJEXConfiguration, U e
     }
 
     /**
-     * Provides additional configuration for the {@link ObjectMapper} used to read
-     * the configuration. By default {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES}
-     * is enabled to protect against misconfiguration.
-     *
-     * @param objectMapper template to be configured
-     * @return configured object objectMapper
-     */
+    * Provides additional configuration for the {@link ObjectMapper} used to read
+    * the configuration. By default {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES}
+    * is enabled to protect against misconfiguration.
+    *
+    * @param objectMapper template to be configured
+    * @return configured object objectMapper
+    */
     protected ObjectMapper configureObjectMapper(ObjectMapper objectMapper) {
         return objectMapper.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }

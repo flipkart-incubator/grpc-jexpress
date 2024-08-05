@@ -25,44 +25,44 @@ import com.flipkart.gjex.core.GJEXError;
  */
 public class TaskException extends GJEXError {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Flag to control logging to the distributed trace*/
-	private boolean isTraced = true;
+    /** Flag to control logging to the distributed trace*/
+    private boolean isTraced = true;
 
-	/**
-	 * Constructor for TaskException.
-	 * @param msg the detail message
-	 */
-	public TaskException(String msg) {
-		super(GJEXError.ErrorType.runtime, msg, null);
-	}
+    /**
+    * Constructor for TaskException.
+    * @param msg the detail message
+    */
+    public TaskException(String msg) {
+        super(GJEXError.ErrorType.runtime, msg, null);
+    }
 
-	/**
-	 * Constructor for TaskException.
-	 * @param msg the detail message
-	 * @param cause the root cause
-	 */
-	public TaskException(String msg, Throwable cause) {
-		super(GJEXError.ErrorType.runtime, msg, cause);
-	}
+    /**
+    * Constructor for TaskException.
+    * @param msg the detail message
+    * @param cause the root cause
+    */
+    public TaskException(String msg, Throwable cause) {
+        super(GJEXError.ErrorType.runtime, msg, cause);
+    }
 
-	/**
-	 * Constructor for TaskException
-	 * @param cause the root cause
-	 * @param isTraced flag to indicate if error should be logged to the distributed trace
-	 */
-	public TaskException(Throwable cause, boolean isTraced) {
-		super(GJEXError.ErrorType.runtime, cause.getMessage(), cause);
-		this.isTraced = isTraced;
-	}
+    /**
+    * Constructor for TaskException
+    * @param cause the root cause
+    * @param isTraced flag to indicate if error should be logged to the distributed trace
+    */
+    public TaskException(Throwable cause, boolean isTraced) {
+        super(GJEXError.ErrorType.runtime, cause.getMessage(), cause);
+        this.isTraced = isTraced;
+    }
 
-	public boolean isTraced() {
-		return isTraced;
-	}
-	public void setTraced(boolean isTraced) {
-		this.isTraced = isTraced;
-	}
+    public boolean isTraced() {
+        return isTraced;
+    }
+    public void setTraced(boolean isTraced) {
+        this.isTraced = isTraced;
+    }
 
 
 }

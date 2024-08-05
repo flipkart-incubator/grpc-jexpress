@@ -48,7 +48,7 @@ public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends Ab
     }
 
     @SuppressWarnings({"unchecked" })
-	@Override
+    @Override
     protected void configure() {
         // bind config map instance
         bind(Map.class).annotatedWith(Names.named("GlobalMapConfig")).toInstance(configMap);
@@ -58,12 +58,12 @@ public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends Ab
         flatten(flattenedMap, null, configMap);
 
         /**
-         * Binds individual flattened key-value properties in the configuration yml
-         * file. So one can directly inject something like this:
-         *
-         * @Named("Hibernate.hibernate.jdbcDriver") String jdbcDriver OR
-         * @Named("Dashboard.service.port") int port
-         */
+        * Binds individual flattened key-value properties in the configuration yml
+        * file. So one can directly inject something like this:
+        *
+        * @Named("Hibernate.hibernate.jdbcDriver") String jdbcDriver OR
+        * @Named("Dashboard.service.port") int port
+        */
         for (Map.Entry<String, Object> entry: flattenedMap.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -87,8 +87,8 @@ public class ConfigModule<T extends GJEXConfiguration, U extends Map> extends Ab
     }
 
     /**
-     * Returns the Global config of all flattened out properties loaded by instance of this class.
-     */
+    * Returns the Global config of all flattened out properties loaded by instance of this class.
+    */
     @Named("GlobalFlattenedConfig")
     @Provides
     @Singleton

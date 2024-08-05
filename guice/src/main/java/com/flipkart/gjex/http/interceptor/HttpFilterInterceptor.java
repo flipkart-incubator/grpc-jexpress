@@ -37,8 +37,8 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
     }
 
     /**
-     * Map of Filter instances mapped to Service and its method
-     */
+    * Map of Filter instances mapped to Service and its method
+    */
     private final List<ServletPathFiltersHolder> pathFiltersHolders = new ArrayList<>();
 
     public void registerFilters(List<HttpFilterParams> httpFilterParamsList) {
@@ -51,20 +51,20 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
     public void init(FilterConfig filterConfig) throws ServletException {}
 
     /**
-     * The core method that processes incoming requests and responses. It captures the request and response objects,
-     * extracts and builds request parameters including client IP and request headers, and invokes the
-     * {@link HttpFilter#doProcessRequest(ServletRequest, RequestParams)} method for further processing.
-     * Finally, it ensures that the response is processed by invoking {@link HttpFilter#doProcessResponse(ServletResponse)}.
-     *
-     * @param request  The incoming ServletRequest
-     * @param response The outgoing ServletResponse
-     * @param chain         The filter chain to which the request and response should be passed for further processing
-     * @throws IOException      if an I/O error occurs during the filter chain execution
-     * @throws ServletException if the request could not be handled
-     */
+    * The core method that processes incoming requests and responses. It captures the request and response objects,
+    * extracts and builds request parameters including client IP and request headers, and invokes the
+    * {@link HttpFilter#doProcessRequest(ServletRequest, RequestParams)} method for further processing.
+    * Finally, it ensures that the response is processed by invoking {@link HttpFilter#doProcessResponse(ServletResponse)}.
+    *
+    * @param request  The incoming ServletRequest
+    * @param response The outgoing ServletResponse
+    * @param chain         The filter chain to which the request and response should be passed for further processing
+    * @throws IOException      if an I/O error occurs during the filter chain execution
+    * @throws ServletException if the request could not be handled
+    */
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response,
-                               FilterChain chain) throws IOException, ServletException {
+                                FilterChain chain) throws IOException, ServletException {
 
         List<HttpFilter> filters = new ArrayList<>();
         RequestParams.RequestParamsBuilder<Set<String>> requestParamsBuilder = RequestParams.builder();
@@ -90,12 +90,12 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
     }
 
     /**
-     * Utility method to extract the real client IP address from the ServletRequest. It checks for the
-     * "X-Forwarded-For" header to support clients connecting through a proxy.
-     *
-     * @param request The ServletRequest object containing the client's request
-     * @return The real IP address of the client
-     */
+    * Utility method to extract the real client IP address from the ServletRequest. It checks for the
+    * "X-Forwarded-For" header to support clients connecting through a proxy.
+    *
+    * @param request The ServletRequest object containing the client's request
+    * @return The real IP address of the client
+    */
     protected String getClientIp(ServletRequest request) {
         String remoteAddr = request.getRemoteAddr();
         String xForwardedFor = ((HttpServletRequest) request).getHeader("X-Forwarded-For");

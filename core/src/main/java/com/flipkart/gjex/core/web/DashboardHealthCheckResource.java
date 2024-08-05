@@ -40,16 +40,16 @@ import java.util.SortedMap;
 @Named("DashboardHealthCheckResource")
 public class DashboardHealthCheckResource {
 
-	@Context
-	private ServletContext servletContext;
+    @Context
+    private ServletContext servletContext;
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response performHealthChecks() {
-		HealthCheckRegistry registry = (HealthCheckRegistry) servletContext
-				.getAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME);
-		SortedMap<String, HealthCheck.Result> results = registry.runHealthChecks();
-		return Response.status(Response.Status.OK).entity(results).build();
-	}
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response performHealthChecks() {
+        HealthCheckRegistry registry = (HealthCheckRegistry) servletContext
+                .getAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME);
+        SortedMap<String, HealthCheck.Result> results = registry.runHealthChecks();
+        return Response.status(Response.Status.OK).entity(results).build();
+    }
 
 }

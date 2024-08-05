@@ -2,7 +2,7 @@ apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
 tasks.withType(GenerateModuleMetadata) {
-	enabled = false
+    enabled = false
 }
 
 publishing {
@@ -12,10 +12,10 @@ publishing {
             from components.java
             pom {
                 licenses {
-                  license {
+                license {
                     name = "The Apache License, Version 2.0"
                     url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                  }
+                }
                 }
             }
         }

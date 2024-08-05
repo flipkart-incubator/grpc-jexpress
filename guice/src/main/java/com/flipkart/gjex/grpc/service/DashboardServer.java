@@ -37,25 +37,25 @@ public class DashboardServer extends AbstractService implements Logging {
 
     private final Server dashboardServer;
 
-	@Inject
-	public DashboardServer(@Named("DashboardJettyServer") Server dashboardServer) {
-		this.dashboardServer = dashboardServer;
-	}
+    @Inject
+    public DashboardServer(@Named("DashboardJettyServer") Server dashboardServer) {
+        this.dashboardServer = dashboardServer;
+    }
 
-	@Override
-	public void doStart() throws Exception {
-		this.dashboardServer.start();
-		info("Dashboard Server started and listening on port : " + this.dashboardServer.getURI().getPort());
-	}
+    @Override
+    public void doStart() throws Exception {
+        this.dashboardServer.start();
+        info("Dashboard Server started and listening on port : " + this.dashboardServer.getURI().getPort());
+    }
 
-	@Override
-	public void doStop() {
-		try {
-			this.dashboardServer.stop();
-		} catch (Exception e) {
-			// Just log the error as we are stopping anyway
-			error("Error stopping Dashboard server : " + e.getMessage(), e);
-		}
-	}
+    @Override
+    public void doStop() {
+        try {
+            this.dashboardServer.stop();
+        } catch (Exception e) {
+            // Just log the error as we are stopping anyway
+            error("Error stopping Dashboard server : " + e.getMessage(), e);
+        }
+    }
 
 }

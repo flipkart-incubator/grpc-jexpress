@@ -11,15 +11,15 @@ package service;
 service UserService {
     rpc GetUser (GetRequest) returns (GetResponse) {
         option (google.api.http) = {
-           get: "/v1/userservice/{id}"
-       };
+            get: "/v1/userservice/{id}"
+        };
     }
 
     rpc CreateUser (CreateRequest) returns (CreateResponse) {
         option (google.api.http) = {
-           post: "/v1/userservice"
-           body: "*"
-       };
+            post: "/v1/userservice"
+            body: "*"
+        };
     }
 }
 

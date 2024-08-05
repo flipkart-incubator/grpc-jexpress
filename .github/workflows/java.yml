@@ -20,9 +20,12 @@ jobs:
         java-version: ${{ matrix.version }}
         distribution: 'zulu'
         cache: gradle
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    - uses: editorconfig-checker/action-editorconfig-checker@v2
+    - run: editorconfig-checker
+  
     - name: Build with Gradle
       run: ./gradlew build publishToMavenLocal -x :examples:build
     - name: Build Examples

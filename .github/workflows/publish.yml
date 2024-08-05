@@ -1,8 +1,9 @@
 name: Publish package to the Clojars
 on:
   workflow_dispatch:
-  release:
-    types: [ "created" ]
+  push: 
+    tags:
+      - v*
 
 jobs:
   publish:

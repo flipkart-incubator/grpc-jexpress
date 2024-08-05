@@ -34,11 +34,11 @@ import javax.ws.rs.core.Response;
 @Named
 public class HelloWorldResource2 {
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/hellocontrol2")
-	public Response performHelloControl() {
-		return Response.status(Response.Status.OK).entity("Hello Control 2 invoked").build();
-	}
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/hellocontrol2")
+    public Response performHelloControl() {
+        return Response.status(Response.Status.OK).entity("Hello Control 2 invoked").build();
+    }
 
 }

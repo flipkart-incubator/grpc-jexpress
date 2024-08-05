@@ -37,95 +37,95 @@ import io.reactivex.functions.BiConsumer;
  */
 public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 
-	/** The MethodInvocation to execute asynchronously*/
-	private final MethodInvocation invocation;
+    /** The MethodInvocation to execute asynchronously*/
+    private final MethodInvocation invocation;
 
-	/** The currently active gRPC Context*/
-	private Context currentContext;
+    /** The currently active gRPC Context*/
+    private Context currentContext;
 
-	/** The completion BiConsumer*/
-	private BiConsumer<T, Throwable> completionConsumer;
+    /** The completion BiConsumer*/
+    private BiConsumer<T, Throwable> completionConsumer;
 
-	/** Indicates if requests may be hedged within the configured timeout duration*/
-	private boolean withRequestHedging;
+    /** Indicates if requests may be hedged within the configured timeout duration*/
+    private boolean withRequestHedging;
 
-	/** The rolling tail latency as seen by Hystrix*/
-	private long rollingTailLatency;
+    /** The rolling tail latency as seen by Hystrix*/
+    private long rollingTailLatency;
 
-	/** Attributes stored for cloning*/
-	private String groupKey;
-	private String name;
-	private int concurrency;
-	private int timeout;
+    /** Attributes stored for cloning*/
+    private String groupKey;
+    private String name;
+    private int concurrency;
+    private int timeout;
 
-	public TaskExecutor(MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout, boolean withRequestHedging) {
-		super(Setter
+    public TaskExecutor(MethodInvocation invocation, String groupKey, String name, int concurrency, int timeout, boolean withRequestHedging) {
+        super(Setter
                 .withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
-		        .andCommandKey(HystrixCommandKey.Factory.asKey(name))
-		        .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(name + "-tp")) // creating a new thread pool per task by appending "-tp" to the task name
-		        .andThreadPoolPropertiesDefaults(HystrixThreadPoolProperties.Setter().withCoreSize(concurrency))
-		        .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
-	                .withExecutionIsolationStrategy(ExecutionIsolationStrategy.THREAD)
-	                .withExecutionTimeoutInMilliseconds(timeout)));
-		currentContext = Context.current(); // store the current gRPC Context
-		this.invocation = invocation;
-		this.timeout = timeout;
-		this.withRequestHedging = withRequestHedging;
-		this.rollingTailLatency = HystrixCommandMetrics.getInstance(HystrixCommandKey.Factory.asKey(name)).getTotalTimePercentile(95);
+                .andCommandKey(HystrixCommandKey.Factory.asKey(name))
+                .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(name + "-tp")) // creating a new thread pool per task by appending "-tp" to the task name
+                .andThreadPoolPropertiesDefaults(HystrixThreadPoolProperties.Setter().withCoreSize(concurrency))
+                .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+                    .withExecutionIsolationStrategy(ExecutionIsolationStrategy.THREAD)
+                    .withExecutionTimeoutInMilliseconds(timeout)));
+        currentContext = Context.current(); // store the current gRPC Context
+        this.invocation = invocation;
+        this.timeout = timeout;
+        this.withRequestHedging = withRequestHedging;
+        this.rollingTailLatency = HystrixCommandMetrics.getInstance(HystrixCommandKey.Factory.asKey(name)).getTotalTimePercentile(95);
 
-		// attributes copied for cloning, if needed
-		this.groupKey = groupKey;
-		this.name = name;
-		this.concurrency = concurrency;
-	}
+        // attributes copied for cloning, if needed
+        this.groupKey = groupKey;
+        this.name = name;
+        this.concurrency = concurrency;
+    }
 
-	public void setCompletionConsumer(BiConsumer<T, Throwable> completionConsumer) {
-		this.completionConsumer = completionConsumer;
-	}
-	public MethodInvocation getInvocation() {
-		return invocation;
-	}
-	public boolean isWithRequestHedging() {
-		return withRequestHedging;
-	}
-	public long getRollingTailLatency() {
-		return rollingTailLatency;
-	}
-	public int getTimeout() {
-		return timeout;
-	}
+    public void setCompletionConsumer(BiConsumer<T, Throwable> completionConsumer) {
+        this.completionConsumer = completionConsumer;
+    }
+    public MethodInvocation getInvocation() {
+        return invocation;
+    }
+    public boolean isWithRequestHedging() {
+        return withRequestHedging;
+    }
+    public long getRollingTailLatency() {
+        return rollingTailLatency;
+    }
+    public int getTimeout() {
+        return timeout;
+    }
 
-	/**
-	 * Clone this TaskExecutor with values that were specified during instantiation
-	 */
-	public TaskExecutor<T> clone() {
-		TaskExecutor<T> clone = new TaskExecutor<T>(this.invocation, this.groupKey, this.name, this.concurrency, this.timeout, this.withRequestHedging);
-		return clone;
-	}
+    /**
+    * Clone this TaskExecutor with values that were specified during instantiation
+    */
+    public TaskExecutor<T> clone() {
+        TaskExecutor<T> clone = new TaskExecutor<T>(this.invocation, this.groupKey, this.name, this.concurrency, this.timeout, this.withRequestHedging);
+        return clone;
+    }
 
-	/**
-	 * Overridden method implementation. Invokes the Method invocation while setting relevant current gRPC Context
-	 * @see com.netflix.hystrix.HystrixCommand#run()
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected T run() throws Exception {
-		Context previous = this.currentContext.attach(); // setting the current gRPC context for the executing Hystrix thread
-		Throwable error = null;
-		T result = null;
-		try {
-			result = ((AsyncResult<T>)this.invocation.proceed()).invoke(); // call the AsyncResult#invoke() to execute the actual work to be performed asynchronously
-			return result;
-		} catch (Throwable e) {
-			error = e;
-			error("Error executing task", e);
-			throw new RuntimeException(e);
-		} finally {
-			if (this.completionConsumer != null) {
-				this.completionConsumer.accept(result, error); // inform the completion status to the registered completion consumer
-			}
-			this.currentContext.detach(previous); // unset the current gRPC context
-		}
-	}
+    /**
+    * Overridden method implementation. Invokes the Method invocation while setting relevant current gRPC Context
+    * @see com.netflix.hystrix.HystrixCommand#run()
+    */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected T run() throws Exception {
+        Context previous = this.currentContext.attach(); // setting the current gRPC context for the executing Hystrix thread
+        Throwable error = null;
+        T result = null;
+        try {
+            result = ((AsyncResult<T>)this.invocation.proceed()).invoke(); // call the AsyncResult#invoke() to execute the actual work to be performed asynchronously
+            return result;
+        } catch (Throwable e) {
+            error = e;
+            error("Error executing task", e);
+            throw new RuntimeException(e);
+        } finally {
+            if (this.completionConsumer != null) {
+                this.completionConsumer.accept(result, error); // inform the completion status to the registered completion consumer
+            }
+            this.currentContext.detach(previous); // unset the current gRPC context
+        }
+    }
 
 }

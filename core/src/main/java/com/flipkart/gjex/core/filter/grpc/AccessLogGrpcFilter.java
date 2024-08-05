@@ -52,11 +52,11 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
   protected static Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
   /**
-   * Processes the incoming gRPC request by initializing the start time and storing the request parameters.
-   *
-   * @param req The incoming gRPC request message.
-   * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
-   */
+    * Processes the incoming gRPC request by initializing the start time and storing the request parameters.
+    *
+    * @param req The incoming gRPC request message.
+    * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
+    */
   @Override
   public void doProcessRequest(R req, RequestParams<Metadata> requestParamsInput) {
     startTime = System.currentTimeMillis();
@@ -64,37 +64,37 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
   }
 
   /**
-   * Placeholder method for processing response headers. Currently does not perform any operations.
-   *
-   * @param responseHeaders The metadata associated with the gRPC response.
-   */
+    * Placeholder method for processing response headers. Currently does not perform any operations.
+    *
+    * @param responseHeaders The metadata associated with the gRPC response.
+    */
   @Override
   public void doProcessResponseHeaders(Metadata responseHeaders) {}
 
   /**
-   * Processes the outgoing gRPC response by logging relevant request and response details.
-   * Logs the client IP, requested resource path, size of the response message, and the time taken to process the request.
-   *
-   * @param response The outgoing gRPC response message.
-   */
+    * Processes the outgoing gRPC response by logging relevant request and response details.
+    * Logs the client IP, requested resource path, size of the response message, and the time taken to process the request.
+    *
+    * @param response The outgoing gRPC response message.
+    */
   @Override
   public void doProcessResponse(S response) {
     String size = null;
     if (response != null){
-      size = String.valueOf(response.getSerializedSize());
+    size = String.valueOf(response.getSerializedSize());
     }
     if (logger.isInfoEnabled()){
-      logger.info("{} {} {} {}",
-              requestParams.getClientIp(), requestParams.getResourcePath(), size, System.currentTimeMillis()-startTime);
+    logger.info("{} {} {} {}",
+            requestParams.getClientIp(), requestParams.getResourcePath(), size, System.currentTimeMillis()-startTime);
     }
   }
 
   /**
-   * Provides an instance of this filter. This method facilitates the creation of new instances of the
-   * AccessLogGrpcFilter for each gRPC call, ensuring thread safety and isolation of request data.
-   *
-   * @return A new instance of {@link AccessLogGrpcFilter}.
-   */
+    * Provides an instance of this filter. This method facilitates the creation of new instances of the
+    * AccessLogGrpcFilter for each gRPC call, ensuring thread safety and isolation of request data.
+    *
+    * @return A new instance of {@link AccessLogGrpcFilter}.
+    */
   @Override
   public GrpcFilter<R,S> getInstance(){
     return new AccessLogGrpcFilter<>();

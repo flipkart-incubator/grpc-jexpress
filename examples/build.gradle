@@ -113,4 +113,3 @@ applicationDistribution.into('bin') {
     from(helloWorldClient)
     fileMode = 0755
 }
-

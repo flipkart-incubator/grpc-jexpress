@@ -39,58 +39,58 @@ import java.lang.reflect.Method;
  */
 public class TaskModule<T> extends AbstractModule implements Logging {
 
-	@Override
+    @Override
     protected void configure() {
-		TaskMethodInterceptor methodInterceptor = new TaskMethodInterceptor();
-		requestInjection(methodInterceptor);
-		bindInterceptor(Matchers.any(), new TaskMethodMatcher(), methodInterceptor);
-	}
+        TaskMethodInterceptor methodInterceptor = new TaskMethodInterceptor();
+        requestInjection(methodInterceptor);
+        bindInterceptor(Matchers.any(), new TaskMethodMatcher(), methodInterceptor);
+    }
 
-	class TaskMethodInterceptor implements MethodInterceptor {
+    class TaskMethodInterceptor implements MethodInterceptor {
 
-		@Inject
-		@Named("GlobalFlattenedConfig")
-		private Provider<Configuration> globalConfigurationProvider;
+        @Inject
+        @Named("GlobalFlattenedConfig")
+        private Provider<Configuration> globalConfigurationProvider;
 
-		@Override
-		public Object invoke(MethodInvocation invocation) throws Throwable {
-			ConcurrentTask task = invocation.getMethod().getAnnotation(ConcurrentTask.class);
-			Configuration globalConfig = globalConfigurationProvider.get();
-			int timeout = 0;
-			if (task.timeoutConfig().length() > 0) { // check if timeout is specified as a config property
-				timeout = globalConfig.getInt(task.timeoutConfig());
-			}
-			if (task.timeout() > 0) { // we take the method level annotation value as the final override
-				timeout = task.timeout();
-			}
-			int concurrency = 0;
-			if (task.concurrencyConfig().length() > 0) { // check if concurrency is specified as a config property
-				concurrency = globalConfig.getInt(task.concurrencyConfig());
-			}
-			if (task.concurrency() > 0) { // we take the method level annotation value as the final override
-				concurrency = task.concurrency();
-			}
-			return new FutureDecorator<T>(new TaskExecutor<T>(invocation,
-					invocation.getMethod().getDeclaringClass().getSimpleName(),
-					invocation.getMethod().getName(), concurrency, timeout, task.withRequestHedging()),task.completion()) ; // we return the FutureDecorator and not wait for its completion. This enables responses to be composed in a reactive manner
-		}
-	}
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+            ConcurrentTask task = invocation.getMethod().getAnnotation(ConcurrentTask.class);
+            Configuration globalConfig = globalConfigurationProvider.get();
+            int timeout = 0;
+            if (task.timeoutConfig().length() > 0) { // check if timeout is specified as a config property
+                timeout = globalConfig.getInt(task.timeoutConfig());
+            }
+            if (task.timeout() > 0) { // we take the method level annotation value as the final override
+                timeout = task.timeout();
+            }
+            int concurrency = 0;
+            if (task.concurrencyConfig().length() > 0) { // check if concurrency is specified as a config property
+                concurrency = globalConfig.getInt(task.concurrencyConfig());
+            }
+            if (task.concurrency() > 0) { // we take the method level annotation value as the final override
+                concurrency = task.concurrency();
+            }
+            return new FutureDecorator<T>(new TaskExecutor<T>(invocation,
+                    invocation.getMethod().getDeclaringClass().getSimpleName(),
+                    invocation.getMethod().getName(), concurrency, timeout, task.withRequestHedging()),task.completion()) ; // we return the FutureDecorator and not wait for its completion. This enables responses to be composed in a reactive manner
+        }
+    }
 
-	/**
-	 * The Matcher that matches methods with the {@link ConcurrentTask} annotation
-	 */
-	class TaskMethodMatcher extends AbstractMatcher<Method> {
-		@Override
-	    public boolean matches(final Method method) {
-	        boolean matches = false;
-	        for (Annotation ann : method.getAnnotations()) {
-	            final Class<? extends Annotation> annotationType = ann.annotationType();
-	            if (ConcurrentTask.class.equals(annotationType)) {
-	                matches = true;
-	                break;
-	            }
-	        }
-	        return matches;
-	    }
-	}
+    /**
+    * The Matcher that matches methods with the {@link ConcurrentTask} annotation
+    */
+    class TaskMethodMatcher extends AbstractMatcher<Method> {
+        @Override
+        public boolean matches(final Method method) {
+            boolean matches = false;
+            for (Annotation ann : method.getAnnotations()) {
+                final Class<? extends Annotation> annotationType = ann.annotationType();
+                if (ConcurrentTask.class.equals(annotationType)) {
+                    matches = true;
+                    break;
+                }
+            }
+            return matches;
+        }
+    }
 }

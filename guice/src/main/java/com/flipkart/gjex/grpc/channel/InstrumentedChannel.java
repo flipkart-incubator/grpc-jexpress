@@ -68,4 +68,3 @@ public class InstrumentedChannel extends Channel {
         return fullMethodName.replace("/", ".");
     }
 }
-

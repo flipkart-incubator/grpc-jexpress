@@ -29,9 +29,9 @@ public class GrpcHealthCheckService extends HealthGrpc.HealthImplBase {
                     StreamObserver<HealthCheckResponse> responseObserver) {
     HealthCheckResponse.Builder builder = HealthCheckResponse.newBuilder();
     if (rotationManagementBasedHealthCheck.inRotation()) {
-      builder.setStatus(HealthCheckResponse.ServingStatus.SERVING);
+    builder.setStatus(HealthCheckResponse.ServingStatus.SERVING);
     } else {
-      builder.setStatus(HealthCheckResponse.ServingStatus.NOT_SERVING);
+    builder.setStatus(HealthCheckResponse.ServingStatus.NOT_SERVING);
     }
     responseObserver.onNext(builder.build());
     responseObserver.onCompleted();

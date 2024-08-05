@@ -41,41 +41,41 @@ import javax.inject.Named;
  * @param <T> type of the required Grpc Service's stub eg: GreeterGrpc.GreeterBlockingStub
  */
 public class ClientModule<T extends AbstractStub<T>> extends AbstractModule {
-	private final Class<T> clazz;
-	private final ChannelConfig channelConfig;
+    private final Class<T> clazz;
+    private final ChannelConfig channelConfig;
 
-	@Inject @Named("Tracer")
-	Tracer tracer;
+    @Inject @Named("Tracer")
+    Tracer tracer;
 
-	public ClientModule(Class<T> clazz, ChannelConfig channelConfig) {
-		this.clazz = clazz;
-		this.channelConfig = channelConfig;
-	}
+    public ClientModule(Class<T> clazz, ChannelConfig channelConfig) {
+        this.clazz = clazz;
+        this.channelConfig = channelConfig;
+    }
 
-	@Override
-	protected void configure() {
-		bind(clazz).toProvider(new StubProvider());
-	}
+    @Override
+    protected void configure() {
+        bind(clazz).toProvider(new StubProvider());
+    }
 
-	private class StubProvider implements Provider<T> {
-		private Channel channel;
+    private class StubProvider implements Provider<T> {
+        private Channel channel;
 
-		public StubProvider() {
-			channel = new InstrumentedChannel(channelConfig);
-			binder().requestInjection(channel);
-		}
+        public StubProvider() {
+            channel = new InstrumentedChannel(channelConfig);
+            binder().requestInjection(channel);
+        }
 
-		@Override
-		public T get() {
-			try {
-				Constructor<T> constructor = clazz.getDeclaredConstructor(Channel.class);
-				constructor.setAccessible(true);
-				return constructor.newInstance(channel).withDeadlineAfter(channelConfig.getDeadlineInMs(),
-						TimeUnit.MILLISECONDS).withInterceptors(new ClientTracingInterceptor(tracer));
-			} catch (InstantiationException | IllegalAccessException | InvocationTargetException| NoSuchMethodException e) {
-				throw new RuntimeException("Grpc stub class doesn't have a constructor which only takes  'Channel' as parameter", e);
-			}
-		}
-	}
+        @Override
+        public T get() {
+            try {
+                Constructor<T> constructor = clazz.getDeclaredConstructor(Channel.class);
+                constructor.setAccessible(true);
+                return constructor.newInstance(channel).withDeadlineAfter(channelConfig.getDeadlineInMs(),
+                        TimeUnit.MILLISECONDS).withInterceptors(new ClientTracingInterceptor(tracer));
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException| NoSuchMethodException e) {
+                throw new RuntimeException("Grpc stub class doesn't have a constructor which only takes  'Channel' as parameter", e);
+            }
+        }
+    }
 
 }

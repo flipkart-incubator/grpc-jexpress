@@ -26,26 +26,26 @@ import java.util.Set;
 public class ConfigurationValidationException extends ConfigurationException {
 
     /** Default */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final ImmutableSet<ConstraintViolation<?>> constraintViolations;
+    private final ImmutableSet<ConstraintViolation<?>> constraintViolations;
 
     /**
-     * Creates a new ConfigurationException for the given path with the given errors.
-     *
-     * @param path      the bad configuration path
-     * @param errors    the errors in the path
-     */
+    * Creates a new ConfigurationException for the given path with the given errors.
+    *
+    * @param path      the bad configuration path
+    * @param errors    the errors in the path
+    */
     public <T> ConfigurationValidationException(String path, Set<ConstraintViolation<T>> errors) {
         super(path, ConstraintViolations.format(errors));
         this.constraintViolations = ConstraintViolations.copyOf(errors);
     }
 
     /**
-     * Returns the set of constraint violations in the configuration.
-     *
-     * @return the set of constraint violations
-     */
+    * Returns the set of constraint violations in the configuration.
+    *
+    * @return the set of constraint violations
+    */
     public ImmutableSet<ConstraintViolation<?>> getConstraintViolations() {
         return constraintViolations;
     }

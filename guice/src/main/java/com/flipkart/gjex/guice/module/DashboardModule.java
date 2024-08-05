@@ -61,210 +61,210 @@ import java.util.Map;
 @SuppressWarnings("rawtypes")
 public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends AbstractModule implements Logging {
 
-	private final Bootstrap<T,U> bootstrap;
+    private final Bootstrap<T,U> bootstrap;
 
-	public DashboardModule(Bootstrap<T,U> bootstrap) {
-		this.bootstrap = bootstrap;
-	}
+    public DashboardModule(Bootstrap<T,U> bootstrap) {
+        this.bootstrap = bootstrap;
+    }
 
-	@Override
-	protected void configure() {
-		// do nothing
-	}
+    @Override
+    protected void configure() {
+        // do nothing
+    }
 
-	/**
-	 * Creates the Jetty server instance for the admin Dashboard and configures it with the @Named("DashboardContext").
-	 *
-	 * @return Jetty Server instance
-	 */
-	@Named("DashboardJettyServer")
-	@Provides
-	@Singleton
-	Server getDashboardJettyServer(@Named("Dashboard.service.port") int port,
-								   @Named("DashboardResourceConfig")ResourceConfig resourceConfig,
-									 @Named("DashboardHealthCheckResourceConfig")ResourceConfig dashboardHealthCheckResourceConfig,
-								   @Named("Dashboard.service.acceptors") int acceptorThreads,
-								   @Named("Dashboard.service.selectors") int selectorThreads,
-								   @Named("Dashboard.service.workers") int maxWorkerThreads,
-								   @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) {
-		resourceConfig.register(provider);
-		QueuedThreadPool threadPool = new QueuedThreadPool();
-		threadPool.setMaxThreads(maxWorkerThreads);
-		Server server = new Server(threadPool);
-		ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
-		http.setPort(port);
-		server.addConnector(http);
+    /**
+    * Creates the Jetty server instance for the admin Dashboard and configures it with the @Named("DashboardContext").
+    *
+    * @return Jetty Server instance
+    */
+    @Named("DashboardJettyServer")
+    @Provides
+    @Singleton
+    Server getDashboardJettyServer(@Named("Dashboard.service.port") int port,
+                                    @Named("DashboardResourceConfig")ResourceConfig resourceConfig,
+                                    @Named("DashboardHealthCheckResourceConfig")ResourceConfig dashboardHealthCheckResourceConfig,
+                                    @Named("Dashboard.service.acceptors") int acceptorThreads,
+                                    @Named("Dashboard.service.selectors") int selectorThreads,
+                                    @Named("Dashboard.service.workers") int maxWorkerThreads,
+                                    @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) {
+        resourceConfig.register(provider);
+        QueuedThreadPool threadPool = new QueuedThreadPool();
+        threadPool.setMaxThreads(maxWorkerThreads);
+        Server server = new Server(threadPool);
+        ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
+        http.setPort(port);
+        server.addConnector(http);
 
-		/** Initialize the Context and Servlet for serving static content */
-		URL webRootLocation = this.getClass().getResource("/webroot/pages/dashboard.ftl");
-		if (webRootLocation == null) {
-			warn("Webroot location not found! Unable to find root location for Dashboard.");
-		}
-		ServletContextHandler context = new ServletContextHandler();
-		try {
-			URI webRootUri = URI
-					.create(webRootLocation.toURI().toASCIIString().replaceFirst("/pages/dashboard.ftl$", "/"));
-			context.setContextPath("/");
-			context.setBaseResource(Resource.newResource(webRootUri));
-			context.addServlet(DefaultServlet.class, "/");
-		} catch (Exception e) {
-			error("Unable to set resource base for Dashboard.", e);
-		}
-		context.getMimeTypes().addMimeMapping("txt", "text/plain;charset=utf-8");
-		server.setHandler(context);
+        /** Initialize the Context and Servlet for serving static content */
+        URL webRootLocation = this.getClass().getResource("/webroot/pages/dashboard.ftl");
+        if (webRootLocation == null) {
+            warn("Webroot location not found! Unable to find root location for Dashboard.");
+        }
+        ServletContextHandler context = new ServletContextHandler();
+        try {
+            URI webRootUri = URI
+                    .create(webRootLocation.toURI().toASCIIString().replaceFirst("/pages/dashboard.ftl$", "/"));
+            context.setContextPath("/");
+            context.setBaseResource(Resource.newResource(webRootUri));
+            context.addServlet(DefaultServlet.class, "/");
+        } catch (Exception e) {
+            error("Unable to set resource base for Dashboard.", e);
+        }
+        context.getMimeTypes().addMimeMapping("txt", "text/plain;charset=utf-8");
+        server.setHandler(context);
 
-		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
-		/** Add the Servlet for serving the HealthCheck resource */
-		context.addServlet(new ServletHolder(new ServletContainer(dashboardHealthCheckResourceConfig)), "/healthcheck");
+        context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
+        /** Add the Servlet for serving the HealthCheck resource */
+        context.addServlet(new ServletHolder(new ServletContainer(dashboardHealthCheckResourceConfig)), "/healthcheck");
 
-		/** Add the Servlet for serving the Dashboard resource */
-		context.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), "/admin/*");
+        /** Add the Servlet for serving the Dashboard resource */
+        context.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), "/admin/*");
 
-		/** Add the Hystrix metrics stream servlets */
-		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.command.local");
-		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.global");
-		context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.tp.local");
+        /** Add the Hystrix metrics stream servlets */
+        context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.command.local");
+        context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.global");
+        context.addServlet(HystrixMetricsStreamServlet.class, "/stream/hystrix.stream.tp.local");
 
-		/** Add the promethus servlet */
-		context.addServlet(PrometheusMetricsServlet.class,"/metrics");
+        /** Add the promethus servlet */
+        context.addServlet(PrometheusMetricsServlet.class,"/metrics");
 
-		/** Add the Metrics instrumentation */
-		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
-		handler.setName("gjex-dashboard");
-		handler.setHandler(context);
-		server.setHandler(handler);
+        /** Add the Metrics instrumentation */
+        final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
+        handler.setName("gjex-dashboard");
+        handler.setHandler(context);
+        server.setHandler(handler);
 
-		server.setStopAtShutdown(true);
-		return server;
-	}
+        server.setStopAtShutdown(true);
+        return server;
+    }
 
-	/**
-	 * Creates the Jetty server instance for the GJEX API endpoint.
-	 * @return Jetty Server instance
-	 */
-	@Named("APIJettyServer")
-	@Provides
-	@Singleton
-	Server getAPIJettyServer(@Named("APIVanillaJettyServer")Server server,
-							@Named("ApiServletContext") ServletContextHandler context,
-							@Named("HealthCheckResourceConfig") ResourceConfig healthCheckResourceConfig,
-							@Named("RotationManagementResourceConfig") ResourceConfig rotationManagementResourceConfig,
-							@Named("TracingResourceConfig")ResourceConfig tracingResourceConfig,
-							@Named("TracingSamplerHolder")TracingSamplerHolder tracingSamplerHolder,
-							@Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) throws URISyntaxException, UnknownHostException {
-		healthCheckResourceConfig.register(provider);
-		ServletHolder healthCheckServlet =
-				new ServletHolder(new ServletContainer(healthCheckResourceConfig));
-		context.addServlet(healthCheckServlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
+    /**
+    * Creates the Jetty server instance for the GJEX API endpoint.
+    * @return Jetty Server instance
+    */
+    @Named("APIJettyServer")
+    @Provides
+    @Singleton
+    Server getAPIJettyServer(@Named("APIVanillaJettyServer")Server server,
+                            @Named("ApiServletContext") ServletContextHandler context,
+                            @Named("HealthCheckResourceConfig") ResourceConfig healthCheckResourceConfig,
+                            @Named("RotationManagementResourceConfig") ResourceConfig rotationManagementResourceConfig,
+                            @Named("TracingResourceConfig")ResourceConfig tracingResourceConfig,
+                            @Named("TracingSamplerHolder")TracingSamplerHolder tracingSamplerHolder,
+                            @Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) throws URISyntaxException, UnknownHostException {
+        healthCheckResourceConfig.register(provider);
+        ServletHolder healthCheckServlet =
+                new ServletHolder(new ServletContainer(healthCheckResourceConfig));
+        context.addServlet(healthCheckServlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
 
-		rotationManagementResourceConfig.register(provider);
-		ServletHolder rotationManagementServlet =
-				new ServletHolder(new ServletContainer(rotationManagementResourceConfig));
-		context.addServlet(rotationManagementServlet, "/rotation/*"); // registering Rotation
-		// Management servlet under the /rotation path
+        rotationManagementResourceConfig.register(provider);
+        ServletHolder rotationManagementServlet =
+                new ServletHolder(new ServletContainer(rotationManagementResourceConfig));
+        context.addServlet(rotationManagementServlet, "/rotation/*"); // registering Rotation
+        // Management servlet under the /rotation path
 
-		tracingResourceConfig.register(provider);
-		ServletHolder tracingServlet = new ServletHolder(new ServletContainer(tracingResourceConfig));
-		context.addServlet(tracingServlet, "/tracingconfig"); // registering Tracing config servlet under the /tracingconfig path
+        tracingResourceConfig.register(provider);
+        ServletHolder tracingServlet = new ServletHolder(new ServletContainer(tracingResourceConfig));
+        context.addServlet(tracingServlet, "/tracingconfig"); // registering Tracing config servlet under the /tracingconfig path
 
-		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
-		context.setAttribute(TracingSamplerHolder.TRACING_SAMPLER_HOLDER_NAME, tracingSamplerHolder);
+        context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
+        context.setAttribute(TracingSamplerHolder.TRACING_SAMPLER_HOLDER_NAME, tracingSamplerHolder);
 
-		final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
-		handler.setName("gjex-api");
-		handler.setHandler(context);
-		server.setHandler(handler);
+        final InstrumentedHandler handler = new InstrumentedHandler(this.bootstrap.getMetricRegistry());
+        handler.setName("gjex-api");
+        handler.setHandler(context);
+        server.setHandler(handler);
 
-		return server;
-	}
+        return server;
+    }
 
-	/**
-	 * Creates the vanilla Jetty server instance for the GJEX API endpoint.
-	 * @return Jetty Server instance
-	 */
-	@Named("APIVanillaJettyServer")
-	@Provides
-	@Singleton
-	Server getAPIVanillaJettyServer(@Named("Api.service.port") int port,
-							 @Named("Api.service.acceptors") int acceptorThreads,
-							 @Named("Api.service.selectors") int selectorThreads,
-							 @Named("Api.service.workers") int maxWorkerThreads) throws URISyntaxException, UnknownHostException {
-		QueuedThreadPool threadPool = new QueuedThreadPool();
-		threadPool.setMaxThreads(maxWorkerThreads);
-		Server server = new Server(threadPool);
-		ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
-		http.setPort(port);
-		server.addConnector(http);
-		server.setStopAtShutdown(true);
-		return server;
-	}
+    /**
+    * Creates the vanilla Jetty server instance for the GJEX API endpoint.
+    * @return Jetty Server instance
+    */
+    @Named("APIVanillaJettyServer")
+    @Provides
+    @Singleton
+    Server getAPIVanillaJettyServer(@Named("Api.service.port") int port,
+                            @Named("Api.service.acceptors") int acceptorThreads,
+                            @Named("Api.service.selectors") int selectorThreads,
+                            @Named("Api.service.workers") int maxWorkerThreads) throws URISyntaxException, UnknownHostException {
+        QueuedThreadPool threadPool = new QueuedThreadPool();
+        threadPool.setMaxThreads(maxWorkerThreads);
+        Server server = new Server(threadPool);
+        ServerConnector http = new ServerConnector(server, acceptorThreads, selectorThreads);
+        http.setPort(port);
+        server.addConnector(http);
+        server.setStopAtShutdown(true);
+        return server;
+    }
 
-	@Named("JSONMarshallingProvider")
-	@Singleton
-	@Provides
-	JacksonJaxbJsonProvider getJSONMarshallingProvider(ObjectMapper objectMapper) {
-		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
-		provider.setMapper(objectMapper);
-		return provider;
-	}
+    @Named("JSONMarshallingProvider")
+    @Singleton
+    @Provides
+    JacksonJaxbJsonProvider getJSONMarshallingProvider(ObjectMapper objectMapper) {
+        JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
+        provider.setMapper(objectMapper);
+        return provider;
+    }
 
-	@Named("ApiServletContext")
-	@Singleton
-	@Provides
-	public ServletContextHandler getApiServletContext(@Named("APIVanillaJettyServer")Server server) {
-		return new ServletContextHandler(server, "/");
-	}
+    @Named("ApiServletContext")
+    @Singleton
+    @Provides
+    public ServletContextHandler getApiServletContext(@Named("APIVanillaJettyServer")Server server) {
+        return new ServletContextHandler(server, "/");
+    }
 
-	@Named("HealthCheckResourceConfig")
-	@Singleton
-	@Provides
-	ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
-		ResourceConfig resourceConfig = new ResourceConfig();
-		resourceConfig.register(healthCheckResource);
-		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
-		return resourceConfig;
-	}
+    @Named("HealthCheckResourceConfig")
+    @Singleton
+    @Provides
+    ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
+        ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(healthCheckResource);
+        resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+        return resourceConfig;
+    }
 
-	@Named("DashboardHealthCheckResourceConfig")
-	@Singleton
-	@Provides
-	ResourceConfig getAPIResourceConfig(DashboardHealthCheckResource dashboardHealthCheckResource) {
-		ResourceConfig resourceConfig = new ResourceConfig();
-		resourceConfig.register(dashboardHealthCheckResource);
-		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
-		return resourceConfig;
-	}
+    @Named("DashboardHealthCheckResourceConfig")
+    @Singleton
+    @Provides
+    ResourceConfig getAPIResourceConfig(DashboardHealthCheckResource dashboardHealthCheckResource) {
+        ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(dashboardHealthCheckResource);
+        resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+        return resourceConfig;
+    }
 
-	@Named("RotationManagementResourceConfig")
-	@Singleton
-	@Provides
-	ResourceConfig getRotationManagementResourceConfig(RotationManagementResource rotationManagementResource) {
-		ResourceConfig resourceConfig = new ResourceConfig();
-		resourceConfig.register(rotationManagementResource);
-		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
-		return resourceConfig;
-	}
+    @Named("RotationManagementResourceConfig")
+    @Singleton
+    @Provides
+    ResourceConfig getRotationManagementResourceConfig(RotationManagementResource rotationManagementResource) {
+        ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(rotationManagementResource);
+        resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+        return resourceConfig;
+    }
 
-	@Named("TracingResourceConfig")
-	@Singleton
-	@Provides
-	ResourceConfig getTracingResourceConfig(TracingResource tracingResource) {
-		ResourceConfig resourceConfig = new ResourceConfig();
-		resourceConfig.register(tracingResource);
-		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
-		return resourceConfig;
-	}
+    @Named("TracingResourceConfig")
+    @Singleton
+    @Provides
+    ResourceConfig getTracingResourceConfig(TracingResource tracingResource) {
+        ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(tracingResource);
+        resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+        return resourceConfig;
+    }
 
-	@Named("DashboardResourceConfig")
-	@Singleton
-	@Provides
-	ResourceConfig getDashboardResourceConfig(DashboardResource dashboardResource) {
-		ResourceConfig resourceConfig = new ResourceConfig();
-		resourceConfig.register(dashboardResource);
-		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
-		resourceConfig.property(FreemarkerMvcFeature.TEMPLATES_BASE_PATH, "webroot/pages");
-		resourceConfig.register(FreemarkerMvcFeature.class);
-		return resourceConfig;
-	}
+    @Named("DashboardResourceConfig")
+    @Singleton
+    @Provides
+    ResourceConfig getDashboardResourceConfig(DashboardResource dashboardResource) {
+        ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(dashboardResource);
+        resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
+        resourceConfig.property(FreemarkerMvcFeature.TEMPLATES_BASE_PATH, "webroot/pages");
+        resourceConfig.register(FreemarkerMvcFeature.class);
+        return resourceConfig;
+    }
 
 }

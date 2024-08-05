@@ -24,8 +24,8 @@ import com.flipkart.gjex.core.tracing.ConfigurableTracingSampler;
  */
 public class AllWhitelistTracingSampler extends ConfigurableTracingSampler {
 
-	@Override
-	public boolean isSampled(String component) {
-		return true;
-	}
+    @Override
+    public boolean isSampled(String component) {
+        return true;
+    }
 }

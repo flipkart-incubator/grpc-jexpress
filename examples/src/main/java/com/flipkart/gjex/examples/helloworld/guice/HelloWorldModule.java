@@ -21,6 +21,7 @@ import com.flipkart.gjex.core.filter.http.JavaxFilterParams;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
+import com.flipkart.gjex.examples.helloworld.filter.ModFilter;
 import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 import com.flipkart.gjex.examples.helloworld.web.HelloWorldResourceConfig;
@@ -41,23 +42,23 @@ import org.glassfish.jersey.server.ResourceConfig;
  */
 public class HelloWorldModule extends AbstractModule {
 
-	public HelloWorldModule() {}
+    public HelloWorldModule() {}
 
-	@Override
-	protected void configure() {
-		ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",50051)
-				.usePlaintext()
-				.build();
+    @Override
+    protected void configure() {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",50051)
+                .usePlaintext()
+                .build();
 //		install(new ClientModule<GreeterGrpc.GreeterBlockingStub>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
-		bind(GreeterGrpc.GreeterBlockingStub.class).toInstance(GreeterGrpc.newBlockingStub(channel));
-		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
-		bind(GrpcFilter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
-		bind(GrpcFilter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
-		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
-		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
-		bind(HttpFilterParams.class).annotatedWith(Names.named("ExampleHttpFilterParams"))
-				.toInstance(HttpFilterParams.builder().filter(new ExampleHttpFilter()).pathSpec("/*").build());
+        bind(GreeterGrpc.GreeterBlockingStub.class).toInstance(GreeterGrpc.newBlockingStub(channel));
+        bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
+        bind(GrpcFilter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
+        bind(GrpcFilter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
+        bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
+        bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
+        bind(HttpFilterParams.class).annotatedWith(Names.named("ExampleHttpFilterParams"))
+                .toInstance(HttpFilterParams.builder().filter(new ExampleHttpFilter()).pathSpec("/*").build());
         bind(JavaxFilterParams.class).annotatedWith(Names.named("ExampleJavaxFilter"))
             .toInstance(JavaxFilterParams.builder().filter(new ExampleJavaxFilter()).pathSpec("/*").build());
-	}
+    }
 }

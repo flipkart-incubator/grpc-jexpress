@@ -36,52 +36,52 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 public interface Bundle<T extends GJEXConfiguration, U extends Map> {
 
     /**
-     * Initializes this Bundle with the application bootstrap.
-     *
-     * @param bootstrap the application bootstrap
-     */
+    * Initializes this Bundle with the application bootstrap.
+    *
+    * @param bootstrap the application bootstrap
+    */
     void initialize(Bootstrap<?, ?> bootstrap);
 
     /**
-     * Runs this Bundle in the application environment.
-     *
-     * @param environment the application environment
-     */
+    * Runs this Bundle in the application environment.
+    *
+    * @param environment the application environment
+    */
     void run(T configuration, U configMap, Environment environment);
 
     /**
-     * Returns Service instances loaded by this Bundle
-     * @return List containing Service instances
-     */
+    * Returns Service instances loaded by this Bundle
+    * @return List containing Service instances
+    */
     List<Service> getServices();
 
     /**
-     * Returns Filter instances loaded by this Bundle
-     * @return List containing Filter instances
-     */
-	List<GrpcFilter> getGrpcFilters();
+    * Returns Filter instances loaded by this Bundle
+    * @return List containing Filter instances
+    */
+    List<GrpcFilter> getGrpcFilters();
 
     /**
-     * Returns HealthCheck instances loaded by this Bundle
-     * @return List containing HealthCheck instances
-     */
+    * Returns HealthCheck instances loaded by this Bundle
+    * @return List containing HealthCheck instances
+    */
     List<HealthCheck> getHealthChecks();
 
     /**
-     * Returns the TracingSampler instances loaded by this Bundle
-     * @return the TracingSampler instances
-     */
+    * Returns the TracingSampler instances loaded by this Bundle
+    * @return the TracingSampler instances
+    */
     List<TracingSampler> getTracingSamplers();
 
     /**
-     * Returns the ScheduledJob instances loaded by this Bundle
-     * @return the ScheduledJob instances
-     */
+    * Returns the ScheduledJob instances loaded by this Bundle
+    * @return the ScheduledJob instances
+    */
     List<ScheduledJob> getScheduledJobs();
 
     /**
-     * Returns list of custom {@link ResourceConfig} instances configured by the GJEX application
-     * @return ResourceConfig instances
-     */
+    * Returns list of custom {@link ResourceConfig} instances configured by the GJEX application
+    * @return ResourceConfig instances
+    */
     List<ResourceConfig> getResourceConfigs();
 }

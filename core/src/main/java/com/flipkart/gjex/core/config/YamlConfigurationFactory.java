@@ -31,12 +31,12 @@ import java.util.Map;
 public class YamlConfigurationFactory<T extends GJEXConfiguration, U extends Map> extends BaseConfigurationFactory<T, U> {
 
     /**
-     * Creates a new configuration factory for the given class.
-     *
-     * @param klass        the configuration class
-     * @param validator    the validator to use
-     * @param objectMapper the Jackson {@link ObjectMapper} to use
-     */
+    * Creates a new configuration factory for the given class.
+    *
+    * @param klass        the configuration class
+    * @param validator    the validator to use
+    * @param objectMapper the Jackson {@link ObjectMapper} to use
+    */
     public YamlConfigurationFactory(Class<T> klass,
                                     Validator validator,
                                     ObjectMapper objectMapper) {

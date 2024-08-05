@@ -83,7 +83,7 @@ public abstract class BaseConfigurationFactoryTest {
 
     public static class ExampleConfigWithDefaults extends GJEXConfiguration {
 
-    		/*
+            /*
         private String name = "GJEX";
         private int age = 12;
         */
@@ -102,7 +102,7 @@ public abstract class BaseConfigurationFactoryTest {
     protected File malformedAdvancedFile = new File("/");
 
     @SuppressWarnings("rawtypes")
-	protected ConfigurationFactory<ExampleConfig, Map> factory = new ConfigurationFactory<ExampleConfig, Map>() {
+    protected ConfigurationFactory<ExampleConfig, Map> factory = new ConfigurationFactory<ExampleConfig, Map>() {
 
         @Override
         public Pair<ExampleConfig, Map> build(ConfigurationSourceProvider provider, String path) throws IOException, ConfigurationException {
@@ -146,7 +146,7 @@ public abstract class BaseConfigurationFactoryTest {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
+    @Test
     public void loadsValidConfigFiles() throws Exception {
         final Pair<ExampleConfig, Map> result = factory.build(validFile);
         ExampleConfig example = result.getKey();

@@ -41,9 +41,9 @@ import java.util.Set;
 public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse, Set<String>> {
 
   /**
-   * Function for creating an instance of this {@link Filter}
-   * Use only this function to get the {@link Filter} instance
-   */
+    * Function for creating an instance of this {@link Filter}
+    * Use only this function to get the {@link Filter} instance
+    */
   public abstract HttpFilter getInstance();
 
 }

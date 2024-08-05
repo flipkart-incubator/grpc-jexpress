@@ -54,4 +54,3 @@ public class ConstraintViolations {
         return builder.build();
     }
 }
-

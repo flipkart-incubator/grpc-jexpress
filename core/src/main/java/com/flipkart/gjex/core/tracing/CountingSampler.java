@@ -31,48 +31,48 @@ import java.util.Random;
  */
 public class CountingSampler {
 
-	private int i; // counter
-	private final BitSet sampleDecisions;
+    private int i; // counter
+    private final BitSet sampleDecisions;
 
-	public CountingSampler (float rate) {
-		if (rate < 0.0f || rate > 1) {
-			throw new IllegalArgumentException("rate should be between 0.0 and 1: was " + rate);
-		}
-		if (rate == 0.0f) {
-			this.sampleDecisions = new BitSet(100); // empty bitset to denote nothing is sampled
-		} else {
-			int outOf100 = (int) (rate * 100.0f);
-		    this.sampleDecisions = this.randomBitSet(100, outOf100, new Random());
-		}
-	}
+    public CountingSampler (float rate) {
+        if (rate < 0.0f || rate > 1) {
+            throw new IllegalArgumentException("rate should be between 0.0 and 1: was " + rate);
+        }
+        if (rate == 0.0f) {
+            this.sampleDecisions = new BitSet(100); // empty bitset to denote nothing is sampled
+        } else {
+            int outOf100 = (int) (rate * 100.0f);
+            this.sampleDecisions = this.randomBitSet(100, outOf100, new Random());
+        }
+    }
 
-	public boolean isSampled() {
-		boolean result = sampleDecisions.get(i++);
-		if (i == 100) i = 0;
-		return result;
-	}
+    public boolean isSampled() {
+        boolean result = sampleDecisions.get(i++);
+        if (i == 100) i = 0;
+        return result;
+    }
 
-	/**
-	 * Reservoir sampling algorithm borrowed from Stack Overflow.
-	 *
-	 * http://stackoverflow.com/questions/12817946/generate-a-random-bitset-with-n-1s
-	 */
-	private BitSet randomBitSet(int size, int cardinality, Random rnd) {
-		BitSet result = new BitSet(size);
-		int[] chosen = new int[cardinality];
-		int i;
-		for (i = 0; i < cardinality; ++i) {
-			chosen[i] = i;
-			result.set(i);
-		}
-		for (; i < size; ++i) {
-			int j = rnd.nextInt(i + 1);
-			if (j < cardinality) {
-				result.clear(chosen[j]);
-				result.set(i);
-				chosen[j] = i;
-			}
-		}
-		return result;
-	}
+    /**
+    * Reservoir sampling algorithm borrowed from Stack Overflow.
+    *
+    * http://stackoverflow.com/questions/12817946/generate-a-random-bitset-with-n-1s
+    */
+    private BitSet randomBitSet(int size, int cardinality, Random rnd) {
+        BitSet result = new BitSet(size);
+        int[] chosen = new int[cardinality];
+        int i;
+        for (i = 0; i < cardinality; ++i) {
+            chosen[i] = i;
+            result.set(i);
+        }
+        for (; i < size; ++i) {
+            int j = rnd.nextInt(i + 1);
+            if (j < cardinality) {
+                result.clear(chosen[j]);
+                result.set(i);
+                chosen[j] = i;
+            }
+        }
+        return result;
+    }
 }

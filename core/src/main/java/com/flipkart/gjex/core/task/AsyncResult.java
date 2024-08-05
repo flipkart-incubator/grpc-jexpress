@@ -26,36 +26,36 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AsyncResult<T> implements Future<T> {
 
-	private static final String ERROR_MSG = "AsyncResult is just a stab and cannot be used as complete implementation of Future";
+    private static final String ERROR_MSG = "AsyncResult is just a stab and cannot be used as complete implementation of Future";
 
-	@Override
-	public boolean cancel(boolean mayInterruptIfRunning) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException(ERROR_MSG);
-	}
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException(ERROR_MSG);
+    }
 
-	@Override
-	public boolean isCancelled() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException(ERROR_MSG);
-	}
+    @Override
+    public boolean isCancelled() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException(ERROR_MSG);
+    }
 
-	@Override
-	public boolean isDone() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException(ERROR_MSG);
-	}
+    @Override
+    public boolean isDone() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException(ERROR_MSG);
+    }
 
-	@Override
-	public T get() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException(ERROR_MSG);
-	}
+    @Override
+    public T get() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException(ERROR_MSG);
+    }
 
-	@Override
-	public T get(long timeout, TimeUnit unit) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException(ERROR_MSG);
-	}
+    @Override
+    public T get(long timeout, TimeUnit unit) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException(ERROR_MSG);
+    }
 
-	/**
-	 * Abstract method to wrap logic for an asynchronous call
-	 */
-	public abstract T invoke();
+    /**
+    * Abstract method to wrap logic for an asynchronous call
+    */
+    public abstract T invoke();
 
 }

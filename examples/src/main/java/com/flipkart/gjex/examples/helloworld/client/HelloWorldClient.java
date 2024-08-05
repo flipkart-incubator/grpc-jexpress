@@ -38,8 +38,8 @@ public class HelloWorldClient {
   private final GreeterGrpc.GreeterBlockingStub blockingStub;
 
   /**
-   * A custom client.
-   */
+    * A custom client.
+    */
   private HelloWorldClient(String host, int port) {
     originChannel = ManagedChannelBuilder.forAddress(host, port)
         .usePlaintext()
@@ -54,35 +54,35 @@ public class HelloWorldClient {
   }
 
   /**
-   * A simple client method that like {@link io.grpc.examples.helloworld.HelloWorldClient}.
-   */
+    * A simple client method that like {@link io.grpc.examples.helloworld.HelloWorldClient}.
+    */
   private void greet(String name) {
     logger.info("Will try to greet " + name + " ...");
     HelloRequest request = HelloRequest.newBuilder().setName(name).build();
     HelloReply response;
     try {
-      response = blockingStub.withDeadlineAfter(700, TimeUnit.MILLISECONDS).sayHello(request);
+    response = blockingStub.withDeadlineAfter(700, TimeUnit.MILLISECONDS).sayHello(request);
     } catch (StatusRuntimeException e) {
-      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-      return;
+    logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+    return;
     }
     logger.info("Greeting: " + response.getMessage());
   }
 
   /**
-   * Main start the client from the command line.
-   */
+    * Main start the client from the command line.
+    */
   public static void main(String[] args) throws Exception {
     HelloWorldClient client = new HelloWorldClient("localhost", 50051);
     try {
-      /* Access a service running on the local machine on port 50051 */
-      String user = "world";
-      if (args.length > 0) {
+    /* Access a service running on the local machine on port 50051 */
+    String user = "world";
+    if (args.length > 0) {
         user = args[0]; /* Use the arg as the name to greet if provided */
-      }
-      client.greet(user);
+    }
+    client.greet(user);
     } finally {
-      client.shutdown();
+    client.shutdown();
     }
   }
 }

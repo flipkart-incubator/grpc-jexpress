@@ -48,94 +48,94 @@ import java.util.concurrent.TimeUnit;
  */
 public class ApiModule<T> extends AbstractModule implements Logging {
 
-	@Override
+    @Override
     protected void configure() {
-		ApiMethodInterceptor methodInterceptor = new ApiMethodInterceptor();
-		requestInjection(methodInterceptor);
-		bindInterceptor(Matchers.any(), new ApiMethodMatcher(), methodInterceptor);
-		bind(HealthCheck.class).to(RotationManagementBasedHealthCheck.class);
-	}
+        ApiMethodInterceptor methodInterceptor = new ApiMethodInterceptor();
+        requestInjection(methodInterceptor);
+        bindInterceptor(Matchers.any(), new ApiMethodMatcher(), methodInterceptor);
+        bind(HealthCheck.class).to(RotationManagementBasedHealthCheck.class);
+    }
 
-	@Named("ApiScheduledExecutor")
-	@Provides
-	@Singleton
-	ScheduledExecutorService getScheduledExecutorService(GJEXConfiguration configuration) {
-		return Executors.newScheduledThreadPool(configuration.getApiService().getScheduledExecutorThreadPoolSize());
-	}
+    @Named("ApiScheduledExecutor")
+    @Provides
+    @Singleton
+    ScheduledExecutorService getScheduledExecutorService(GJEXConfiguration configuration) {
+        return Executors.newScheduledThreadPool(configuration.getApiService().getScheduledExecutorThreadPoolSize());
+    }
 
-	class ApiMethodInterceptor implements MethodInterceptor {
+    class ApiMethodInterceptor implements MethodInterceptor {
 
-		@Inject
-		@Named("GlobalFlattenedConfig")
-		private Provider<Configuration> globalConfigurationProvider;
+        @Inject
+        @Named("GlobalFlattenedConfig")
+        private Provider<Configuration> globalConfigurationProvider;
 
-		@Inject
-		@Named("ApiScheduledExecutor")
-		private Provider<ScheduledExecutorService> scheduledExecutorServiceProvider;
+        @Inject
+        @Named("ApiScheduledExecutor")
+        private Provider<ScheduledExecutorService> scheduledExecutorServiceProvider;
 
-		@Override
-		public Object invoke(MethodInvocation invocation) throws Throwable {
-			Context.CancellableContext cancellableContext = null;
-			Context previous = null;
-			Api api = invocation.getMethod().getAnnotation(Api.class);
-			/*
-			 * We explicitly set the deadline only when it is specified on the stub method AND there is none specified by the client.
-			 * Client deadline wins over any server specified deadline
-			 */
-			if (api != null) {
-				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
-				// check and warn if Api is used for non BindableService classes
-				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass())) {
-					warn("Api declarations are interpreted only for sub-types of gRPC BindableService. Api declared for : "
-							+ methodInvoked + " will not be interpreted/honored");
-				}
-				int deadline = 0;
-				if (api.deadlineConfig().length() > 0) { // check if deadline is specified as a config property
-					deadline = globalConfigurationProvider.get().getInt(api.deadlineConfig());
-				}
-				if (Context.current().getDeadline() == null) {
-					cancellableContext = Context.current().withDeadlineAfter(deadline, TimeUnit.MILLISECONDS, scheduledExecutorServiceProvider.get());
-					previous = cancellableContext.attach(); // attach the CancellableContext and store the previous Context
-				} else {
-					info("Not setting API deadline as client has already specified a deadline");
-				}
-			}
-			Object result = null;
-			try {
-				result = invocation.proceed();
-			} finally {
-				if (cancellableContext != null) {
-					cancellableContext.detach(previous); // Detach the CancellableContext and restore the previous Context
-					debug("Cancelled a cancellable context");
-					cancellableContext.cancel(null); // we cancel the cancellable context with null (no error)
-				}
-			}
-			return result;
-		}
-	}
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+            Context.CancellableContext cancellableContext = null;
+            Context previous = null;
+            Api api = invocation.getMethod().getAnnotation(Api.class);
+            /*
+            * We explicitly set the deadline only when it is specified on the stub method AND there is none specified by the client.
+            * Client deadline wins over any server specified deadline
+            */
+            if (api != null) {
+                String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
+                // check and warn if Api is used for non BindableService classes
+                if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass())) {
+                    warn("Api declarations are interpreted only for sub-types of gRPC BindableService. Api declared for : "
+                            + methodInvoked + " will not be interpreted/honored");
+                }
+                int deadline = 0;
+                if (api.deadlineConfig().length() > 0) { // check if deadline is specified as a config property
+                    deadline = globalConfigurationProvider.get().getInt(api.deadlineConfig());
+                }
+                if (Context.current().getDeadline() == null) {
+                    cancellableContext = Context.current().withDeadlineAfter(deadline, TimeUnit.MILLISECONDS, scheduledExecutorServiceProvider.get());
+                    previous = cancellableContext.attach(); // attach the CancellableContext and store the previous Context
+                } else {
+                    info("Not setting API deadline as client has already specified a deadline");
+                }
+            }
+            Object result = null;
+            try {
+                result = invocation.proceed();
+            } finally {
+                if (cancellableContext != null) {
+                    cancellableContext.detach(previous); // Detach the CancellableContext and restore the previous Context
+                    debug("Cancelled a cancellable context");
+                    cancellableContext.cancel(null); // we cancel the cancellable context with null (no error)
+                }
+            }
+            return result;
+        }
+    }
 
-	@Named("HttpFilterInterceptor")
-	@Provides
-	@Singleton
-	HttpFilterInterceptor getHttpFilterInterceptor(){
-		return new HttpFilterInterceptor();
-	}
+    @Named("HttpFilterInterceptor")
+    @Provides
+    @Singleton
+    HttpFilterInterceptor getHttpFilterInterceptor(){
+        return new HttpFilterInterceptor();
+    }
 
-													 /**
-	 * The Matcher that matches methods with the {@link Api} annotation
-	 */
-	class ApiMethodMatcher extends AbstractMatcher<Method> {
-		@Override
-	    public boolean matches(final Method method) {
-	        boolean matches = false;
-	        for (Annotation ann : method.getAnnotations()) {
-	            final Class<? extends Annotation> annotationType = ann.annotationType();
-	            if (Api.class.equals(annotationType)) {
-	                matches = true;
-	                break;
-	            }
-	        }
-	        return matches;
-	    }
-	}
+                                                    /**
+    * The Matcher that matches methods with the {@link Api} annotation
+    */
+    class ApiMethodMatcher extends AbstractMatcher<Method> {
+        @Override
+        public boolean matches(final Method method) {
+            boolean matches = false;
+            for (Annotation ann : method.getAnnotations()) {
+                final Class<? extends Annotation> annotationType = ann.annotationType();
+                if (Api.class.equals(annotationType)) {
+                    matches = true;
+                    break;
+                }
+            }
+            return matches;
+        }
+    }
 }

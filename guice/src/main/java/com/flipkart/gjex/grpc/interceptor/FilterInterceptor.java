@@ -59,8 +59,8 @@ import java.util.stream.Collectors;
 public class FilterInterceptor implements ServerInterceptor, Logging {
 
     /**
-     * Map of Filter instances mapped to Service and its method
-     */
+    * Map of Filter instances mapped to Service and its method
+    */
     @SuppressWarnings("rawtypes")
     private final Map<String, List<GrpcFilter>> filtersMap = new HashMap<>();
 
@@ -185,8 +185,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     }
 
     /**
-     * Helper method to handle RuntimeExceptions and convert it into suitable gRPC message. Closes the ServerCall
-     */
+    * Helper method to handle RuntimeExceptions and convert it into suitable gRPC message. Closes the ServerCall
+    */
     private <Req, Res> void handleException(ServerCall<Req, Res> call, Exception e) {
         error("Closing gRPC call due to RuntimeException.", e);
         Status returnStatus = Status.INTERNAL;

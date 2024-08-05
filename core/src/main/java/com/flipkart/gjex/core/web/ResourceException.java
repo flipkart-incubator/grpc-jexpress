@@ -25,23 +25,23 @@ import com.flipkart.gjex.core.GJEXError;
  */
 public class ResourceException extends GJEXError {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Constructor for ResourceException.
-	 * @param msg the detail message
-	 */
-	public ResourceException(String msg) {
-		super(GJEXError.ErrorType.runtime, msg, null);
-	}
+    /**
+    * Constructor for ResourceException.
+    * @param msg the detail message
+    */
+    public ResourceException(String msg) {
+        super(GJEXError.ErrorType.runtime, msg, null);
+    }
 
-	/**
-	 * Constructor for ResourceException.
-	 * @param msg the detail message
-	 * @param cause the root cause
-	 */
-	public ResourceException(String msg, Throwable cause) {
-		super(GJEXError.ErrorType.runtime, msg, cause);
-	}
+    /**
+    * Constructor for ResourceException.
+    * @param msg the detail message
+    * @param cause the root cause
+    */
+    public ResourceException(String msg, Throwable cause) {
+        super(GJEXError.ErrorType.runtime, msg, cause);
+    }
 
 }
