@@ -36,7 +36,7 @@ public final class AccessLogHttpFilter extends HttpFilter implements Logging {
   private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
   // The format string for the access log message.
-  private String format = "{clientIp} {resourcePath} {contentLength} {responseTime}";
+  private String format;
 
   public AccessLogHttpFilter(String format) {
     this.format = format;

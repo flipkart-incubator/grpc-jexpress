@@ -46,7 +46,7 @@ public final class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends G
   private RequestParams<Metadata> requestParams;
 
   // The format string for the access log message.
-  private String format = "{clientIp} {resourcePath} {contentLength} {responseTime}";
+  private String format;
 
   // Logger instance for logging access log messages.
   private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
