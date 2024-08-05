@@ -1,9 +1,7 @@
 package com.flipkart.gjex.core.context;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
 

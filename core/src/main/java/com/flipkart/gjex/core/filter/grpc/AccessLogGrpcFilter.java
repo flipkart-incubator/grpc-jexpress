@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.core.filter.grpc;
 
+import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
@@ -79,12 +80,13 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
    */
   @Override
   public void doProcessResponse(S response) {
-    String size = "-";
-    if (response != null){
-      size = String.valueOf(response.getSerializedSize());
-    }
-    logger.info("{} {} {} {}", requestParams.getClientIp(), requestParams.getResourcePath(),
-        size, System.currentTimeMillis()-startTime);
+      AccessLogContext accessLogContext = AccessLogContext.builder()
+          .clientIp(requestParams.getClientIp())
+              .resourcePath(requestParams.getResourcePath())
+                  .contentLength(response.getSerializedSize())
+                      .responseTime(System.currentTimeMillis()-startTime)
+                          .build();
+    logger.info(accessLogContext.format());
   }
 
   /**
