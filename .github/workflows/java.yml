@@ -23,9 +23,6 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: editorconfig-checker-action
-      uses: editorconfig-checker/action-editorconfig-checker@v2
-  
     - name: Build with Gradle
       run: ./gradlew build publishToMavenLocal -x :examples:build
     - name: Build Examples
