@@ -24,6 +24,7 @@ import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.http.interceptor.HttpFilterInterceptor;
 import com.flipkart.gjex.web.ResourceRegistrar;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -52,6 +53,7 @@ public class ApiServer extends AbstractService implements Logging {
 	private final ServletContextHandler context;
 	private HttpFilterInterceptor httpFilterInterceptor;
 	private List<ResourceConfig> resourceConfigs = new ArrayList<>();
+  private static String accessLogFormat = "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}";
 
 	@Inject
 	public ApiServer(@Named("APIJettyServer") Server apiServer,
@@ -81,9 +83,11 @@ public class ApiServer extends AbstractService implements Logging {
 
 	private void configureAccessLog(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig){
 		if (httpFilterConfig.isEnableAccessLogs()){
-			httpFilterParamsList.add(0,
-        HttpFilterParams.builder().filter(new AccessLogHttpFilter(httpFilterConfig.getAccessLogFormat()))
-          .pathSpec("/*").build());
+      if (StringUtils.isNotEmpty(httpFilterConfig.getAccessLogFormat())) {
+        accessLogFormat = httpFilterConfig.getAccessLogFormat();
+      }
+      httpFilterParamsList.add(0, HttpFilterParams.builder()
+        .filter(new AccessLogHttpFilter(accessLogFormat)).pathSpec("/*").build());
 		}
 	}
 
