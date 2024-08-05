@@ -21,6 +21,7 @@ public class HttpFilterInterceptorTest {
 
     private HttpFilterInterceptor interceptor;
     String pathSpec = "/test/*";
+    String format = "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}";
 
     @Before
     public void setUp() {
@@ -30,7 +31,7 @@ public class HttpFilterInterceptorTest {
     @Test
     public void registerFiltersAddsFiltersToMap() {
         List<HttpFilterParams> httpFilterParamsList = new ArrayList<>();
-        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter()).build());
+        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter(format)).build());
         interceptor.registerFilters(httpFilterParamsList);
         assertEquals(1, interceptor.getMatchingFilters("/test/path").size());
     }
@@ -45,8 +46,8 @@ public class HttpFilterInterceptorTest {
     @Test
     public void registerFiltersAddsFiltersToMap2() {
         List<HttpFilterParams> httpFilterParamsList = new ArrayList<>();
-        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter()).build());
-        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter()).build());
+        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter(format)).build());
+        httpFilterParamsList.add(HttpFilterParams.builder().pathSpec(pathSpec).filter(new AccessLogHttpFilter(format)).build());
         interceptor.registerFilters(httpFilterParamsList);
         assertEquals(2, interceptor.getMatchingFilters("/test/path").size());
     }
