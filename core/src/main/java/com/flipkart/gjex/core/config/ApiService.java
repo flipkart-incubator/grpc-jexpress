@@ -17,7 +17,6 @@ package com.flipkart.gjex.core.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.gjex.core.filter.http.HttpFilterConfig;
-import com.flipkart.gjex.core.healthcheck.HttpHealthCheckConfig;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
@@ -45,6 +44,6 @@ public class ApiService {
     @JsonProperty("filterConfig")
     private HttpFilterConfig httpFilterConfig;
 
-    @JsonProperty("healthCheckConfig")
-    private HttpHealthCheckConfig httpHealthCheckConfig;
+    @JsonProperty("healthcheck.path")
+    private String healthCheckPath = "/healthcheck";
 }
