@@ -115,7 +115,8 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 
 		context.setAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME, this.bootstrap.getHealthCheckRegistry());
 		/** Add the Servlet for serving the HealthCheck resource */
-		context.addServlet(new ServletHolder(new ServletContainer(dashboardHealthCheckResourceConfig)), "/healthcheck");
+		context.addServlet(new ServletHolder(new ServletContainer(dashboardHealthCheckResourceConfig)),
+            bootstrap.getConfiguration().getDashboardService().getHealthCheckPath());
 
 		/** Add the Servlet for serving the Dashboard resource */
 		context.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), "/admin/*");
@@ -153,9 +154,11 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 							@Named("TracingSamplerHolder")TracingSamplerHolder tracingSamplerHolder,
 							@Named("JSONMarshallingProvider")JacksonJaxbJsonProvider provider) throws URISyntaxException, UnknownHostException {
 		healthCheckResourceConfig.register(provider);
+        String healthCheckPath =
+            bootstrap.getConfiguration().getApiService().getHealthCheckPath();
 		ServletHolder healthCheckServlet =
 				new ServletHolder(new ServletContainer(healthCheckResourceConfig));
-		context.addServlet(healthCheckServlet, "/healthcheck"); // registering Health Check servlet under the /healthcheck path
+		context.addServlet(healthCheckServlet, healthCheckPath); // registering Health Check servlet under the /healthcheck path
 
 		rotationManagementResourceConfig.register(provider);
 		ServletHolder rotationManagementServlet =

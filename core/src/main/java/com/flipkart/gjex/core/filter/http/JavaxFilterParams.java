@@ -6,6 +6,8 @@ import lombok.Data;
 import javax.servlet.Filter;
 
 /**
+ * This should be used for registering {@link Filter} present in libraries
+ * which cannot be edited like CrossOriginFilter
  *
  * @author ajay.jalgaonkar
  */

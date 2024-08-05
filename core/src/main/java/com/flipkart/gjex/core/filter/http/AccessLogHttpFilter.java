@@ -64,7 +64,6 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
    */
   @Override
   public void doProcessResponse(ServletResponse response) {
-    if (logger.isInfoEnabled()) {
       HttpServletResponse httpServletResponse = (HttpServletResponse) response;
       logger.info("{} {} {} {} {}",
               requestParams.getClientIp(),
@@ -73,7 +72,5 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
               httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
               System.currentTimeMillis() - startTime
       );
-    }
   }
-
 }
