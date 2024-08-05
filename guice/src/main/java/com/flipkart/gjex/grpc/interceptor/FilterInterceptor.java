@@ -64,7 +64,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
      */
     @SuppressWarnings("rawtypes")
     private final Map<String, List<GrpcFilter>> filtersMap = new HashMap<>();
-    private static String accessLogFormat = "{clientIp} {resourcePath} {contentLength} - {responseTime}";
 
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
@@ -219,10 +218,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,
                                     @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
         if (grpcFilterConfig.isEnableAccessLogs()){
-          if (StringUtils.isNotEmpty(grpcFilterConfig.getAccessLogFormat())) {
-            accessLogFormat = grpcFilterConfig.getAccessLogFormat();
-          }
-          filtersForMethod.add(new AccessLogGrpcFilter(accessLogFormat).getInstance());
+          filtersForMethod.add(new AccessLogGrpcFilter(grpcFilterConfig.getAccessLogFormat()).getInstance());
         }
     }
 }
