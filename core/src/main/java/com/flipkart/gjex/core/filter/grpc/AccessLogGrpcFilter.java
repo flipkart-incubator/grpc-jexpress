@@ -87,6 +87,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
                       .responseTime(System.currentTimeMillis()-startTime)
                           .build();
     logger.info(accessLogContext.format());
+
+
   }
 
   /**
