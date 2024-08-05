@@ -1,9 +1,7 @@
 package com.flipkart.gjex.core.context;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -17,10 +15,12 @@ public class AccessLogContext {
     String resourcePath;
     Integer contentLength;
     Long responseTime;
-    Map<String,String> headers;
+    Integer responseStatus;
+    @Builder.Default
+    Map<String,String> headers = new HashMap<>();
 
     @SneakyThrows
-    Map<String,Object> getValueMap() {
+    private Map<String,Object> getValueMap() {
         Map<String, Object> params = new HashMap<>();
         for (Field field : this.getClass().getDeclaredFields()) {
             params.put(field.getName(), field.get(this));

@@ -1,5 +1,6 @@
 package com.flipkart.gjex.core.filter.http;
 
+import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import org.slf4j.Logger;
@@ -20,28 +21,30 @@ import java.util.Set;
  *
  * @author ajay.jalgaonkar
  */
-public class AccessLogHttpFilter extends HttpFilter implements Logging {
+public final class AccessLogHttpFilter extends HttpFilter implements Logging {
 
   // Time when the request processing started.
-  protected long startTime;
+  private long startTime;
 
   // Parameters of the request being processed.
-  protected RequestParams<Set<String>> requestParams;
-
+  private RequestParams<Set<String>> requestParams;
 
   // Logger instance for logging access log messages.
-  protected static Logger logger = Logging.loggerWithName("ACCESS-LOG");
+  private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
   // HTTP header name for content length.
-  protected static final String CONTENT_LENGTH_HEADER = "Content-Length";
+  private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
+  // The format string for the access log message.
+  private String format = "{clientIp} {resourcePath} {contentLength} {responseTime}";
 
-  public AccessLogHttpFilter() {
+  public AccessLogHttpFilter(String format) {
+    this.format = format;
   }
 
   @Override
   public HttpFilter getInstance() {
-    return new AccessLogHttpFilter();
+    return new AccessLogHttpFilter(format);
   }
 
   /**
@@ -65,12 +68,13 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
   @Override
   public void doProcessResponse(ServletResponse response) {
       HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-      logger.info("{} {} {} {} {}",
-              requestParams.getClientIp(),
-              requestParams.getResourcePath(),
-              httpServletResponse.getStatus(),
-              httpServletResponse.getHeader(CONTENT_LENGTH_HEADER),
-              System.currentTimeMillis() - startTime
-      );
+    AccessLogContext accessLogContext = AccessLogContext.builder()
+        .clientIp(requestParams.getClientIp())
+          .resourcePath(requestParams.getResourcePath())
+            .responseStatus(httpServletResponse.getStatus())
+              .contentLength(Integer.valueOf(httpServletResponse.getHeader(CONTENT_LENGTH_HEADER)))
+                .responseTime(System.currentTimeMillis() - startTime)
+                  .build();
+    logger.info(accessLogContext.format(format));
   }
 }

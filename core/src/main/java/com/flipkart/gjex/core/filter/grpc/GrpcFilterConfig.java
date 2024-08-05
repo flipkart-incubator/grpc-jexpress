@@ -28,4 +28,7 @@ import lombok.Data;
 public class GrpcFilterConfig {
   @JsonProperty("enableAccessLogs")
   private boolean enableAccessLogs = true;
+
+  @JsonProperty("accessLogFormat")
+  private String accessLogFormat;
 }

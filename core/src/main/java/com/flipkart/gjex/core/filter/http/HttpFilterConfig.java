@@ -28,4 +28,7 @@ import lombok.Data;
 public class HttpFilterConfig {
   @JsonProperty("enableAccessLogs")
   private boolean enableAccessLogs = true;
+
+  @JsonProperty("accessLogFormat")
+  private String accessLogFormat = "{clientIp} {resourcePath} {contentLength} {responseTime}" ;
 }

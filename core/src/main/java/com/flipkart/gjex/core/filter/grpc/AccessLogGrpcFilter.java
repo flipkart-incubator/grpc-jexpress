@@ -15,12 +15,11 @@
  */
 package com.flipkart.gjex.core.filter.grpc;
 
+import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 
 /**
@@ -37,19 +36,24 @@ import org.slf4j.Logger;
  *
  * @author ajay.jalgaonkar
  */
-public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
+public final class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
         extends GrpcFilter<R,S> implements Logging {
 
   // The start time of the request processing.
-  @Getter
-  @Setter
-  protected long startTime;
+  private long startTime;
 
   // Parameters of the request being processed, including client IP and resource path.
-  protected RequestParams<Metadata> requestParams;
+  private RequestParams<Metadata> requestParams;
+
+  // The format string for the access log message.
+  private String format = "{clientIp} {resourcePath} {contentLength} {responseTime}";
 
   // Logger instance for logging access log messages.
-  protected static Logger logger = Logging.loggerWithName("ACCESS-LOG");
+  private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
+
+  public AccessLogGrpcFilter(String format) {
+    this.format = format;
+  }
 
   /**
    * Processes the incoming gRPC request by initializing the start time and storing the request parameters.
@@ -79,12 +83,13 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
    */
   @Override
   public void doProcessResponse(S response) {
-    String size = "-";
-    if (response != null){
-      size = String.valueOf(response.getSerializedSize());
-    }
-    logger.info("{} {} {} {}", requestParams.getClientIp(), requestParams.getResourcePath(),
-        size, System.currentTimeMillis()-startTime);
+      AccessLogContext accessLogContext = AccessLogContext.builder()
+          .clientIp(requestParams.getClientIp())
+          .resourcePath(requestParams.getResourcePath())
+          .contentLength(response.getSerializedSize())
+          .responseTime(System.currentTimeMillis()-startTime)
+          .build();
+      logger.info(accessLogContext.format(format));
   }
 
   /**
@@ -95,6 +100,6 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
    */
   @Override
   public GrpcFilter<R,S> getInstance(){
-    return new AccessLogGrpcFilter<>();
+    return new AccessLogGrpcFilter<>(format);
   }
 }
