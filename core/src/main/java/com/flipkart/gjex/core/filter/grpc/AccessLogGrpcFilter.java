@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * @param <S> The response type extending {@link GeneratedMessageV3}, representing the gRPC response message.
  * @author ajay.jalgaonkar
  */
-public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
+public final class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
     extends GrpcFilter<R, S> implements Logging {
 
     // The start time of the request processing.

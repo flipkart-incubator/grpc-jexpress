@@ -23,7 +23,7 @@ import java.util.Map;
  *
  * @author ajay.jalgaonkar
  */
-public class AccessLogHttpFilter extends HttpFilter implements Logging {
+public final class AccessLogHttpFilter extends HttpFilter implements Logging {
 
     // Time when the request processing started.
     private long startTime;
@@ -82,13 +82,15 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
-            accessLogContextBuilder.responseStatus(httpServletResponse.getStatus());
+            accessLogContextBuilder.responseStatus(httpServletResponse.getStatus())
+            .contentLength(Integer.valueOf(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())));
+
         } else {
             // non-2xx response
-            accessLogContextBuilder.responseStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+            accessLogContextBuilder.responseStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
+            .contentLength(0);
         }
         accessLogContextBuilder
-            .contentLength(Integer.valueOf(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())))
             .responseStatus(httpServletResponse.getStatus())
             .responseTime(System.currentTimeMillis() - startTime);
         logger.info(accessLogContextBuilder.build().format(format));

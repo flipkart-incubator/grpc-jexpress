@@ -3,7 +3,7 @@ Grpc:
     server.executorThreads : 4
     filterConfig:
         enableAccessLogs: true
-        accessLogFormat: "{clientIp} {resourcePath} {contentLength} - {responseTime}"
+        accessLogFormat: "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}"
 
 Dashboard:
     service.port: 9999
