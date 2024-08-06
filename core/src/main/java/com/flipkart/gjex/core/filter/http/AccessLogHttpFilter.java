@@ -22,7 +22,7 @@ import java.util.Set;
  *
  * @author ajay.jalgaonkar
  */
-public final class AccessLogHttpFilter extends HttpFilter implements Logging {
+public class AccessLogHttpFilter extends HttpFilter implements Logging {
 
     // Time when the request processing started.
     private long startTime;

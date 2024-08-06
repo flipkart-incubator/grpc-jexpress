@@ -36,7 +36,7 @@ import org.slf4j.Logger;
  * @param <S> The response type extending {@link GeneratedMessageV3}, representing the gRPC response message.
  * @author ajay.jalgaonkar
  */
-public final class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
+public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
     extends GrpcFilter<R, S> implements Logging {
 
     // The start time of the request processing.

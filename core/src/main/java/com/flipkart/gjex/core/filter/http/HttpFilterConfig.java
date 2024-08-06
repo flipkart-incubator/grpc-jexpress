@@ -16,6 +16,9 @@
 package com.flipkart.gjex.core.filter.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * An HTTP Filter Config for processing filters
@@ -23,6 +26,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author ajay.jalgaonkar
  */
 
+@NoArgsConstructor
+@Getter
+@Setter
 public class HttpFilterConfig {
   @JsonProperty("enableAccessLogs")
   private boolean enableAccessLogs = true;
@@ -30,19 +36,4 @@ public class HttpFilterConfig {
   @JsonProperty("accessLogFormat")
   private String accessLogFormat = "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}";
 
-  public boolean isEnableAccessLogs() {
-    return enableAccessLogs;
-  }
-
-  public void setEnableAccessLogs(boolean enableAccessLogs) {
-    this.enableAccessLogs = enableAccessLogs;
-  }
-
-  public String getAccessLogFormat() {
-    return accessLogFormat;
-  }
-
-  public void setAccessLogFormat(String accessLogFormat) {
-    this.accessLogFormat = accessLogFormat;
-  }
 }
