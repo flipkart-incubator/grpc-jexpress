@@ -16,7 +16,9 @@
 package com.flipkart.gjex.core.filter.grpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * A gRPC Filter Config for processing filters
@@ -24,8 +26,13 @@ import lombok.Data;
  * @author ajay.jalgaonkar
  */
 
-@Data
+@NoArgsConstructor
+@Getter
+@Setter
 public class GrpcFilterConfig {
-  @JsonProperty("enableAccessLogs")
-  private boolean enableAccessLogs = true;
+    @JsonProperty("enableAccessLogs")
+    private boolean enableAccessLogs = true;
+
+    @JsonProperty("accessLogFormat")
+    private String accessLogFormat = "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}";
 }

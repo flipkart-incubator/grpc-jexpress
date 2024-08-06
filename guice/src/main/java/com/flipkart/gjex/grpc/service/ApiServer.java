@@ -24,6 +24,7 @@ import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.http.interceptor.HttpFilterInterceptor;
 import com.flipkart.gjex.web.ResourceRegistrar;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -47,59 +48,63 @@ import java.util.List;
 @Named("APIServer")
 public class ApiServer extends AbstractService implements Logging {
 
-	private final Server apiServer;
-	private final ResourceRegistrar resourceRegistrar;
-	private final ServletContextHandler context;
-	private HttpFilterInterceptor httpFilterInterceptor;
-	private List<ResourceConfig> resourceConfigs = new ArrayList<>();
+    private final Server apiServer;
+    private final ResourceRegistrar resourceRegistrar;
+    private final ServletContextHandler context;
+    private HttpFilterInterceptor httpFilterInterceptor;
+    private List<ResourceConfig> resourceConfigs = new ArrayList<>();
 
-	@Inject
-	public ApiServer(@Named("APIJettyServer") Server apiServer,
-									 @Named("ApiServletContext") ServletContextHandler context,
-									 @Named("HttpFilterInterceptor") HttpFilterInterceptor httpFilterInterceptor,
-									 ResourceRegistrar resourceRegistrar) {
-		this.apiServer = apiServer;
-		this.context = context;
-		this.httpFilterInterceptor = httpFilterInterceptor;
-		this.resourceRegistrar = resourceRegistrar;
-	}
+    @Inject
+    public ApiServer(@Named("APIJettyServer") Server apiServer,
+                     @Named("ApiServletContext") ServletContextHandler context,
+                     @Named("HttpFilterInterceptor") HttpFilterInterceptor httpFilterInterceptor,
+                     ResourceRegistrar resourceRegistrar) {
+        this.apiServer = apiServer;
+        this.context = context;
+        this.httpFilterInterceptor = httpFilterInterceptor;
+        this.resourceRegistrar = resourceRegistrar;
+    }
 
-	public void registerResources(List<ResourceConfig> resourceConfigs) {
-		this.resourceConfigs.addAll(resourceConfigs);
-	}
+    public void registerResources(List<ResourceConfig> resourceConfigs) {
+        this.resourceConfigs.addAll(resourceConfigs);
+    }
 
-	public void registerFilters(List<HttpFilterParams> httpFilterParamsList,
-                                List<JavaxFilterParams> javaxFilterParamsList,
-                                HttpFilterConfig httpFilterConfig){
-		configureAccessLog(httpFilterParamsList, httpFilterConfig);
-		httpFilterInterceptor.registerFilters(httpFilterParamsList);
-		context.addFilter(new FilterHolder(httpFilterInterceptor), "/*", EnumSet.of(DispatcherType.REQUEST));
-        for (JavaxFilterParams javaxFilterParams: javaxFilterParamsList){
+    public void registerFilters(List<HttpFilterParams> httpFilterParamsList, List<JavaxFilterParams> javaxFilterParamsList,
+                                HttpFilterConfig httpFilterConfig) {
+        configureAccessLog(httpFilterParamsList, httpFilterConfig);
+        httpFilterInterceptor.registerFilters(httpFilterParamsList);
+        context.addFilter(new FilterHolder(httpFilterInterceptor), "/*", EnumSet.of(DispatcherType.REQUEST));
+        for (JavaxFilterParams javaxFilterParams : javaxFilterParamsList) {
             context.addFilter(new FilterHolder(javaxFilterParams.getFilter()), javaxFilterParams.getPathSpec(), EnumSet.of(DispatcherType.REQUEST));
         }
-	}
+    }
 
-	private void configureAccessLog(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig){
-		if (httpFilterConfig.isEnableAccessLogs()){
-			httpFilterParamsList.add(0, HttpFilterParams.builder().filter(new AccessLogHttpFilter()).pathSpec("/*").build());
-		}
-	}
+    private void configureAccessLog(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig) {
+        if (httpFilterConfig.isEnableAccessLogs()) {
+            AccessLogHttpFilter accessLogHttpFilter = new AccessLogHttpFilter();
+            if (StringUtils.isNotEmpty(httpFilterConfig.getAccessLogFormat())) {
+                AccessLogHttpFilter.setFormat(httpFilterConfig.getAccessLogFormat());
+            }
+            httpFilterParamsList.add(0, HttpFilterParams.builder()
+                .filter(accessLogHttpFilter).pathSpec("/*").build());
+        }
+    }
 
-	@Override
-	public void doStart() throws Exception {
-		this.resourceRegistrar.registerResources(this.resourceConfigs); // register any custom web resources added by the GJEX application
-		this.apiServer.start();
-		info("API Server started and listening on port : " + this.apiServer.getURI().getPort());
-	}
+    @Override
+    public void doStart() throws Exception {
+        this.resourceRegistrar.registerResources(this.resourceConfigs); // register any custom web resources added by the GJEX application
+        this.apiServer.start();
+        info("API Server started and listening on port : " + this.apiServer.getURI().getPort());
+    }
 
-	@Override
-	public void doStop() {
-		try {
-			this.apiServer.stop();
-		} catch (Exception e) {
-			// Just log the error as we are stopping anyway
-			error("Error stopping API server : " + e.getMessage(), e);
-		}
-	}
+    @Override
+    public void doStop() {
+        try {
+            this.apiServer.stop();
+        } catch (Exception e) {
+            // Just log the error as we are stopping anyway
+            error("Error stopping API server : " + e.getMessage(), e);
+        }
+    }
 
 }

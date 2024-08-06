@@ -15,11 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -67,23 +63,27 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
                                FilterChain chain) throws IOException, ServletException {
 
         List<HttpFilter> filters = new ArrayList<>();
-        RequestParams.RequestParamsBuilder<Set<String>> requestParamsBuilder = RequestParams.builder();
+        RequestParams.RequestParamsBuilder<Map<String,String>> requestParamsBuilder = RequestParams.builder();
         try {
             if (request instanceof HttpServletRequest){
                 HttpServletRequest httpServletRequest = (HttpServletRequest) request;
                 filters = getMatchingFilters(httpServletRequest.getRequestURI());
-                Set<String> headersNames = new HashSet<>(Collections.list(httpServletRequest.getHeaderNames()));
-                requestParamsBuilder.metadata(headersNames);
+
+                Map<String, String> headers = Collections.list(httpServletRequest.getHeaderNames())
+                    .stream().collect(Collectors.toMap(h -> h, httpServletRequest::getHeader));
+                requestParamsBuilder.metadata(headers);
                 requestParamsBuilder.clientIp(getClientIp(request));
                 requestParamsBuilder.resourcePath(httpServletRequest.getRequestURI());
             }
-            RequestParams<Set<String>> requestParams = requestParamsBuilder.build();
+            RequestParams<Map<String, String>> requestParams = requestParamsBuilder.build();
             filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
-            chain.doFilter(request,response);
+            chain.doFilter(request, response);
         } finally {
-            if (response instanceof HttpServletResponse){
-                HttpServletResponse httpServletResponse = (HttpServletResponse)response;
-                filters.forEach(filter -> filter.doProcessResponseHeaders(new HashSet<>(httpServletResponse.getHeaderNames())));
+            if (response instanceof HttpServletResponse) {
+                HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                Map<String, String> headers = httpServletResponse.getHeaderNames()
+                    .stream().collect(Collectors.toMap(h -> h, httpServletResponse::getHeader));
+                filters.forEach(filter -> filter.doProcessResponseHeaders(headers));
             }
             filters.forEach(filter -> filter.doProcessResponse(response));
         }

@@ -52,4 +52,11 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     public void doProcessResponse(Res response) {
         info("Logging from filter. Response payload is : " + response.toString());
     }
+
+
+    @Override
+    public void doHandleException(Exception e) {
+        info("Logging from filter. Response Exception is : " + e.getMessage());
+    }
+
 }

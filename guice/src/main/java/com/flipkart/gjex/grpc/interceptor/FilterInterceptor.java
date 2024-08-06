@@ -17,8 +17,8 @@ package com.flipkart.gjex.grpc.interceptor;
 
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
@@ -35,8 +35,8 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import org.apache.commons.lang.StringUtils;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
@@ -64,9 +64,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
      */
     @SuppressWarnings("rawtypes")
     private final Map<String, List<GrpcFilter>> filtersMap = new HashMap<>();
-
-    @Inject
-    private AccessLogGrpcFilter accessLogGrpcFilter;
 
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
@@ -143,6 +140,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     super.onHalfClose();
                 } catch (RuntimeException ex) {
                     handleException(call, ex);
+                    grpcFilters.forEach(filter -> filter.doHandleException(ex));
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -181,6 +179,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     super.onCancel();
                 } catch (RuntimeException ex) {
                     handleException(call, ex);
+                    grpcFilters.forEach(filter -> filter.doHandleException(ex));
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -221,7 +220,11 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,
                                     @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
         if (grpcFilterConfig.isEnableAccessLogs()){
-            filtersForMethod.add(accessLogGrpcFilter.getInstance());
+            AccessLogGrpcFilter accessLogGrpcFilter = new AccessLogGrpcFilter();
+            if (StringUtils.isNotBlank(grpcFilterConfig.getAccessLogFormat())){
+                AccessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
+            }
+            filtersForMethod.add(accessLogGrpcFilter);
         }
     }
 }
