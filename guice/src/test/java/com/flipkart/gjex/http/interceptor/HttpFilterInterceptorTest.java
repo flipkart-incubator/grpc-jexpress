@@ -21,12 +21,10 @@ public class HttpFilterInterceptorTest {
 
     private HttpFilterInterceptor interceptor;
     String pathSpec = "/test/*";
-    String format = "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}";
 
     @Before
     public void setUp() {
         interceptor = new HttpFilterInterceptor();
-        AccessLogHttpFilter.setFormat(format);
     }
 
     @Test
