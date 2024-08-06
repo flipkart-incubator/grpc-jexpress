@@ -18,7 +18,7 @@ Api:
     service.selectors: 10
     service.workers: 30
     scheduledexecutor.threadpool.size: 1
-    healthcheck.path: "/elb-healthcheck"
+    healthCheck.path: "/elb-healthcheck"
     filterConfig:
         enableAccessLogs: true
         accessLogFormat: "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}"

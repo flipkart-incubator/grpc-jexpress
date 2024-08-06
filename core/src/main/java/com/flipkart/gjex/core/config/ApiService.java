@@ -44,6 +44,6 @@ public class ApiService {
     @JsonProperty("filterConfig")
     private HttpFilterConfig httpFilterConfig;
 
-    @JsonProperty("healthcheck.path")
+    @JsonProperty("healthCheck.path")
     private String healthCheckPath = "/healthcheck";
 }
