@@ -4,7 +4,6 @@ import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 
 import javax.servlet.ServletRequest;
@@ -23,7 +22,7 @@ import java.util.Map;
  *
  * @author ajay.jalgaonkar
  */
-public final class AccessLogHttpFilter extends HttpFilter implements Logging {
+public class AccessLogHttpFilter extends HttpFilter implements Logging {
 
     // Time when the request processing started.
     private long startTime;
@@ -80,15 +79,14 @@ public final class AccessLogHttpFilter extends HttpFilter implements Logging {
     @Override
     public void doProcessResponse(ServletResponse response) {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+        accessLogContextBuilder.responseStatus(httpServletResponse.getStatus());
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
-            accessLogContextBuilder.responseStatus(httpServletResponse.getStatus())
-            .contentLength(Integer.valueOf(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())));
-
+            accessLogContextBuilder.contentLength(Integer.valueOf(httpServletResponse
+                .getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())));
         } else {
             // non-2xx response
-            accessLogContextBuilder.responseStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
-            .contentLength(0);
+            accessLogContextBuilder.contentLength(0);
         }
         accessLogContextBuilder
             .responseStatus(httpServletResponse.getStatus())
