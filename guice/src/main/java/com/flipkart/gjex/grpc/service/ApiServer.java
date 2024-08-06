@@ -53,7 +53,6 @@ public class ApiServer extends AbstractService implements Logging {
 	private final ServletContextHandler context;
 	private HttpFilterInterceptor httpFilterInterceptor;
 	private List<ResourceConfig> resourceConfigs = new ArrayList<>();
-  private static String accessLogFormat = "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}";
 
 	@Inject
 	public ApiServer(@Named("APIJettyServer") Server apiServer,
@@ -70,25 +69,25 @@ public class ApiServer extends AbstractService implements Logging {
 		this.resourceConfigs.addAll(resourceConfigs);
 	}
 
-	public void registerFilters(List<HttpFilterParams> httpFilterParamsList,
-                                List<JavaxFilterParams> javaxFilterParamsList,
-                                HttpFilterConfig httpFilterConfig){
-		configureAccessLog(httpFilterParamsList, httpFilterConfig);
-		httpFilterInterceptor.registerFilters(httpFilterParamsList);
-		context.addFilter(new FilterHolder(httpFilterInterceptor), "/*", EnumSet.of(DispatcherType.REQUEST));
+	public void registerFilters(List<HttpFilterParams> httpFilterParamsList, List<JavaxFilterParams> javaxFilterParamsList,
+                                HttpFilterConfig httpFilterConfig) {
+        configureAccessLog(httpFilterParamsList, httpFilterConfig);
+        httpFilterInterceptor.registerFilters(httpFilterParamsList);
+        context.addFilter(new FilterHolder(httpFilterInterceptor), "/*", EnumSet.of(DispatcherType.REQUEST));
         for (JavaxFilterParams javaxFilterParams: javaxFilterParamsList){
             context.addFilter(new FilterHolder(javaxFilterParams.getFilter()), javaxFilterParams.getPathSpec(), EnumSet.of(DispatcherType.REQUEST));
         }
 	}
 
 	private void configureAccessLog(List<HttpFilterParams> httpFilterParamsList, HttpFilterConfig httpFilterConfig){
-		if (httpFilterConfig.isEnableAccessLogs()){
-      if (StringUtils.isNotEmpty(httpFilterConfig.getAccessLogFormat())) {
-        accessLogFormat = httpFilterConfig.getAccessLogFormat();
-      }
-      httpFilterParamsList.add(0, HttpFilterParams.builder()
-        .filter(new AccessLogHttpFilter(accessLogFormat)).pathSpec("/*").build());
-		}
+        if (httpFilterConfig.isEnableAccessLogs()){
+            AccessLogHttpFilter accessLogHttpFilter = new AccessLogHttpFilter();
+            if (StringUtils.isNotEmpty(httpFilterConfig.getAccessLogFormat())) {
+                AccessLogHttpFilter.setFormat(httpFilterConfig.getAccessLogFormat());
+            }
+            httpFilterParamsList.add(0, HttpFilterParams.builder()
+                    .filter(accessLogHttpFilter).pathSpec("/*").build());
+        }
 	}
 
 	@Override

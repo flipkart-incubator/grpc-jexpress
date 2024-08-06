@@ -20,6 +20,7 @@ import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
+import lombok.Setter;
 import org.slf4j.Logger;
 
 /**
@@ -33,73 +34,77 @@ import org.slf4j.Logger;
  *
  * @param <R> The request type extending {@link GeneratedMessageV3}, representing the gRPC request message.
  * @param <S> The response type extending {@link GeneratedMessageV3}, representing the gRPC response message.
- *
  * @author ajay.jalgaonkar
  */
 public final class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
-        extends GrpcFilter<R,S> implements Logging {
+    extends GrpcFilter<R, S> implements Logging {
 
-  // The start time of the request processing.
-  private long startTime;
+    // The start time of the request processing.
+    private long startTime;
 
-  // Parameters of the request being processed, including client IP and resource path.
-  private RequestParams<Metadata> requestParams;
+    // Parameters of the request being processed, including client IP and resource path.
+    private RequestParams<Metadata> requestParams;
 
-  // The format string for the access log message.
-  private String format;
+    // The format string for the access log message.
+    private static String format;
 
-  // Logger instance for logging access log messages.
-  private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
+    // Logger instance for logging access log messages.
+    private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
-  public AccessLogGrpcFilter(String format) {
-    this.format = format;
-  }
+    public AccessLogGrpcFilter() {
 
-  /**
-   * Processes the incoming gRPC request by initializing the start time and storing the request parameters.
-   *
-   * @param req The incoming gRPC request message.
-   * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
-   */
-  @Override
-  public void doProcessRequest(R req, RequestParams<Metadata> requestParamsInput) {
-    startTime = System.currentTimeMillis();
-    requestParams = requestParamsInput;
-  }
+    }
 
-  /**
-   * Placeholder method for processing response headers. Currently does not perform any operations.
-   *
-   * @param responseHeaders The metadata associated with the gRPC response.
-   */
-  @Override
-  public void doProcessResponseHeaders(Metadata responseHeaders) {}
+    public static void setFormat(String format) {
+        AccessLogGrpcFilter.format = format;
+    }
 
-  /**
-   * Processes the outgoing gRPC response by logging relevant request and response details.
-   * Logs the client IP, requested resource path, size of the response message, and the time taken to process the request.
-   *
-   * @param response The outgoing gRPC response message.
-   */
-  @Override
-  public void doProcessResponse(S response) {
-      AccessLogContext accessLogContext = AccessLogContext.builder()
-          .clientIp(requestParams.getClientIp())
-          .resourcePath(requestParams.getResourcePath())
-          .contentLength(response.getSerializedSize())
-          .responseTime(System.currentTimeMillis()-startTime)
-          .build();
-      logger.info(accessLogContext.format(format));
-  }
+    /**
+     * Processes the incoming gRPC request by initializing the start time and storing the request parameters.
+     *
+     * @param req                The incoming gRPC request message.
+     * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
+     */
+    @Override
+    public void doProcessRequest(R req, RequestParams<Metadata> requestParamsInput) {
+        startTime = System.currentTimeMillis();
+        requestParams = requestParamsInput;
+    }
 
-  /**
-   * Provides an instance of this filter. This method facilitates the creation of new instances of the
-   * AccessLogGrpcFilter for each gRPC call, ensuring thread safety and isolation of request data.
-   *
-   * @return A new instance of {@link AccessLogGrpcFilter}.
-   */
-  @Override
-  public GrpcFilter<R,S> getInstance(){
-    return new AccessLogGrpcFilter<>(format);
-  }
+    /**
+     * Placeholder method for processing response headers. Currently does not perform any operations.
+     *
+     * @param responseHeaders The metadata associated with the gRPC response.
+     */
+    @Override
+    public void doProcessResponseHeaders(Metadata responseHeaders) {
+    }
+
+    /**
+     * Processes the outgoing gRPC response by logging relevant request and response details.
+     * Logs the client IP, requested resource path, size of the response message, and the time taken to process the request.
+     *
+     * @param response The outgoing gRPC response message.
+     */
+    @Override
+    public void doProcessResponse(S response) {
+        AccessLogContext accessLogContext = AccessLogContext.builder()
+            .clientIp(requestParams.getClientIp())
+            .resourcePath(requestParams.getResourcePath())
+            .contentLength(response.getSerializedSize())
+            .responseTime(System.currentTimeMillis() - startTime)
+            .build();
+        logger.info(accessLogContext.format(format));
+    }
+
+    /**
+     * Provides an instance of this filter. This method facilitates the creation of new instances of the
+     * AccessLogGrpcFilter for each gRPC call, ensuring thread safety and isolation of request data.
+     *
+     * @return A new instance of {@link AccessLogGrpcFilter}.
+     */
+    @Override
+    public GrpcFilter<R, S> getInstance() {
+        return new AccessLogGrpcFilter<>();
+    }
 }

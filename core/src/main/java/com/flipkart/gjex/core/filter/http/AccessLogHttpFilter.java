@@ -2,6 +2,7 @@ package com.flipkart.gjex.core.filter.http;
 
 import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
+import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.logging.Logging;
 import org.slf4j.Logger;
 
@@ -23,58 +24,63 @@ import java.util.Set;
  */
 public final class AccessLogHttpFilter extends HttpFilter implements Logging {
 
-  // Time when the request processing started.
-  private long startTime;
+    // Time when the request processing started.
+    private long startTime;
 
-  // Parameters of the request being processed.
-  private RequestParams<Set<String>> requestParams;
+    // Parameters of the request being processed.
+    private RequestParams<Set<String>> requestParams;
 
-  // Logger instance for logging access log messages.
-  private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
+    // Logger instance for logging access log messages.
+    private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
-  // HTTP header name for content length.
-  private static final String CONTENT_LENGTH_HEADER = "Content-Length";
+    // HTTP header name for content length.
+    private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
-  // The format string for the access log message.
-  private String format;
+    // The format string for the access log message.
+    private static String format;
 
-  public AccessLogHttpFilter(String format) {
-    this.format = format;
-  }
+    public AccessLogHttpFilter() {
 
-  @Override
-  public HttpFilter getInstance() {
-    return new AccessLogHttpFilter(format);
-  }
+    }
 
-  /**
-   * Processes the incoming request by initializing the start time and storing the request parameters.
-   *
-   * @param req The incoming servlet request.
-   * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
-   */
-  @Override
-  public void doProcessRequest(ServletRequest req, RequestParams<Set<String>> requestParamsInput) {
-    startTime = System.currentTimeMillis();
-    requestParams = requestParamsInput;
-  }
+    public static void setFormat(String format) {
+        AccessLogHttpFilter.format = format;
+    }
 
-  /**
-   * Processes the outgoing response by logging relevant request and response details.
-   * Logs the client IP, requested URI, response status, content length, and the time taken to process the request.
-   *
-   * @param response The outgoing servlet response.
-   */
-  @Override
-  public void doProcessResponse(ServletResponse response) {
-      HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-    AccessLogContext accessLogContext = AccessLogContext.builder()
-        .clientIp(requestParams.getClientIp())
-          .resourcePath(requestParams.getResourcePath())
+
+    @Override
+    public HttpFilter getInstance() {
+        return new AccessLogHttpFilter();
+    }
+
+    /**
+     * Processes the incoming request by initializing the start time and storing the request parameters.
+     *
+     * @param req                The incoming servlet request.
+     * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
+     */
+    @Override
+    public void doProcessRequest(ServletRequest req, RequestParams<Set<String>> requestParamsInput) {
+        startTime = System.currentTimeMillis();
+        requestParams = requestParamsInput;
+    }
+
+    /**
+     * Processes the outgoing response by logging relevant request and response details.
+     * Logs the client IP, requested URI, response status, content length, and the time taken to process the request.
+     *
+     * @param response The outgoing servlet response.
+     */
+    @Override
+    public void doProcessResponse(ServletResponse response) {
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+        AccessLogContext accessLogContext = AccessLogContext.builder()
+            .clientIp(requestParams.getClientIp())
+            .resourcePath(requestParams.getResourcePath())
             .responseStatus(httpServletResponse.getStatus())
-              .contentLength(Integer.valueOf(httpServletResponse.getHeader(CONTENT_LENGTH_HEADER)))
-                .responseTime(System.currentTimeMillis() - startTime)
-                  .build();
-    logger.info(accessLogContext.format(format));
-  }
+            .contentLength(Integer.valueOf(httpServletResponse.getHeader(CONTENT_LENGTH_HEADER)))
+            .responseTime(System.currentTimeMillis() - startTime)
+            .build();
+        logger.info(accessLogContext.format(format));
+    }
 }

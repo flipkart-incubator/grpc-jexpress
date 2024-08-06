@@ -218,7 +218,11 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,
                                     @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
         if (grpcFilterConfig.isEnableAccessLogs()){
-          filtersForMethod.add(new AccessLogGrpcFilter(grpcFilterConfig.getAccessLogFormat()).getInstance());
+            AccessLogGrpcFilter accessLogGrpcFilter = new AccessLogGrpcFilter();
+            if (StringUtils.isNotBlank(grpcFilterConfig.getAccessLogFormat())){
+                AccessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
+            }
+            filtersForMethod.add(accessLogGrpcFilter);
         }
     }
 }

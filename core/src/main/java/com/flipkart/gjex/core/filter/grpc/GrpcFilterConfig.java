@@ -24,25 +24,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 
 public class GrpcFilterConfig {
-  @JsonProperty("enableAccessLogs")
-  private boolean enableAccessLogs = true;
+    @JsonProperty("enableAccessLogs")
+    private boolean enableAccessLogs = true;
 
-  @JsonProperty("accessLogFormat")
-  private String accessLogFormat = "{clientIp} {resourcePath} {contentLength} - {responseTime}";
+    @JsonProperty("accessLogFormat")
+    private String accessLogFormat = "{clientIp} {resourcePath} {contentLength} - {responseTime}";
 
-  public boolean isEnableAccessLogs() {
-    return enableAccessLogs;
-  }
+    public boolean isEnableAccessLogs() {
+        return enableAccessLogs;
+    }
 
-  public void setEnableAccessLogs(boolean enableAccessLogs) {
-    this.enableAccessLogs = enableAccessLogs;
-  }
+    public void setEnableAccessLogs(boolean enableAccessLogs) {
+        this.enableAccessLogs = enableAccessLogs;
+    }
 
-  public String getAccessLogFormat() {
-    return accessLogFormat;
-  }
+    public String getAccessLogFormat() {
+        return accessLogFormat;
+    }
 
-  public void setAccessLogFormat(String accessLogFormat) {
-    this.accessLogFormat = accessLogFormat;
-  }
+    public void setAccessLogFormat(String accessLogFormat) {
+        this.accessLogFormat = accessLogFormat;
+    }
 }
