@@ -20,10 +20,9 @@ import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
-import lombok.Setter;
+import io.grpc.Status;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -110,7 +109,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
         accessLogContextBuilder
             .contentLength(response.getSerializedSize())
             .responseTime(System.currentTimeMillis() - startTime)
-            .responseStatus(200)
+            .responseStatus(Status.Code.OK.value())
             .build();
         logger.info(accessLogContextBuilder.build().format(format));
     }
@@ -126,7 +125,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
         accessLogContextBuilder
             .contentLength(0)
             .responseTime(System.currentTimeMillis() - startTime)
-            .responseStatus(500)
+            .responseStatus(Status.Code.INTERNAL.value())
             .build();
         logger.info(accessLogContextBuilder.build().format(format));
     }

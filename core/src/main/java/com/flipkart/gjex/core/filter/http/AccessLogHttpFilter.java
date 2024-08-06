@@ -2,15 +2,15 @@ package com.flipkart.gjex.core.filter.http;
 
 import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.logging.Logging;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Implements an HTTP filter for logging access requests. This filter captures and logs
@@ -33,9 +33,6 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
 
     // Logger instance for logging access log messages.
     private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
-
-    // HTTP header name for content length.
-    private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
     // The format string for the access log message.
     private static String format;
@@ -83,8 +80,15 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     @Override
     public void doProcessResponse(ServletResponse response) {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+        if (isSuccess(httpServletResponse.getStatus())) {
+            // 2xx response
+            accessLogContextBuilder.responseStatus(httpServletResponse.getStatus());
+        } else {
+            // non-2xx response
+            accessLogContextBuilder.responseStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        }
         accessLogContextBuilder
-            .contentLength(Integer.valueOf(httpServletResponse.getHeader(CONTENT_LENGTH_HEADER)))
+            .contentLength(Integer.valueOf(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())))
             .responseStatus(httpServletResponse.getStatus())
             .responseTime(System.currentTimeMillis() - startTime);
         logger.info(accessLogContextBuilder.build().format(format));
@@ -98,6 +102,10 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
             .responseStatus(500)
             .responseTime(System.currentTimeMillis() - startTime);
         logger.info(accessLogContextBuilder.build().format(format));
+    }
+
+    private static boolean isSuccess(int code) {
+        return ((200 <= code) && (code <= 299));
     }
 
 }
