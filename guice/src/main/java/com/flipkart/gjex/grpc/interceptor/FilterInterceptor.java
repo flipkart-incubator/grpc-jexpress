@@ -64,6 +64,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
      */
     @SuppressWarnings("rawtypes")
     private final Map<String, List<GrpcFilter>> filtersMap = new HashMap<>();
+    private List<GrpcFilter> grpcFilters = new ArrayList<>();
 
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
@@ -104,7 +105,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 }, headers)) {
             };
         }
-        List<GrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GrpcFilter::getInstance).collect(Collectors.toList());
+        grpcFilters = grpcFilterReferences.stream().map(GrpcFilter::getInstance).collect(Collectors.toList());
         Context contextWithHeaders = forwardHeaders.keys().isEmpty() ? null : Context.current().withValue(GJEXContext.getHeadersKey(), forwardHeaders);
 
         ServerCall.Listener<Req> listener = null;
@@ -194,8 +195,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
             returnStatus = Status.INVALID_ARGUMENT;
         }
-
         try {
+            grpcFilters.forEach(filter -> filter.doHandleException(e));
             call.close(returnStatus.withDescription(e.getMessage()), new Metadata());
         } catch (IllegalStateException ie) {
             // Simply log the exception as this is already handling the runtime-exception

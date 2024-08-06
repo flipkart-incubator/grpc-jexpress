@@ -20,8 +20,11 @@ import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
+import io.grpc.Status;
 import lombok.Setter;
 import org.slf4j.Logger;
+
+import javax.validation.ConstraintViolationException;
 
 /**
  * Implements a gRPC filter for logging access to gRPC services. This filter captures and logs
@@ -92,6 +95,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
             .clientIp(requestParams.getClientIp())
             .resourcePath(requestParams.getResourcePath())
             .contentLength(response.getSerializedSize())
+            .responseStatus(Integer.valueOf(Status.Code.OK.name()))
             .responseTime(System.currentTimeMillis() - startTime)
             .build();
         logger.info(accessLogContext.format(format));
@@ -99,7 +103,18 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
 
     @Override
     public void doHandleException(Exception e) {
-        //Todo
+        Status returnStatus = Status.INTERNAL;
+        if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
+            returnStatus = Status.INVALID_ARGUMENT;
+        }
+        AccessLogContext accessLogContext = AccessLogContext.builder()
+            .clientIp(requestParams.getClientIp())
+            .resourcePath(requestParams.getResourcePath())
+            .contentLength(-1)
+            .responseStatus(Integer.valueOf(returnStatus.getCode().name()))
+            .responseTime(System.currentTimeMillis() - startTime)
+            .build();
+        logger.info(accessLogContext.format(format));
     }
 
     /**

@@ -46,6 +46,9 @@ public class HealthCheckResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response performHealthChecks() {
+        if (true){
+            throw new RuntimeException();
+        }
 		HealthCheckRegistry registry = (HealthCheckRegistry) servletContext
 				.getAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME);
 		SortedMap<String, HealthCheck.Result> results = registry.runHealthChecks();
