@@ -75,7 +75,8 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
                 requestParamsBuilder.clientIp(getClientIp(request));
                 requestParamsBuilder.resourcePath(httpServletRequest.getRequestURI());
             }
-            filters.forEach(filter -> filter.doProcessRequest(request, requestParamsBuilder.build()));
+            RequestParams<Map<String, String>> requestParams = requestParamsBuilder.build();
+            filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
             chain.doFilter(request, response);
         } finally {
             if (response instanceof HttpServletResponse) {
