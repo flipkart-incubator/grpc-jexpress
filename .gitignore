@@ -12,5 +12,4 @@ target/
 .classpath
 .metadata/*
 .recommenders/*
-.editorconfig
 */out
