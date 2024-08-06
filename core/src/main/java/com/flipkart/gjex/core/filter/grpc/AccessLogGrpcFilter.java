@@ -97,6 +97,11 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
         logger.info(accessLogContext.format(format));
     }
 
+    @Override
+    public void doHandleException(Exception e) {
+        //Todo
+    }
+
     /**
      * Provides an instance of this filter. This method facilitates the creation of new instances of the
      * AccessLogGrpcFilter for each gRPC call, ensuring thread safety and isolation of request data.

@@ -83,4 +83,10 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
             .build();
         logger.info(accessLogContext.format(format));
     }
+
+    @Override
+    public void doHandleException(Exception e) {
+        //Todo
+    }
+
 }
