@@ -23,6 +23,11 @@ import io.grpc.Metadata;
 import lombok.Setter;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 /**
  * Implements a gRPC filter for logging access to gRPC services. This filter captures and logs
  * essential details such as the start time of the request, the client IP, the resource path,
@@ -42,8 +47,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     // The start time of the request processing.
     private long startTime;
 
-    // Parameters of the request being processed, including client IP and resource path.
-    private RequestParams<Metadata> requestParams;
+    // AccessLogContext of the request being processed
+    private AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
 
     // The format string for the access log message.
     private static String format;
@@ -55,6 +60,11 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
 
     }
 
+    /**
+     * Sets the format string for the access log message.
+     *
+     * @param format The format string to be used for logging.
+     */
     public static void setFormat(String format) {
         AccessLogGrpcFilter.format = format;
     }
@@ -68,7 +78,16 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     @Override
     public void doProcessRequest(R req, RequestParams<Metadata> requestParamsInput) {
         startTime = System.currentTimeMillis();
-        requestParams = requestParamsInput;
+        accessLogContextBuilder = AccessLogContext.builder()
+            .clientIp(requestParamsInput.getClientIp())
+            .resourcePath(requestParamsInput.getResourcePath());
+
+        Map<String, String> headers = requestParamsInput.getMetadata().keys().stream()
+            .collect(Collectors.toMap(key -> key, key ->
+                Optional.ofNullable(requestParamsInput.getMetadata().get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER))).orElse("")
+            ));
+
+        accessLogContextBuilder.headers(headers);
     }
 
     /**
@@ -88,18 +107,28 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
      */
     @Override
     public void doProcessResponse(S response) {
-        AccessLogContext accessLogContext = AccessLogContext.builder()
-            .clientIp(requestParams.getClientIp())
-            .resourcePath(requestParams.getResourcePath())
+        accessLogContextBuilder
             .contentLength(response.getSerializedSize())
             .responseTime(System.currentTimeMillis() - startTime)
+            .responseStatus(200)
             .build();
-        logger.info(accessLogContext.format(format));
+        logger.info(accessLogContextBuilder.build().format(format));
     }
 
+    /**
+     * Handles exceptions that occur during the processing of the request or response.
+     * Logs the exception details along with the request and response context.
+     *
+     * @param e The exception that occurred.
+     */
     @Override
     public void doHandleException(Exception e) {
-        //Todo
+        accessLogContextBuilder
+            .contentLength(0)
+            .responseTime(System.currentTimeMillis() - startTime)
+            .responseStatus(500)
+            .build();
+        logger.info(accessLogContextBuilder.build().format(format));
     }
 
     /**

@@ -140,6 +140,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     super.onHalfClose();
                 } catch (RuntimeException ex) {
                     handleException(call, ex);
+                    grpcFilters.forEach(filter -> filter.doHandleException(ex));
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -178,6 +179,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     super.onCancel();
                 } catch (RuntimeException ex) {
                     handleException(call, ex);
+                    grpcFilters.forEach(filter -> filter.doHandleException(ex));
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }

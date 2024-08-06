@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -27,8 +28,8 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     // Time when the request processing started.
     private long startTime;
 
-    // Parameters of the request being processed.
-    private RequestParams<Set<String>> requestParams;
+    // Access log context.
+    private AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
 
     // Logger instance for logging access log messages.
     private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
@@ -60,9 +61,17 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
      * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
      */
     @Override
-    public void doProcessRequest(ServletRequest req, RequestParams<Set<String>> requestParamsInput) {
+    public void doProcessRequest(ServletRequest req, RequestParams<Map<String,String>> requestParamsInput) {
         startTime = System.currentTimeMillis();
-        requestParams = requestParamsInput;
+        accessLogContextBuilder = AccessLogContext.builder()
+            .clientIp(requestParamsInput.getClientIp())
+            .resourcePath(requestParamsInput.getResourcePath())
+            .headers(requestParamsInput.getMetadata());
+    }
+
+    @Override
+    public void doProcessResponseHeaders(Map<String,String> responseHeaders) {
+        //
     }
 
     /**
@@ -74,19 +83,21 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     @Override
     public void doProcessResponse(ServletResponse response) {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        AccessLogContext accessLogContext = AccessLogContext.builder()
-            .clientIp(requestParams.getClientIp())
-            .resourcePath(requestParams.getResourcePath())
-            .responseStatus(httpServletResponse.getStatus())
+        accessLogContextBuilder
             .contentLength(Integer.valueOf(httpServletResponse.getHeader(CONTENT_LENGTH_HEADER)))
-            .responseTime(System.currentTimeMillis() - startTime)
-            .build();
-        logger.info(accessLogContext.format(format));
+            .responseStatus(httpServletResponse.getStatus())
+            .responseTime(System.currentTimeMillis() - startTime);
+        logger.info(accessLogContextBuilder.build().format(format));
     }
 
     @Override
     public void doHandleException(Exception e) {
-        //Todo
+        // This shouldn't come here for http filters, that said, ensuring that even if happens we log it.
+        accessLogContextBuilder
+            .contentLength(0)
+            .responseStatus(500)
+            .responseTime(System.currentTimeMillis() - startTime);
+        logger.info(accessLogContextBuilder.build().format(format));
     }
 
 }

@@ -20,6 +20,7 @@ import com.flipkart.gjex.core.filter.RequestParams;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,7 +39,7 @@ import java.util.Set;
  * @param <Set<String>>     The type of metadata associated with the request, typically a set of header names
  * @author ajay.jalgaonkar
  */
-public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse, Set<String>> {
+public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse, Map<String,String>> {
 
   /**
    * Function for creating an instance of this {@link Filter}
