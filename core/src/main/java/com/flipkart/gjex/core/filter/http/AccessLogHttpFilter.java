@@ -79,7 +79,6 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     @Override
     public void doProcessResponse(ServletResponse response) {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        accessLogContextBuilder.responseStatus(httpServletResponse.getStatus());
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
             accessLogContextBuilder.contentLength(Integer.valueOf(httpServletResponse
