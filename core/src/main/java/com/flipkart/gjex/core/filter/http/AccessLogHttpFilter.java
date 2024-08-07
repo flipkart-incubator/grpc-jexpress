@@ -81,8 +81,8 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
-            accessLogContextBuilder.contentLength(Integer.valueOf(httpServletResponse
-                .getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())));
+            accessLogContextBuilder.contentLength(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) != null ?
+                Integer.valueOf(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())) : 0);
         } else {
             // non-2xx response
             accessLogContextBuilder.contentLength(0);
