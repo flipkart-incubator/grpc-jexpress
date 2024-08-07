@@ -18,7 +18,7 @@ repositories {
     mavenLocal()
 }
 
-def jexpressVersion = '1.41.1-SNAPSHOT'
+def jexpressVersion = '1.41-SNAPSHOT'
 def grpcVersion = '1.60.0'
 def protobufVersion = '3.25.2'
 def protocVersion = protobufVersion
