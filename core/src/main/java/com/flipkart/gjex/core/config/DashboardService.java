@@ -33,6 +33,6 @@ public class DashboardService {
     @JsonProperty("service.workers")
     private int workers;
 
-    @JsonProperty("healthCheck.path")
+    @JsonProperty("healthcheck.path")
     private String healthCheckPath = "/healthcheck";
 }

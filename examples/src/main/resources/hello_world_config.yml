@@ -10,7 +10,7 @@ Dashboard:
     service.acceptors: 5
     service.selectors: 10
     service.workers: 30
-    healthCheck.path: "/elb-healthcheck"
+    healthcheck.path: "/elb-healthcheck"
 
 Api:
     service.port: 9998
