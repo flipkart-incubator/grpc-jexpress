@@ -229,7 +229,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    private String getClientIp(Attributes attributes){
+    private static String getClientIp(Attributes attributes){
         if (attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR) != null){
             String ipAddressString = attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString();
             if (StringUtils.isNotEmpty(ipAddressString)){
