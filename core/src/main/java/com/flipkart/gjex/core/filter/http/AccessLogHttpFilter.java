@@ -10,6 +10,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implements an HTTP filter for logging access requests. This filter captures and logs
@@ -81,8 +82,9 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
-            accessLogContextBuilder.contentLength(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) != null ?
-                Integer.valueOf(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())) : 0);
+            int contentLength = Optional.ofNullable(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()))
+                    .map(Integer::parseInt).orElse(0);
+            accessLogContextBuilder.contentLength(contentLength);
         } else {
             // non-2xx response
             accessLogContextBuilder.contentLength(0);
