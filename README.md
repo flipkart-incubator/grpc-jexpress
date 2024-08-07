@@ -17,14 +17,6 @@ Provides following features:
 * Task/Upstream request retries using [Hedged Requests as described here](https://cseweb.ucsd.edu/~gmporter/classes/fa17/cse124/post/schedule/p74-dean.pdf)
 * Tool recommendations for testing
 
-## Releases
-| Release | Date | Description |
-|:---------------------------------|:----------------|:------------|
-| Version 1.33                     | Nov 2019        |  Bug fixes, feature enhahncements
-| Version 1.0                      | Jan 2019        |  Initial stable release
-
-## Changelog
-Changelog can be viewed in [CHANGELOG.md](https://github.com/flipkart-incubator/grpc-jexpress/blob/master/CHANGELOG.md) file
 
 ## Distribution
 GJEX builds are distributed via the [Clojars](https://clojars.org/) community maintained repository for open source libraries.
@@ -37,7 +29,13 @@ Add the following repository to your build system to access releases builds - e.
     <url>https://clojars.org/repo</url>
 </repository>
 ```
+
+### Releases
+
+Release Versions are documented in the [releases page](https://github.com/flipkart-incubator/grpc-jexpress/releases). You can also refer to [clojars page](https://clojars.org/com.flipkart/grpc-jexpress/versions) for the release versions 
+
 More details on [Distribution Binaries](https://github.com/flipkart-incubator/grpc-jexpress/wiki/Distribution-Binaries)
+
 
 ## Building
 
