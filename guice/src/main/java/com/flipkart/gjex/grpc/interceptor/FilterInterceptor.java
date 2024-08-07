@@ -24,6 +24,7 @@ import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
+import io.grpc.Attributes;
 import io.grpc.BindableService;
 import io.grpc.Context;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
@@ -150,7 +151,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 RequestParams requestParams = RequestParams.builder()
-                    .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
+                    .clientIp(getClientIp(call.getAttributes()))
                     .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
                     .metadata(headers)
                     .build();
@@ -226,5 +227,24 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             }
             filtersForMethod.add(accessLogGrpcFilter);
         }
+    }
+
+    private String getClientIp(Attributes attributes){
+        if (attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR) != null){
+            String ipAddressString = attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString();
+            if (StringUtils.isNotEmpty(ipAddressString)){
+                if (ipAddressString.startsWith("/")){
+                    ipAddressString = ipAddressString.split("/", 2)[1];
+                }
+            }
+            if (StringUtils.isNotEmpty(ipAddressString)){
+                int portIndex = ipAddressString.lastIndexOf(":");
+                if (portIndex != -1){
+                    ipAddressString = ipAddressString.substring(0, portIndex);
+                }
+            }
+            return ipAddressString;
+        }
+        return null;
     }
 }

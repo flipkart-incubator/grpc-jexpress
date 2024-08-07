@@ -21,6 +21,8 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 import io.grpc.Status;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -47,9 +49,11 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     private long startTime;
 
     // AccessLogContext of the request being processed
-    private AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
+    @Getter
+    private final AccessLogContext.AccessLogContextBuilder accessLogContextBuilder = AccessLogContext.builder();
 
     // The format string for the access log message.
+    @Setter
     private static String format;
 
     // Logger instance for logging access log messages.
@@ -57,15 +61,6 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
 
     public AccessLogGrpcFilter() {
 
-    }
-
-    /**
-     * Sets the format string for the access log message.
-     *
-     * @param format The format string to be used for logging.
-     */
-    public static void setFormat(String format) {
-        AccessLogGrpcFilter.format = format;
     }
 
     /**
@@ -77,7 +72,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     @Override
     public void doProcessRequest(R req, RequestParams<Metadata> requestParamsInput) {
         startTime = System.currentTimeMillis();
-        accessLogContextBuilder = AccessLogContext.builder()
+        accessLogContextBuilder
             .clientIp(requestParamsInput.getClientIp())
             .resourcePath(requestParamsInput.getResourcePath());
 

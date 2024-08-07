@@ -19,6 +19,7 @@ import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.http.JavaxFilterParams;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
+import com.flipkart.gjex.examples.helloworld.filter.CustomAccessLogFilter;
 import com.flipkart.gjex.examples.helloworld.filter.LoggingFilter;
 import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
@@ -50,11 +51,12 @@ public class HelloWorldModule extends AbstractModule {
 		bind(GreeterGrpc.GreeterBlockingStub.class).toInstance(GreeterGrpc.newBlockingStub(channel));
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(GrpcFilter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
+        bind(GrpcFilter.class).annotatedWith(Names.named("CustomAccessLogFilter")).to(CustomAccessLogFilter.class);
 		bind(GrpcFilter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
 //        bind(AccessLogGrpcFilter.class).to(AccessLogTestFilter.class);
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
-    bind(JavaxFilterParams.class).annotatedWith(Names.named("ExampleJavaxFilter"))
+        bind(JavaxFilterParams.class).annotatedWith(Names.named("ExampleJavaxFilter"))
         .toInstance(JavaxFilterParams.builder().filter(new ExampleJavaxFilter()).pathSpec("/*").build());
 	}
 }

@@ -16,13 +16,15 @@ import java.util.Map;
  */
 @Builder
 public class AccessLogContext {
-    String clientIp;
-    String resourcePath;
-    Integer contentLength;
-    Long responseTime;
-    Integer responseStatus;
+    private String clientIp;
+    private String resourcePath;
+    private Integer contentLength;
+    private Long responseTime;
+    private Integer responseStatus;
     @Builder.Default
-    Map<String,String> headers = new HashMap<>();
+    private Map<String,String> headers = new HashMap<>();
+    @Builder.Default
+    protected Map<String, String> customFields = new HashMap<>();
 
 
     /**
@@ -41,6 +43,9 @@ public class AccessLogContext {
         }
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             params.put("headers." + entry.getKey(), entry.getValue());
+        }
+        for (Map.Entry<String, String> entry : customFields.entrySet()) {
+            params.put("custom." + entry.getKey(), entry.getValue());
         }
         params.put("thread", Thread.currentThread().getName());
         return params;
