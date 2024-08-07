@@ -36,6 +36,7 @@ import com.flipkart.gjex.guice.module.GJEXEnvironmentModule;
 import com.flipkart.gjex.guice.module.ServerModule;
 import com.flipkart.gjex.guice.module.TaskModule;
 import com.flipkart.gjex.guice.module.TracingModule;
+import com.flipkart.gjex.guice.module.ResilienceRegistriesModule;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.inject.Binding;
@@ -127,6 +128,8 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		modules.add(new ApiModule());
 		// add the Tracing module before Task module so that even Concurrent tasks can be traced
 		modules.add(new TracingModule());
+		// add the Registry module
+		modules.add(new ResilienceRegistriesModule());
 		// add the Task module
 		modules.add(new TaskModule());
 		// add the Dashboard module

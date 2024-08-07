@@ -37,3 +37,21 @@ apiProperties:
 
 taskProperties:
     hello.timeout: 200
+    tracerMethod4:
+        circuitBreaker:
+            type: "TIME_BASED"
+            slidingWindowSize: 20
+        threadPoolBulkHead:
+            queueCapacity: 10
+            maxThreadPoolSize: 5
+            coreThreadPoolSize: 3
+    default:
+        circuitBreaker:
+            type: "TIME_BASED"
+            slidingWindowSize: 10
+        threadPoolBulkHead:
+            queueCapacity: 20
+            maxThreadPoolSize: 10
+            coreThreadPoolSize: 5
+
+useResilience4j: true

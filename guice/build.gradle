@@ -68,6 +68,8 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.7'
 
     implementation 'io.prometheus:prometheus-metrics-exporter-servlet-javax:1.2.0'
+    implementation 'com.codahale.metrics:metrics-core:3.0.2'
+    implementation 'com.flipkart.resilience4all:resilience4j-metrics-event-stream:0.0.1'
 
     testImplementation libraries.junit4
     testImplementation libraries.assertj

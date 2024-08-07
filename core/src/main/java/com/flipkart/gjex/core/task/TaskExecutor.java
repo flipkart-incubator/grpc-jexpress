@@ -30,12 +30,14 @@ import com.netflix.hystrix.HystrixThreadPoolProperties;
 import io.grpc.Context;
 import io.reactivex.functions.BiConsumer;
 
+import java.util.concurrent.Future;
+
 /**
  * A {@link HystrixCommand} implementation to provide async execution and circuit breaking functionality for method invocations.
  * @author regu.b
  *
  */
-public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
+public class TaskExecutor<T> extends HystrixCommand<T> implements FutureProvider<T>, Logging {
 
 	/** The MethodInvocation to execute asynchronously*/
 	private final MethodInvocation invocation;
@@ -91,8 +93,19 @@ public class TaskExecutor<T> extends HystrixCommand<T> implements Logging {
 	public long getRollingTailLatency() {
 		return rollingTailLatency;
 	}
+
+	@Override
+	public String getName() {
+		return getInvocation().getMethod().getName();
+	}
+
 	public int getTimeout() {
 		return timeout;
+	}
+
+	@Override
+	public Future<T> getFuture() {
+		return queue();
 	}
 
 	/**

@@ -110,7 +110,7 @@ public class HelloBeanService implements Logging {
 	 * This method is implicitly(default) marked as {@link ConcurrentTask.Completion#Mandatory}
 	 */
 	@Traced
-	@ConcurrentTask(timeoutConfig = "taskProperties.hello.timeout")
+	@ConcurrentTask(timeoutConfig = "taskProperties.hello.timeout", resilience4jConfig = "taskProperties.tracerMethod4")
 	public Future<ResponseEntity> tracedMethod4(ResponseEntity entity) {
 		return new AsyncResult<ResponseEntity>() {
             @Override

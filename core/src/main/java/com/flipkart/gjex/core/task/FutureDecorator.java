@@ -46,14 +46,14 @@ public class FutureDecorator<T> implements Future<T> {
 	/** The original Future decorated by this Future*/
 	private final Future<T> origin;
 	/** The TaskExecutor producing the Future*/
-	private final TaskExecutor<T> taskExecutor;
+	private final FutureProvider<T> taskExecutor;
 
 	/** The BiConsumer to callback on completion*/
 	private BiConsumer<T, Throwable> completionConsumer;
 
-	public FutureDecorator(TaskExecutor<T> taskExecutor, ConcurrentTask.Completion completion) {
+	public FutureDecorator(FutureProvider<T> taskExecutor, ConcurrentTask.Completion completion) {
 		this.taskExecutor = taskExecutor;
-		this.origin = taskExecutor.queue();
+		this.origin = taskExecutor.getFuture();
 		this.completion = completion;
 	}
 
@@ -95,7 +95,7 @@ public class FutureDecorator<T> implements Future<T> {
 	public ConcurrentTask.Completion getCompletion() {
 		return completion;
 	}
-	public TaskExecutor<T> getTaskExecutor() {
+	public FutureProvider<T> getTaskExecutor() {
 		return taskExecutor;
 	}
 
@@ -175,7 +175,7 @@ public class FutureDecorator<T> implements Future<T> {
 		} catch (TimeoutException e) {
 			if (future.getTaskExecutor().isWithRequestHedging() && !Context.current().getDeadline().isExpired()) {
 				// we will reschedule the execution i.e. hedge the request and return the result
-				LOGGER.info("Sending hedged request for Task : " + future.getTaskExecutor().getInvocation().getMethod().getName());
+				LOGGER.info("Sending hedged request for Task : " + future.getTaskExecutor().getName());
 				result = FutureDecorator.getResultFromFuture(new FutureDecorator(future.getTaskExecutor().clone(), future.getCompletion()));
 			}
 		} catch (InterruptedException | ExecutionException e) {
