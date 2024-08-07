@@ -3,12 +3,10 @@ package com.flipkart.gjex.core.filter.http;
 import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
-import io.netty.handler.codec.http.HttpHeaderNames;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.slf4j.Logger;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
@@ -57,7 +55,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
      * @param requestParamsInput Parameters of the request, including client IP and any additional metadata.
      */
     @Override
-    public void doProcessRequest(ServletRequest req, RequestParams<Map<String,String>> requestParamsInput) {
+    public void doProcessRequest(Request req, RequestParams<Map<String,String>> requestParamsInput) {
         startTime = System.currentTimeMillis();
         accessLogContextBuilder = AccessLogContext.builder()
             .clientIp(requestParamsInput.getClientIp())
@@ -77,18 +75,10 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
      * @param response The outgoing servlet response.
      */
     @Override
-    public void doProcessResponse(ServletResponse response) {
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        if (isSuccess(httpServletResponse.getStatus())) {
-            // 2xx response
-            accessLogContextBuilder.contentLength(Integer.valueOf(httpServletResponse
-                .getHeader(HttpHeaderNames.CONTENT_LENGTH.toString())));
-        } else {
-            // non-2xx response
-            accessLogContextBuilder.contentLength(0);
-        }
+    public void doProcessResponse(Response response) {
         accessLogContextBuilder
-            .responseStatus(httpServletResponse.getStatus())
+            .contentLength(response.getContentLength())
+            .responseStatus(response.getStatus())
             .responseTime(System.currentTimeMillis() - startTime);
         logger.info(accessLogContextBuilder.build().format(format));
     }
@@ -97,7 +87,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     public void doHandleException(Exception e) {
         // This shouldn't come here for http filters, that said, ensuring that even if happens we log it.
         accessLogContextBuilder
-            .contentLength(0)
+            .contentLength()
             .responseStatus(500)
             .responseTime(System.currentTimeMillis() - startTime);
         logger.info(accessLogContextBuilder.build().format(format));

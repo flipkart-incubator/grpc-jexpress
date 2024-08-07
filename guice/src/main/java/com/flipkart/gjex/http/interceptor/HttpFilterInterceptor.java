@@ -4,6 +4,8 @@ import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import org.eclipse.jetty.http.pathmap.ServletPathSpec;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -65,21 +67,21 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
         List<HttpFilter> filters = new ArrayList<>();
         RequestParams.RequestParamsBuilder<Map<String,String>> requestParamsBuilder = RequestParams.builder();
         try {
-            if (request instanceof HttpServletRequest){
-                HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-                filters = getMatchingFilters(httpServletRequest.getRequestURI());
+            if (request instanceof Request){
+                Request httpRequest = (Request) request;
+                filters = getMatchingFilters(httpRequest.getRequestURI());
 
-                Map<String, String> headers = Collections.list(httpServletRequest.getHeaderNames())
-                    .stream().collect(Collectors.toMap(h -> h, httpServletRequest::getHeader));
+                Map<String, String> headers = Collections.list(httpRequest.getHeaderNames())
+                    .stream().collect(Collectors.toMap(h -> h, httpRequest::getHeader));
                 requestParamsBuilder.metadata(headers);
-                requestParamsBuilder.clientIp(getClientIp(request));
-                requestParamsBuilder.resourcePath(httpServletRequest.getRequestURI());
+                requestParamsBuilder.clientIp(getClientIp(httpRequest));
+                requestParamsBuilder.resourcePath(httpRequest.getRequestURI());
             }
             RequestParams<Map<String, String>> requestParams = requestParamsBuilder.build();
-            filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
+            filters.forEach(filter -> filter.doProcessRequest((Request) request, requestParams));
             chain.doFilter(request, response);
         } finally {
-            if (response instanceof HttpServletResponse) {
+            if (response instanceof Response) {
                 HttpServletResponse httpServletResponse = (HttpServletResponse) response;
                 Map<String, String> headers = httpServletResponse.getHeaderNames()
                     .stream().collect(Collectors.toMap(h -> h, httpServletResponse::getHeader));
@@ -96,7 +98,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
      * @param request The ServletRequest object containing the client's request
      * @return The real IP address of the client
      */
-    protected String getClientIp(ServletRequest request) {
+    protected String getClientIp(Request request) {
         String remoteAddr = request.getRemoteAddr();
         String xForwardedFor = ((HttpServletRequest) request).getHeader("X-Forwarded-For");
         if (xForwardedFor != null) {

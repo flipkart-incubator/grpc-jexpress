@@ -15,8 +15,6 @@
  */
 package com.flipkart.gjex.core.filter;
 
-import com.flipkart.gjex.core.logging.Logging;
-
 /**
  * A Filter interface for processing Request, Request-Headers, Response and Response-Headers
  * around gRPC and HTTP method invocation

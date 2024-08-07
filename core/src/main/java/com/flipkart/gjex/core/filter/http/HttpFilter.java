@@ -17,11 +17,11 @@ package com.flipkart.gjex.core.filter.http;
 
 import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.RequestParams;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Abstract base class for HTTP filters that process requests and responses around HTTP method invocations.
@@ -30,7 +30,7 @@ import java.util.Set;
  * with HTTP requests and responses.
  * <p>
  * Implementations of this class should provide specific processing logic by overriding the
- * {@link #doProcessRequest(ServletRequest, RequestParams)} and {@link #doProcessResponse(ServletResponse)}
+ * {@link #doProcessRequest(Request, RequestParams)} and {@link #doProcessResponse(Response)}
  * methods.
  * </p>
  *
@@ -39,7 +39,7 @@ import java.util.Set;
  * @param <Set<String>>     The type of metadata associated with the request, typically a set of header names
  * @author ajay.jalgaonkar
  */
-public abstract class HttpFilter extends Filter<ServletRequest, ServletResponse, Map<String,String>> {
+public abstract class HttpFilter extends Filter<Request, Response, Map<String,String>> {
 
   /**
    * Function for creating an instance of this {@link Filter}

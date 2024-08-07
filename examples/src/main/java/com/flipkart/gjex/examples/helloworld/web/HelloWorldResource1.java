@@ -38,6 +38,7 @@ public class HelloWorldResource1 {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/hellocontrol1")
 	public Response performHelloControl() {
+        if (true) throw new RuntimeException();
 		return Response.status(Response.Status.OK).entity("Hello Control 1 invoked").build();
 	}
 

@@ -18,7 +18,7 @@ import java.util.Map;
 public class AccessLogContext {
     String clientIp;
     String resourcePath;
-    Integer contentLength;
+    Long contentLength;
     Long responseTime;
     Integer responseStatus;
     @Builder.Default
