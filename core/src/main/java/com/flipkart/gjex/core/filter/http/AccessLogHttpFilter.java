@@ -26,16 +26,16 @@ import java.util.Optional;
 public class AccessLogHttpFilter extends HttpFilter implements Logging {
 
     // Time when the request processing started.
-    private long startTime;
+    protected long startTime;
 
     // Access log context.
-    private AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
+    protected AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
 
     // Logger instance for logging access log messages.
     private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
     // The format string for the access log message.
-    private static String format;
+    protected static String format;
 
     public AccessLogHttpFilter() {
 
