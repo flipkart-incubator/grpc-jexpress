@@ -38,6 +38,9 @@ public class RequestParams<M> {
   // Path of the resource being requested.
   String resourcePath;
 
+  // method of the request.
+  String method;
+
   // Metadata associated with the request, of generic type M.
   M metadata;
 }

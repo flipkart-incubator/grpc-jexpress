@@ -101,6 +101,7 @@ subprojects {
                 commons_io              : 'commons-io:commons-io:2.6',
                 junit4                  : 'junit:junit:4.12',
                 assertj                 : 'org.assertj:assertj-core:3.12.1',
+                mockito                 : 'org.mockito:mockito-core:4.11.0',
                 object_mapper           : "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
                 jackson_data_format     : "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}",
         ]
