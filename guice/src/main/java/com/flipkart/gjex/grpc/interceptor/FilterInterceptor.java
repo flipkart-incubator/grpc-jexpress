@@ -42,6 +42,8 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -151,7 +153,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 RequestParams requestParams = RequestParams.builder()
-                    .clientIp(getClientIp(call.getAttributes()))
+                    .clientIp(getClientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)))
                     .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
                     .metadata(headers)
                     .build();
@@ -229,22 +231,29 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    private static String getClientIp(Attributes attributes){
-        if (attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR) != null){
-            String ipAddressString = attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString();
-            if (StringUtils.isNotEmpty(ipAddressString)){
-                if (ipAddressString.startsWith("/")){
-                    ipAddressString = ipAddressString.split("/", 2)[1];
+    protected static String getClientIp(SocketAddress socketAddress){
+        if (socketAddress != null){
+            if (socketAddress instanceof InetSocketAddress){
+                String ipAddressString =
+                    ((InetSocketAddress) socketAddress).getAddress().toString();
+                if (StringUtils.isNotEmpty(ipAddressString)){
+                    int startIndex = ipAddressString.indexOf("/");
+                    if (startIndex != -1){
+                        ipAddressString = ipAddressString.substring(startIndex + 1);
+                    }
+                }
+                if (StringUtils.isNotEmpty(ipAddressString)){
+                    int endIndex = ipAddressString.lastIndexOf(":");
+                    if (endIndex != -1){
+                        ipAddressString = ipAddressString.substring(0, endIndex);
+                    }
+                }
+                if (StringUtils.isNotEmpty(ipAddressString)){
+                    return ipAddressString;
                 }
             }
-            if (StringUtils.isNotEmpty(ipAddressString)){
-                int portIndex = ipAddressString.lastIndexOf(":");
-                if (portIndex != -1){
-                    ipAddressString = ipAddressString.substring(0, portIndex);
-                }
-            }
-            return ipAddressString;
+            return socketAddress.toString();
         }
-        return null;
+        return "0.0.0.0";
     }
 }
