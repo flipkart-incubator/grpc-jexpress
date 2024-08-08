@@ -115,12 +115,11 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
      * @return The real IP address of the client
      */
     protected static String getClientIp(ServletRequest request) {
-        String remoteAddr = request.getRemoteAddr();
         String xForwardedFor = ((HttpServletRequest) request).getHeader("X-Forwarded-For");
         if (xForwardedFor != null) {
-            remoteAddr = xForwardedFor.split(",")[0];
+            return xForwardedFor.split(",")[0];
         }
-        return remoteAddr;
+        return request.getRemoteAddr();
     }
 
     protected List<HttpFilter> getMatchingFilters(String path) {
