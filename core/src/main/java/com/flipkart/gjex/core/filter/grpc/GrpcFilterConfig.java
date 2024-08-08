@@ -34,5 +34,5 @@ public class GrpcFilterConfig {
     private boolean enableAccessLogs = true;
 
     @JsonProperty("accessLogFormat")
-    private String accessLogFormat = "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}";
+    private String accessLogFormat = "{clientIp} {resourcePath} {responseStatus} {contentLength} {responseTime}";
 }

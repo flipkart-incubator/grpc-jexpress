@@ -8,6 +8,7 @@ import org.apache.commons.text.StringSubstitutor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Represents the context for access logs, encapsulating details such as client IP, resource path,
@@ -21,9 +22,12 @@ public class AccessLogContext {
     Integer contentLength;
     Long responseTime;
     Integer responseStatus;
+    String method;
+    String protocol;
+    Supplier<Map<String,String>> userContext;
+
     @Builder.Default
     Map<String,String> headers = new HashMap<>();
-
 
     /**
      * Retrieves a map of field names to their values for the current instance.
@@ -43,6 +47,8 @@ public class AccessLogContext {
             params.put("headers." + entry.getKey(), entry.getValue());
         }
         params.put("thread", Thread.currentThread().getName());
+        if (userContext != null)
+            params.putAll(userContext.get());
         return params;
     }
 

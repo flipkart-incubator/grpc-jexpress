@@ -44,13 +44,13 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     extends GrpcFilter<R, S> implements Logging {
 
     // The start time of the request processing.
-    private long startTime;
+    protected long startTime;
 
     // AccessLogContext of the request being processed
-    private AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
+    protected AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
 
     // The format string for the access log message.
-    private static String format;
+    protected static String format;
 
     // Logger instance for logging access log messages.
     private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
