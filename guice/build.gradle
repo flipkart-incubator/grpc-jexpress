@@ -71,6 +71,8 @@ dependencies {
 
     testImplementation libraries.junit4
     testImplementation libraries.assertj
+    testImplementation libraries.mockito
+
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

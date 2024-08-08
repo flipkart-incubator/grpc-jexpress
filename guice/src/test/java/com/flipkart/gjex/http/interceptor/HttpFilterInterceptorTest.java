@@ -13,9 +13,12 @@ import org.eclipse.jetty.http.pathmap.ServletPathSpec;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.http.HttpServletRequest;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HttpFilterInterceptorTest {
 
@@ -51,5 +54,38 @@ public class HttpFilterInterceptorTest {
         assertEquals(2, interceptor.getMatchingFilters("/test/path").size());
     }
 
+
+    @Test
+    public void getFullURLReturnsURLWithoutQueryString() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://example.com/test"));
+        when(request.getQueryString()).thenReturn(null);
+
+        String result = HttpFilterInterceptor.getFullURL(request);
+
+        assertEquals("http://example.com/test", result);
+    }
+
+    @Test
+    public void getFullURLReturnsURLWithQueryString() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://example.com/test"));
+        when(request.getQueryString()).thenReturn("param1=value1&param2=value2");
+
+        String result = HttpFilterInterceptor.getFullURL(request);
+
+        assertEquals("http://example.com/test?param1=value1&param2=value2", result);
+    }
+
+    @Test
+    public void getFullURLHandlesEmptyQueryString() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://example.com/test"));
+        when(request.getQueryString()).thenReturn("");
+
+        String result = HttpFilterInterceptor.getFullURL(request);
+
+        assertEquals("http://example.com/test?", result);
+    }
 
 }

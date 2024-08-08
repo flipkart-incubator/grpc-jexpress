@@ -74,7 +74,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
                 requestParamsBuilder.metadata(headers);
                 requestParamsBuilder.clientIp(getClientIp(request));
                 requestParamsBuilder.method(httpServletRequest.getMethod());
-                requestParamsBuilder.resourcePath(httpServletRequest.getRequestURI());
+                requestParamsBuilder.resourcePath(getFullURL(httpServletRequest));
             }
             RequestParams<Map<String, String>> requestParams = requestParamsBuilder.build();
             filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
@@ -91,13 +91,30 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
     }
 
     /**
+     * Constructs the full URL from the HttpServletRequest.
+     *
+     * @param request The HttpServletRequest object.
+     * @return The full URL as a string.
+     */
+    protected static String getFullURL(HttpServletRequest request) {
+        StringBuilder requestURL = new StringBuilder(request.getRequestURL().toString());
+        String queryString = request.getQueryString();
+
+        if (queryString == null) {
+            return requestURL.toString();
+        } else {
+            return requestURL.append('?').append(queryString).toString();
+        }
+    }
+
+    /**
      * Utility method to extract the real client IP address from the ServletRequest. It checks for the
      * "X-Forwarded-For" header to support clients connecting through a proxy.
      *
      * @param request The ServletRequest object containing the client's request
      * @return The real IP address of the client
      */
-    protected String getClientIp(ServletRequest request) {
+    protected static String getClientIp(ServletRequest request) {
         String remoteAddr = request.getRemoteAddr();
         String xForwardedFor = ((HttpServletRequest) request).getHeader("X-Forwarded-For");
         if (xForwardedFor != null) {
