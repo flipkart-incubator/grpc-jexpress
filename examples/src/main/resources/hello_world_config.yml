@@ -21,7 +21,7 @@ Api:
     healthcheck.path: "/elb-healthcheck"
     filterConfig:
         enableAccessLogs: true
-        accessLogFormat: "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}"
+        # accessLogFormat: "{clientIp} {resourcePath} {contentLength} {responseStatus} {responseTime}"
 
 Tracing:
     collector.endpoint: http://localhost:9411/api/v2/spans
