@@ -3,7 +3,6 @@ package com.flipkart.gjex.grpc.interceptor;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
