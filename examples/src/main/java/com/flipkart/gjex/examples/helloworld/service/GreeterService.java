@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
-import com.flipkart.gjex.examples.helloworld.filter.CustomAccessLogFilter;
 import io.dropwizard.metrics5.annotation.Timed;
 import com.flipkart.gjex.core.filter.grpc.ApplicationHeaders;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
@@ -69,7 +68,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 	@Override
 	@Api(deadlineConfig = "apiProperties.sayhello.deadline") // specify an API level Deadline that will cascade to all @ConcurrentTask invoked in serving this API
 	@Timed // the Timed annotation for publishing JMX metrics via MBean
-	@MethodFilters({LoggingFilter.class, AuthFilter.class, CustomAccessLogFilter.class}) // Method
+	@MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method
     // level filters
 	@Traced(withSamplingRate=0.0f) // Start a new Trace or participate in a Client-initiated distributed trace
 	public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
