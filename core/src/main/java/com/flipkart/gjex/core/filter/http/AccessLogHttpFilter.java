@@ -63,6 +63,8 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
         accessLogContextBuilder = AccessLogContext.builder()
             .clientIp(requestParamsInput.getClientIp())
             .resourcePath(requestParamsInput.getResourcePath())
+            .protocol(req.getProtocol())
+            .method(requestParamsInput.getMethod())
             .headers(requestParamsInput.getMetadata());
     }
 

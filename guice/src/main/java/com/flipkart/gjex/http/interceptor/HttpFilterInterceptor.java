@@ -73,6 +73,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
                     .stream().collect(Collectors.toMap(h -> h, httpServletRequest::getHeader));
                 requestParamsBuilder.metadata(headers);
                 requestParamsBuilder.clientIp(getClientIp(request));
+                requestParamsBuilder.method(httpServletRequest.getMethod());
                 requestParamsBuilder.resourcePath(httpServletRequest.getRequestURI());
             }
             RequestParams<Map<String, String>> requestParams = requestParamsBuilder.build();
