@@ -233,8 +233,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
     protected static String getClientIp(SocketAddress socketAddress) {
         if (socketAddress != null) {
-            if (socketAddress instanceof InetSocketAddress inetSocketAddress) {
-                return inetSocketAddress.getHostName();
+            if (socketAddress instanceof InetSocketAddress) {
+                return ((InetSocketAddress)socketAddress).getHostName();
             } else {
                 // handle other scenarios use regex
                 String socketAddressString = socketAddress.toString();
