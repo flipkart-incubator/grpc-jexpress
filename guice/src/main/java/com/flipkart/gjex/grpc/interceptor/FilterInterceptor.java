@@ -22,9 +22,9 @@ import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.util.NetworkUtils;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
-import io.grpc.Attributes;
 import io.grpc.BindableService;
 import io.grpc.Context;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
@@ -231,29 +231,18 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    protected static String getClientIp(SocketAddress socketAddress){
-        if (socketAddress != null){
-            if (socketAddress instanceof InetSocketAddress){
-                String ipAddressString =
-                    ((InetSocketAddress) socketAddress).getAddress().toString();
-                if (StringUtils.isNotEmpty(ipAddressString)){
-                    int startIndex = ipAddressString.indexOf("/");
-                    if (startIndex != -1){
-                        ipAddressString = ipAddressString.substring(startIndex + 1);
-                    }
-                }
-                if (StringUtils.isNotEmpty(ipAddressString)){
-                    int endIndex = ipAddressString.lastIndexOf(":");
-                    if (endIndex != -1){
-                        ipAddressString = ipAddressString.substring(0, endIndex);
-                    }
-                }
-                if (StringUtils.isNotEmpty(ipAddressString)){
-                    return ipAddressString;
-                }
+    protected static String getClientIp(SocketAddress socketAddress) {
+        if (socketAddress != null) {
+            if (socketAddress instanceof InetSocketAddress inetSocketAddress) {
+                return inetSocketAddress.getHostName();
+            } else {
+                // handle other scenarios use regex
+                String socketAddressString = socketAddress.toString();
+                NetworkUtils.extractIPAddress(socketAddressString);
             }
-            return socketAddress.toString();
         }
         return "0.0.0.0";
     }
+
+
 }
