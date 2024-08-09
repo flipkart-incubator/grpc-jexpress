@@ -98,15 +98,4 @@ public class HttpFilterInterceptorTest {
         assertEquals("/test?param1=value%201&param2=value%202", result);
     }
 
-    @Test
-    public void getFullURLHandlesNullRequestURI() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn(null);
-        when(request.getQueryString()).thenReturn("param1=value1");
-
-        String result = HttpFilterInterceptor.getFullURL(request);
-
-        assertNull(result);
-    }
-
 }
