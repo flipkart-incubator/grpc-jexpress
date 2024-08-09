@@ -15,8 +15,7 @@ import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,34 +57,45 @@ public class HttpFilterInterceptorTest {
     @Test
     public void getFullURLReturnsURLWithoutQueryString() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURL()).thenReturn(new StringBuffer("http://example.com/test"));
+        when(request.getRequestURI()).thenReturn("/test");
         when(request.getQueryString()).thenReturn(null);
 
         String result = HttpFilterInterceptor.getFullURL(request);
 
-        assertEquals("http://example.com/test", result);
+        assertEquals("/test", result);
     }
 
     @Test
     public void getFullURLReturnsURLWithQueryString() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURL()).thenReturn(new StringBuffer("http://example.com/test"));
+        when(request.getRequestURI()).thenReturn("/test");
         when(request.getQueryString()).thenReturn("param1=value1&param2=value2");
 
         String result = HttpFilterInterceptor.getFullURL(request);
 
-        assertEquals("http://example.com/test?param1=value1&param2=value2", result);
+        assertEquals("/test?param1=value1&param2=value2", result);
     }
 
     @Test
     public void getFullURLHandlesEmptyQueryString() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURL()).thenReturn(new StringBuffer("http://example.com/test"));
+        when(request.getRequestURI()).thenReturn("/test");
         when(request.getQueryString()).thenReturn("");
 
         String result = HttpFilterInterceptor.getFullURL(request);
 
-        assertEquals("http://example.com/test?", result);
+        assertEquals("/test?", result);
+    }
+
+    @Test
+    public void getFullURLHandlesSpecialCharactersInQueryString() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/test");
+        when(request.getQueryString()).thenReturn("param1=value%201&param2=value%202");
+
+        String result = HttpFilterInterceptor.getFullURL(request);
+
+        assertEquals("/test?param1=value%201&param2=value%202", result);
     }
 
 }
