@@ -10,7 +10,8 @@ import java.io.PrintWriter;
 
 public class FilterServletResponseWrapper extends HttpServletResponseWrapper {
 
-    ServletOutputStreamWrapper stream = new ServletOutputStreamWrapper();
+    private final ServletOutputStreamWrapper stream = new ServletOutputStreamWrapper();
+    private PrintWriter pw;
 
     /**
      * Constructs a request object wrapping the given request.
@@ -22,18 +23,19 @@ public class FilterServletResponseWrapper extends HttpServletResponseWrapper {
         super(request);
     }
 
-    public ServletOutputStream getOutputStream() throws IOException
-    {
+    public ServletOutputStream getOutputStream() throws IOException {
+        if (pw != null) {
+            pw.flush();
+        }
         return stream;
     }
 
-    public PrintWriter getWriter() throws IOException
-    {
-        return new PrintWriter(stream);
+    public PrintWriter getWriter() throws IOException {
+        pw = new PrintWriter(stream);
+        return pw;
     }
 
-    public byte[] getWrapperBytes()
-    {
+    public byte[] getWrapperBytes() {
         return stream.getBytes();
     }
 
