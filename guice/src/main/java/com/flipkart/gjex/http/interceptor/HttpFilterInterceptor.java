@@ -85,11 +85,14 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
             try {
                 filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
                 chain.doFilter(request, responseWrapper);
+
+                // Allow the filters to process the response headers
                 Map<String, String> responseHeaders = responseWrapper.getHeaderNames()
                     .stream().collect(Collectors.toMap(h -> h, httpServletResponse::getHeader));
                 filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
-
+                responseHeaders.forEach(responseWrapper::setHeader);
             } finally {
+                // Allow the filters to process the response
                 filters.forEach(filter -> filter.doProcessResponse(responseWrapper));
                 response.getOutputStream().write(responseWrapper.getWrapperBytes());
             }
