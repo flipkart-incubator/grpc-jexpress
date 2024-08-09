@@ -3,12 +3,12 @@ package com.flipkart.gjex.core.filter.http;
 import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 import java.util.Map;
 import java.util.Optional;
 
@@ -84,7 +84,9 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
-            int contentLength = Optional.ofNullable(httpServletResponse.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()))
+            // TODO: check case where GET response is successful by content-length is -1.
+            int contentLength =
+                Optional.ofNullable(httpServletResponse.getHeader(HttpHeaders.CONTENT_LENGTH))
                     .map(Integer::parseInt).orElse(0);
             accessLogContextBuilder.contentLength(contentLength);
         } else {
