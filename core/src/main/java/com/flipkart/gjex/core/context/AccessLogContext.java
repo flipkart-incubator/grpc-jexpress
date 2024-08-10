@@ -8,7 +8,9 @@ import org.apache.commons.text.StringSubstitutor;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -58,7 +60,7 @@ public class AccessLogContext {
         }
 
         if (requestTime != null) {
-            String localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(requestTime), ZoneId.systemDefault()).toString();
+            String localDate = OffsetDateTime.ofInstant(Instant.ofEpochMilli(requestTime), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_DATE_TIME);
             params.put("request-time", localDate);
         }
         params.put("thread", Thread.currentThread().getName());

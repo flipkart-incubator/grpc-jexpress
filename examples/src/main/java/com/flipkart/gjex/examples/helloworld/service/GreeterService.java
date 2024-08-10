@@ -126,7 +126,7 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase implements Loggi
 
     @Override
     @Timed // the Timed annotation for publishing JMX metrics via MBean
-    @MethodFilters({LoggingFilter.class, AuthFilter.class}) // Method level filters
+    @MethodFilters({LoggingFilter.class}) // Method level filters
     @Traced(withSamplingRate = 0.0f) // Start a new Trace or participate in a Client-initiated distributed trace
     public StreamObserver<Ping> pingPong(StreamObserver<Pong> responseObserver) {
 

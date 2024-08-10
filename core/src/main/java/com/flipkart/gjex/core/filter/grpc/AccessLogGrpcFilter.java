@@ -81,7 +81,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
         accessLogContextBuilder = AccessLogContext.builder()
             .requestTime(startTime)
             .clientIp(requestParamsInput.getClientIp())
-            .resourcePath(requestParamsInput.getResourcePath());
+            .resourcePath(requestParamsInput.getResourcePath())
+            .method(requestParamsInput.getMethod());
 
         Map<String, String> headers = requestParamsInput.getMetadata().keys().stream()
             .collect(Collectors.toMap(String::toLowerCase, key ->
@@ -92,7 +93,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     }
 
     /**
-     * Placeholder method for processing response headers. Currently does not perform any operations.
+     * Placeholder method for processing response headers. Currently, does not perform any operations.
      *
      * @param responseHeaders The metadata associated with the gRPC response.
      */
