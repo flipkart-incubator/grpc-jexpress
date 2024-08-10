@@ -4,23 +4,26 @@ import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import org.eclipse.jetty.http.pathmap.ServletPathSpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Singleton
 @Named("HttpFilterInterceptor")
 public class HttpFilterInterceptor implements javax.servlet.Filter {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpFilterInterceptor.class);
 
     private static class ServletPathFiltersHolder {
         ServletPathSpec spec;
@@ -62,32 +65,45 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
     public final void doFilter(ServletRequest request, ServletResponse response,
                                FilterChain chain) throws IOException, ServletException {
 
-        List<HttpFilter> filters = new ArrayList<>();
         RequestParams.RequestParamsBuilder<Map<String,String>> requestParamsBuilder = RequestParams.builder();
-        try {
-            if (request instanceof HttpServletRequest){
-                HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-                filters = getMatchingFilters(httpServletRequest.getRequestURI());
 
-                Map<String, String> headers = Collections.list(httpServletRequest.getHeaderNames())
-                    .stream().collect(Collectors.toMap(h -> h, httpServletRequest::getHeader));
-                requestParamsBuilder.metadata(headers);
-                requestParamsBuilder.clientIp(getClientIp(request));
-                requestParamsBuilder.method(httpServletRequest.getMethod());
-                requestParamsBuilder.resourcePath(getFullURL(httpServletRequest));
-            }
+        if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+            HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+
+            List<HttpFilter> filters = getMatchingFilters(httpServletRequest.getRequestURI());
+            Map<String, String> headers = Collections.list(httpServletRequest.getHeaderNames())
+                .stream().collect(Collectors.toMap(String::toLowerCase, httpServletRequest::getHeader));
+            requestParamsBuilder.metadata(headers);
+            requestParamsBuilder.clientIp(getClientIp(request));
+            requestParamsBuilder.method(httpServletRequest.getMethod());
+            requestParamsBuilder.resourcePath(getFullURL(httpServletRequest));
+
             RequestParams<Map<String, String>> requestParams = requestParamsBuilder.build();
-            filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
-            chain.doFilter(request, response);
-        } finally {
-            if (response instanceof HttpServletResponse) {
-                HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                Map<String, String> headers = httpServletResponse.getHeaderNames()
-                    .stream().collect(Collectors.toMap(h -> h, httpServletResponse::getHeader));
-                filters.forEach(filter -> filter.doProcessResponseHeaders(headers));
+            FilterServletResponseWrapper responseWrapper = new FilterServletResponseWrapper(httpServletResponse);
+
+            try {
+                filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
+                chain.doFilter(request, responseWrapper);
+
+                // Allow the filters to process the response headers
+                Map<String, String> responseHeaders = responseWrapper.getHeaderNames()
+                    .stream().collect(Collectors.toMap(String::toLowerCase, httpServletResponse::getHeader));
+                filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
+                responseHeaders.forEach(responseWrapper::setHeader);
+            } finally {
+                // Allow the filters to process the response
+                filters.forEach(filter -> filter.doProcessResponse(responseWrapper));
+                response.getOutputStream().write(responseWrapper.getWrapperBytes());
             }
-            filters.forEach(filter -> filter.doProcessResponse(response));
+
+        } else {
+            // For Unsupported request types, pass the request and response as is
+            chain.doFilter(request, response);
+            logger.warn("Unsupported request type {}, pass the request and response as is.", request.getClass());
         }
+
+
     }
 
     /**
@@ -97,7 +113,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
      * @return The full URL as a string.
      */
     protected static String getFullURL(HttpServletRequest request) {
-        StringBuilder requestURL = new StringBuilder(request.getRequestURL().toString());
+        StringBuilder requestURL = new StringBuilder(request.getRequestURI());
         String queryString = request.getQueryString();
 
         if (queryString == null) {

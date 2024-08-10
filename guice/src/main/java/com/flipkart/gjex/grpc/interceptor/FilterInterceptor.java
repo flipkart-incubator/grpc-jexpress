@@ -25,17 +25,10 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.util.NetworkUtils;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
-import io.grpc.BindableService;
-import io.grpc.Context;
+import io.grpc.*;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
-import io.grpc.Grpc;
-import io.grpc.Metadata;
-import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
-import io.grpc.ServerCallHandler;
-import io.grpc.ServerInterceptor;
-import io.grpc.Status;
 import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Named;
@@ -44,11 +37,7 @@ import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -98,8 +87,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public <Req, Res> Listener<Req> interceptCall(ServerCall<Req, Res> call, Metadata headers, ServerCallHandler<Req, Res> next) {
-        List<GrpcFilter> grpcFilterReferences =
-            filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
+        List<GrpcFilter> grpcFilterReferences = filtersMap.get(call.getMethodDescriptor().getFullMethodName().toLowerCase());
         Metadata forwardHeaders = new Metadata();
         if (grpcFilterReferences == null || grpcFilterReferences.isEmpty()){
             return new SimpleForwardingServerCallListener<Req>(next.startCall(
@@ -108,10 +96,19 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             };
         }
         List<GrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GrpcFilter::getInstance).collect(Collectors.toList());
+
+        for (GrpcFilter filter : grpcFilters) {
+            for (Metadata.Key key : filter.getForwardHeaderKeys()) {
+                Object value = headers.get(key);
+                if (value != null) {
+                    forwardHeaders.put(key, value);
+                }
+            }
+        }
+
         Context contextWithHeaders = forwardHeaders.keys().isEmpty() ? null : Context.current().withValue(GJEXContext.getHeadersKey(), forwardHeaders);
 
-        ServerCall.Listener<Req> listener = null;
-        listener = next.startCall(new SimpleForwardingServerCall<Req, Res>(call) {
+        ServerCall.Listener<Req> listener = next.startCall(new SimpleForwardingServerCall<Req, Res>(call) {
             @Override
             public void sendMessage(final Res response) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
@@ -135,6 +132,12 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             }
         }, headers);
 
+        RequestParams requestParams = RequestParams.builder()
+                .clientIp(getClientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)))
+                .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
+                .metadata(headers)
+                .build();
+
         return new SimpleForwardingServerCallListener<Req>(listener) {
             @Override
             public void onHalfClose() {
@@ -152,25 +155,10 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             @Override
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
-                RequestParams requestParams = RequestParams.builder()
-                    .clientIp(getClientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)))
-                    .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
-                    .metadata(headers)
-                    .build();
                 try {
-                    for (GrpcFilter grpcFilter : grpcFilters) {
-                        if (grpcFilter != null) {
-                            grpcFilters.forEach(filter -> filter.doProcessRequest(request,requestParams));
-                            for (Metadata.Key key : grpcFilter.getForwardHeaderKeys()) {
-                                Object value = headers.get(key);
-                                if (value != null) {
-                                    forwardHeaders.put(key, value);
-                                }
-                            }
-                        }
-                    }
+                    grpcFilters.forEach(filter -> filter.doProcessRequest(request,requestParams));
                     super.onMessage(request);
-                } finally {
+                }  finally  {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
             }

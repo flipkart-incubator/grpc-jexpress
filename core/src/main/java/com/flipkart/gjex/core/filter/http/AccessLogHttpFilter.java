@@ -61,11 +61,17 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     public void doProcessRequest(ServletRequest req, RequestParams<Map<String,String>> requestParamsInput) {
         startTime = System.currentTimeMillis();
         accessLogContextBuilder = AccessLogContext.builder()
+            .requestTime(startTime)
             .clientIp(requestParamsInput.getClientIp())
             .resourcePath(requestParamsInput.getResourcePath())
             .protocol(req.getProtocol())
             .method(requestParamsInput.getMethod())
             .headers(requestParamsInput.getMetadata());
+
+        // Get referer and user-agent from headers
+        Optional.ofNullable(requestParamsInput.getMetadata().get(HttpHeaderNames.REFERER.toString()))
+            .ifPresent(accessLogContextBuilder::referer);
+        accessLogContextBuilder.userAgent(requestParamsInput.getMetadata().get(HttpHeaderNames.USER_AGENT.toString()));
     }
 
     @Override

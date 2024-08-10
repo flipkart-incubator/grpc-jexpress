@@ -78,6 +78,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     public void doProcessRequest(R req, RequestParams<Metadata> requestParamsInput) {
         startTime = System.currentTimeMillis();
         accessLogContextBuilder = AccessLogContext.builder()
+            .requestTime(startTime)
             .clientIp(requestParamsInput.getClientIp())
             .resourcePath(requestParamsInput.getResourcePath());
 
