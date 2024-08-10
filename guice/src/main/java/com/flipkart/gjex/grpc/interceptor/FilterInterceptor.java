@@ -22,6 +22,7 @@ import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
+import com.flipkart.gjex.core.util.NetworkUtils;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
 import io.grpc.*;
@@ -34,6 +35,8 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -130,7 +133,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }, headers);
 
         RequestParams requestParams = RequestParams.builder()
-                .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
+                .clientIp(getClientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)))
                 .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
                 .metadata(headers)
                 .build();
@@ -215,4 +218,19 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             filtersForMethod.add(accessLogGrpcFilter);
         }
     }
+
+    protected static String getClientIp(SocketAddress socketAddress) {
+        if (socketAddress != null) {
+            if (socketAddress instanceof InetSocketAddress) {
+                return ((InetSocketAddress)socketAddress).getHostName();
+            } else {
+                // handle other scenarios use regex
+                String socketAddressString = socketAddress.toString();
+                return NetworkUtils.extractIPAddress(socketAddressString);
+            }
+        }
+        return "0.0.0.0";
+    }
+
+
 }
