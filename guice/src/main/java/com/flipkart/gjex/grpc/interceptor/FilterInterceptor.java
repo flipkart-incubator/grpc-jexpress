@@ -111,8 +111,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
         Context contextWithHeaders = forwardHeaders.keys().isEmpty() ? null : Context.current().withValue(GJEXContext.getHeadersKey(), forwardHeaders);
 
-        info("Get Headers from Context" + GJEXContext.KEY_HEADERS.get(contextWithHeaders));
-
         ServerCall.Listener<Req> listener = next.startCall(new SimpleForwardingServerCall<Req, Res>(call) {
             @Override
             public void sendMessage(final Res response) {
@@ -161,7 +159,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    info("onMessage Get Headers from Context-" + GJEXContext.KEY_HEADERS.get());
                     grpcFilters.forEach(filter -> filter.doProcessRequest(request,requestParams));
                     super.onMessage(request);
                 }  finally  {
