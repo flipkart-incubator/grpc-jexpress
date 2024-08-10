@@ -62,147 +62,146 @@ import java.util.stream.Collectors;
  * A Guice GJEX Bundle implementation. Multiple Guice Modules may be added to this Bundle.
  *
  * @author regu.b
- *
  */
 @SuppressWarnings("rawtypes")
 public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements Bundle<T, U>, Logging {
 
-	private List<Module> modules;
-	private Injector baseInjector;
-	private List<Service> services;
-	private List<GrpcFilter> grpcFilters;
-	private List<HealthCheck> healthchecks;
-	private List<TracingSampler> tracingSamplers;
-	private List<ScheduledJob> scheduledJobs;
-	private List<ResourceConfig> resourceConfigs;
-	private List<HttpFilterParams> httpFilterParamsList;
+    private List<Module> modules;
+    private Injector baseInjector;
+    private List<Service> services;
+    private List<GrpcFilter> grpcFilters;
+    private List<HealthCheck> healthchecks;
+    private List<TracingSampler> tracingSamplers;
+    private List<ScheduledJob> scheduledJobs;
+    private List<ResourceConfig> resourceConfigs;
+    private List<HttpFilterParams> httpFilterParamsList;
     private List<JavaxFilterParams> javaxFilterParamsList;
-	private Optional<Class<T>> configurationClass;
-	private GJEXEnvironmentModule gjexEnvironmentModule;
+    private Optional<Class<T>> configurationClass;
+    private GJEXEnvironmentModule gjexEnvironmentModule;
 
-	public static class Builder<T extends GJEXConfiguration, U extends Map> {
+    public static class Builder<T extends GJEXConfiguration, U extends Map> {
 
-		private List<Module> modules = Lists.newArrayList();
-		private Optional<Class<T>> configurationClass = Optional.empty();
+        private List<Module> modules = Lists.newArrayList();
+        private Optional<Class<T>> configurationClass = Optional.empty();
 
-		public Builder<T, U> addModules(Module... moreModules) {
-			for (Module module : moreModules) {
-				Preconditions.checkNotNull(module);
-				modules.add(module);
-			}
-			return this;
-		}
+        public Builder<T, U> addModules(Module... moreModules) {
+            for (Module module : moreModules) {
+                Preconditions.checkNotNull(module);
+                modules.add(module);
+            }
+            return this;
+        }
 
-		public Builder<T, U> setConfigClass(Class<T> clazz) {
-			configurationClass = Optional.ofNullable(clazz);
-			return this;
-		}
+        public Builder<T, U> setConfigClass(Class<T> clazz) {
+            configurationClass = Optional.ofNullable(clazz);
+            return this;
+        }
 
-		public GuiceBundle<T, U> build() {
+        public GuiceBundle<T, U> build() {
             return new GuiceBundle<>(modules, configurationClass);
         }
-	}
+    }
 
-	private GuiceBundle(List<Module> modules, Optional<Class<T>> configurationClass) {
-		Preconditions.checkNotNull(modules);
+    private GuiceBundle(List<Module> modules, Optional<Class<T>> configurationClass) {
+        Preconditions.checkNotNull(modules);
         Preconditions.checkArgument(!modules.isEmpty());
         this.modules = modules;
         this.configurationClass = configurationClass;
-	}
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void initialize(Bootstrap<?, ?> bootstrap) {
-		// adding config module first
-		modules.add(new ConfigModule<>(bootstrap));
-		if (configurationClass.isPresent()) {
-			gjexEnvironmentModule = new GJEXEnvironmentModule<>(configurationClass.get());
-		} else {
-			gjexEnvironmentModule = new GJEXEnvironmentModule<>(GJEXConfiguration.class);
-		}
-		modules.add(gjexEnvironmentModule);
-		// add Metrics MetricsInstrumentationModule
-		modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
-		// add the Validation module
-		modules.add(new ImplicitValidationModule());
-		// add the Api module before Tracing module so that APIs are timed from the start of execution
-		modules.add(new ApiModule());
-		// add the Tracing module before Task module so that even Concurrent tasks can be traced
-		modules.add(new TracingModule());
-		// add the Task module
-		modules.add(new TaskModule());
-		// add the Dashboard module
-		modules.add(new DashboardModule(bootstrap));
-		// add the Grpc Server module
-		modules.add(new ServerModule());
-		baseInjector = Guice.createInjector(this.modules);
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public void initialize(Bootstrap<?, ?> bootstrap) {
+        // adding config module first
+        modules.add(new ConfigModule<>(bootstrap));
+        if (configurationClass.isPresent()) {
+            gjexEnvironmentModule = new GJEXEnvironmentModule<>(configurationClass.get());
+        } else {
+            gjexEnvironmentModule = new GJEXEnvironmentModule<>(GJEXConfiguration.class);
+        }
+        modules.add(gjexEnvironmentModule);
+        // add Metrics MetricsInstrumentationModule
+        modules.add(MetricsInstrumentationModule.builder().withMetricRegistry(bootstrap.getMetricRegistry()).build());
+        // add the Validation module
+        modules.add(new ImplicitValidationModule());
+        // add the Api module before Tracing module so that APIs are timed from the start of execution
+        modules.add(new ApiModule());
+        // add the Tracing module before Task module so that even Concurrent tasks can be traced
+        modules.add(new TracingModule());
+        // add the Task module
+        modules.add(new TaskModule());
+        // add the Dashboard module
+        modules.add(new DashboardModule(bootstrap));
+        // add the Grpc Server module
+        modules.add(new ServerModule());
+        baseInjector = Guice.createInjector(this.modules);
+    }
 
-	@Override
-	public void run(T configuration, U configMap, Environment environment) {
-		setEnvironment(configuration, environment); // NOTE
-		GrpcServer grpcServer = baseInjector.getInstance(GrpcServer.class);
+    @Override
+    public void run(T configuration, U configMap, Environment environment) {
+        setEnvironment(configuration, environment); // NOTE
+        GrpcServer grpcServer = baseInjector.getInstance(GrpcServer.class);
 
-		List<BindableService> bindableServices = new ArrayList<>();
-		// Add all Grpc Services to the Grpc Server
-		bindableServices.addAll(getInstances(baseInjector, BindableService.class));
+        List<BindableService> bindableServices = new ArrayList<>();
+        // Add all Grpc Services to the Grpc Server
+        bindableServices.addAll(getInstances(baseInjector, BindableService.class));
 
-		// Add all Grpc Health Check Services to the Grpc Server
-		bindableServices.addAll(getInstances(baseInjector, HealthGrpc.HealthImplBase.class));
+        // Add all Grpc Health Check Services to the Grpc Server
+        bindableServices.addAll(getInstances(baseInjector, HealthGrpc.HealthImplBase.class));
 
-		grpcServer.registerServices(bindableServices);
+        grpcServer.registerServices(bindableServices);
 
-		// Add all Grpc Filters to the Grpc Server
-		grpcFilters = getInstances(baseInjector, GrpcFilter.class);
-		grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc().getGrpcFilterConfig());
+        // Add all Grpc Filters to the Grpc Server
+        grpcFilters = getInstances(baseInjector, GrpcFilter.class);
+        grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc().getGrpcFilterConfig());
 
-		// Add all Grpc Filters to the Grpc Server
-		tracingSamplers = getInstances(baseInjector, TracingSampler.class);
-		grpcServer.registerTracingSamplers(tracingSamplers, bindableServices);
+        // Add all Grpc Filters to the Grpc Server
+        tracingSamplers = getInstances(baseInjector, TracingSampler.class);
+        grpcServer.registerTracingSamplers(tracingSamplers, bindableServices);
 
-		// Register all ResponseMetered methods to publish metrics
-		grpcServer.registerResponseMeteredMethods(bindableServices);
+        // Register all ResponseMetered methods to publish metrics
+        grpcServer.registerResponseMeteredMethods(bindableServices);
 
-		ScheduledJobManager scheduledJobManager = baseInjector.getInstance(ScheduledJobManager.class);
-		// Add all ScheduledJobs to the ScheduleJobManager
-		scheduledJobs = getInstances(baseInjector, ScheduledJob.class);
-		scheduledJobManager.registerScheduledJobs(scheduledJobs);
+        ScheduledJobManager scheduledJobManager = baseInjector.getInstance(ScheduledJobManager.class);
+        // Add all ScheduledJobs to the ScheduleJobManager
+        scheduledJobs = getInstances(baseInjector, ScheduledJob.class);
+        scheduledJobManager.registerScheduledJobs(scheduledJobs);
 
-		// Lookup all Service implementations
-		services = getInstances(baseInjector, Service.class);
-		// Lookup all HealthCheck implementations
-		healthchecks = getInstances(baseInjector, HealthCheck.class);
+        // Lookup all Service implementations
+        services = getInstances(baseInjector, Service.class);
+        // Lookup all HealthCheck implementations
+        healthchecks = getInstances(baseInjector, HealthCheck.class);
 
-		ApiServer apiServer = baseInjector.getInstance(ApiServer.class);
-		// Add all custom web resources
-		resourceConfigs = getInstances(baseInjector, ResourceConfig.class);
-		apiServer.registerResources(resourceConfigs);
+        ApiServer apiServer = baseInjector.getInstance(ApiServer.class);
+        // Add all custom web resources
+        resourceConfigs = getInstances(baseInjector, ResourceConfig.class);
+        apiServer.registerResources(resourceConfigs);
 
-		// Add all custom http filters
-		httpFilterParamsList = getInstances(baseInjector, HttpFilterParams.class);
+        // Add all custom http filters
+        httpFilterParamsList = getInstances(baseInjector, HttpFilterParams.class);
         javaxFilterParamsList = getInstances(baseInjector, JavaxFilterParams.class);
-		apiServer.registerFilters(httpFilterParamsList,
+        apiServer.registerFilters(httpFilterParamsList,
             javaxFilterParamsList, configuration.getApiService().getHttpFilterConfig());
-	}
+    }
 
-	@SuppressWarnings("unchecked")
-	private void setEnvironment(final T configuration, final Environment environment) {
-		gjexEnvironmentModule.setEnvironmentData(configuration, environment);
-	}
+    @SuppressWarnings("unchecked")
+    private void setEnvironment(final T configuration, final Environment environment) {
+        gjexEnvironmentModule.setEnvironmentData(configuration, environment);
+    }
 
-	@Override
-	public List<Service> getServices() {
+    @Override
+    public List<Service> getServices() {
         Preconditions.checkState(baseInjector != null,
-                "Service(s) are only available after GuiceBundle.run() is called");
-		return this.services;
-	}
+            "Service(s) are only available after GuiceBundle.run() is called");
+        return this.services;
+    }
 
-	@Override
-	public List<GrpcFilter> getGrpcFilters() {
+    @Override
+    public List<GrpcFilter> getGrpcFilters() {
         Preconditions.checkState(baseInjector != null,
-                "Filter(s) are only available after GuiceBundle.run() is called");
-		return this.grpcFilters;
-	}
+            "Filter(s) are only available after GuiceBundle.run() is called");
+        return this.grpcFilters;
+    }
 
     @Override
     public List<HttpFilter> getHTTPFilters() {
@@ -212,43 +211,43 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
     }
 
     @Override
-	public List<HealthCheck> getHealthChecks() {
+    public List<HealthCheck> getHealthChecks() {
         Preconditions.checkState(baseInjector != null,
-                "HealthCheck(s) are only available after GuiceBundle.run() is called");
-		return this.healthchecks;
-	}
+            "HealthCheck(s) are only available after GuiceBundle.run() is called");
+        return this.healthchecks;
+    }
 
-	@Override
-	public List<TracingSampler> getTracingSamplers() {
+    @Override
+    public List<TracingSampler> getTracingSamplers() {
         Preconditions.checkState(baseInjector != null,
-                "TracingSampler(s) is only available after GuiceBundle.run() is called");
+            "TracingSampler(s) is only available after GuiceBundle.run() is called");
         return this.tracingSamplers;
-	}
+    }
 
-	@Override
-	public List<ScheduledJob> getScheduledJobs() {
-		Preconditions.checkState(baseInjector != null,
-				"ScheduledJob(s) are only available after GuiceBundle.run() is called");
-		return this.scheduledJobs;
-	}
-
-	@Override
-	public List<ResourceConfig> getResourceConfigs() {
+    @Override
+    public List<ScheduledJob> getScheduledJobs() {
         Preconditions.checkState(baseInjector != null,
-                "ResourceConfig(s) is only available after GuiceBundle.run() is called");
+            "ScheduledJob(s) are only available after GuiceBundle.run() is called");
+        return this.scheduledJobs;
+    }
+
+    @Override
+    public List<ResourceConfig> getResourceConfigs() {
+        Preconditions.checkState(baseInjector != null,
+            "ResourceConfig(s) is only available after GuiceBundle.run() is called");
         return this.resourceConfigs;
-	}
+    }
 
-	public Injector getInjector() {
+    public Injector getInjector() {
         Preconditions.checkState(baseInjector != null,
-                "Injector is only available after GuiceBundle.initialize() is called");
+            "Injector is only available after GuiceBundle.initialize() is called");
         return baseInjector;
     }
 
     private <S> List<S> getInstances(Injector injector, Class<S> type) {
         List<S> instances = new ArrayList<S>();
         List<Binding<S>> bindings = injector.findBindingsByType(TypeLiteral.get(type));
-        for(Binding<S> binding : bindings) {
+        for (Binding<S> binding : bindings) {
             Key<S> key = binding.getKey();
             instances.add(injector.getInstance(key));
         }
