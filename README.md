@@ -32,7 +32,9 @@ Add the following repository to your build system to access releases builds - e.
 
 ### Releases
 
-Release Versions are documented in the [releases page](https://github.com/flipkart-incubator/grpc-jexpress/releases). You can also refer to [clojars page](https://clojars.org/com.flipkart/grpc-jexpress/versions) for the release versions 
+Release versions are documented on the [releases page](https://github.com/flipkart-incubator/grpc-jexpress/releases). You can also refer to [clojars page](https://clojars.org/com.flipkart/grpc-jexpress/versions) for the release versions 
+
+[![Clojars Project](https://img.shields.io/clojars/v/com.flipkart/grpc-jexpress.svg?include_prereleases)](https://clojars.org/com.flipkart/grpc-jexpress)  [![Clojars Project](https://img.shields.io/clojars/v/com.flipkart/grpc-jexpress.svg)](https://clojars.org/com.flipkart/grpc-jexpress)
 
 More details on [Distribution Binaries](https://github.com/flipkart-incubator/grpc-jexpress/wiki/Distribution-Binaries)
 
