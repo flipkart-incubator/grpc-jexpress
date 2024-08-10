@@ -41,7 +41,7 @@ public class AuthFilter extends GrpcFilter<HelloRequest, HelloReply> implements 
 	static final Metadata.Key AUTH_KEY = Metadata.Key.of("DUMMY_AUTH_TOKEN", Metadata.ASCII_STRING_MARSHALLER);
 
 	/** Flag to control authentication check*/
-	private final boolean isAuth = true;
+	private final boolean isAuth = false;
 
 	@Override
 	public GrpcFilter<HelloRequest, HelloReply> getInstance(){
