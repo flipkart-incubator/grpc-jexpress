@@ -18,6 +18,7 @@ package com.flipkart.gjex.guice;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.filter.http.JavaxFilterParams;
 import com.flipkart.gjex.core.job.ScheduledJob;
@@ -55,6 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * A Guice GJEX Bundle implementation. Multiple Guice Modules may be added to this Bundle.
@@ -202,7 +204,14 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 		return this.grpcFilters;
 	}
 
-	@Override
+    @Override
+    public List<HttpFilter> getHTTPFilters() {
+        Preconditions.checkState(baseInjector != null,
+            "Filter(s) are only available after GuiceBundle.run() is called");
+        return this.httpFilterParamsList.stream().map(HttpFilterParams::getFilter).collect(Collectors.toUnmodifiableList());
+    }
+
+    @Override
 	public List<HealthCheck> getHealthChecks() {
         Preconditions.checkState(baseInjector != null,
                 "HealthCheck(s) are only available after GuiceBundle.run() is called");
