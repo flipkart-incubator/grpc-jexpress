@@ -34,11 +34,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -96,15 +92,13 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 }, headers)) {
             };
         }
-        List<GrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GrpcFilter::getInstance).collect(Collectors.toList());
+        List<GrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GrpcFilter::getInstance).toList();
 
         for (GrpcFilter filter : grpcFilters) {
-            if (filter != null) {
-                for (Metadata.Key key : filter.getForwardHeaderKeys()) {
-                    Object value = headers.get(key);
-                    if (value != null) {
-                        forwardHeaders.put(key, value);
-                    }
+            for (Metadata.Key key : filter.getForwardHeaderKeys()) {
+                Object value = headers.get(key);
+                if (value != null) {
+                    forwardHeaders.put(key, value);
                 }
             }
         }
