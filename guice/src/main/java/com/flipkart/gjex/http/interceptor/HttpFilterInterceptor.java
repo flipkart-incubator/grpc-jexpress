@@ -70,7 +70,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
                 filters = getMatchingFilters(httpServletRequest.getRequestURI());
 
                 Map<String, String> headers = Collections.list(httpServletRequest.getHeaderNames())
-                    .stream().collect(Collectors.toMap(h -> h, httpServletRequest::getHeader));
+                    .stream().collect(Collectors.toMap(String::toLowerCase, httpServletRequest::getHeader));
                 requestParamsBuilder.metadata(headers);
                 requestParamsBuilder.clientIp(getClientIp(request));
                 requestParamsBuilder.method(httpServletRequest.getMethod());
@@ -83,7 +83,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
             if (response instanceof HttpServletResponse) {
                 HttpServletResponse httpServletResponse = (HttpServletResponse) response;
                 Map<String, String> headers = httpServletResponse.getHeaderNames()
-                    .stream().collect(Collectors.toMap(h -> h, httpServletResponse::getHeader));
+                    .stream().collect(Collectors.toMap(String::toLowerCase, httpServletResponse::getHeader));
                 filters.forEach(filter -> filter.doProcessResponseHeaders(headers));
             }
             filters.forEach(filter -> filter.doProcessResponse(response));
