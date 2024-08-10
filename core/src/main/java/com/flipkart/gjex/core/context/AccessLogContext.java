@@ -57,8 +57,10 @@ public class AccessLogContext {
             params.put("headers." + entry.getKey(), entry.getValue());
         }
 
-        String localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(requestTime), ZoneId.systemDefault()).toString();
-        params.put("request-time", localDate);
+        if (requestTime != null) {
+            String localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(requestTime), ZoneId.systemDefault()).toString();
+            params.put("request-time", localDate);
+        }
         params.put("thread", Thread.currentThread().getName());
         if (userContext != null)
             params.putAll(userContext.get());
