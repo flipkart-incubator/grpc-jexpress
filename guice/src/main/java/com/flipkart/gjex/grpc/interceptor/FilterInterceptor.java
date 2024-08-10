@@ -111,8 +111,9 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
         Context contextWithHeaders = forwardHeaders.keys().isEmpty() ? null : Context.current().withValue(GJEXContext.getHeadersKey(), forwardHeaders);
 
-        ServerCall.Listener<Req> listener = null;
-        listener = next.startCall(new SimpleForwardingServerCall<Req, Res>(call) {
+        info("Get Headers from Context" + GJEXContext.KEY_HEADERS.get(contextWithHeaders));
+
+        ServerCall.Listener<Req> listener = next.startCall(new SimpleForwardingServerCall<Req, Res>(call) {
             @Override
             public void sendMessage(final Res response) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
@@ -136,6 +137,12 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             }
         }, headers);
 
+        RequestParams requestParams = RequestParams.builder()
+                .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
+                .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
+                .metadata(headers)
+                .build();
+
         return new SimpleForwardingServerCallListener<Req>(listener) {
             @Override
             public void onHalfClose() {
@@ -153,12 +160,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             @Override
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
-                RequestParams requestParams = RequestParams.builder()
-                    .clientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString())
-                    .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
-                    .metadata(headers)
-                    .build();
                 try {
+                    info("onMessage Get Headers from Context-" + GJEXContext.KEY_HEADERS.get());
                     grpcFilters.forEach(filter -> filter.doProcessRequest(request,requestParams));
                     super.onMessage(request);
                 }  finally  {
