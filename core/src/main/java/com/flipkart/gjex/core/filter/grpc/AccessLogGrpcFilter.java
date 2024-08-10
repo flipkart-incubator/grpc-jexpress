@@ -21,6 +21,7 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 import io.grpc.Status;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -83,8 +84,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
             .resourcePath(requestParamsInput.getResourcePath());
 
         Map<String, String> headers = requestParamsInput.getMetadata().keys().stream()
-            .collect(Collectors.toMap(key -> key, key ->
-                Optional.ofNullable(requestParamsInput.getMetadata().get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER))).orElse("")
+            .collect(Collectors.toMap(String::toLowerCase, key ->
+                Optional.ofNullable(requestParamsInput.getMetadata().get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER))).orElse(StringUtils.EMPTY)
             ));
 
         accessLogContextBuilder.headers(headers);
