@@ -92,7 +92,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 }, headers)) {
             };
         }
-        List<GrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GrpcFilter::getInstance).toList();
+        List<GrpcFilter> grpcFilters = grpcFilterReferences.stream().map(GrpcFilter::getInstance).collect(Collectors.toList());
 
         for (GrpcFilter filter : grpcFilters) {
             for (Metadata.Key key : filter.getForwardHeaderKeys()) {
