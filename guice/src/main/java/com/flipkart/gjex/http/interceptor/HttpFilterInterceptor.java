@@ -131,11 +131,12 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
      * @return The real IP address of the client
      */
     protected static String getClientIp(ServletRequest request) {
+        String remoteAddr = request.getRemoteAddr();
         String xForwardedFor = ((HttpServletRequest) request).getHeader("X-Forwarded-For");
         if (xForwardedFor != null) {
-            return xForwardedFor.split(",")[0];
+            remoteAddr = xForwardedFor.split(",")[0];
         }
-        return request.getRemoteAddr();
+        return remoteAddr;
     }
 
     protected List<HttpFilter> getMatchingFilters(String path) {
