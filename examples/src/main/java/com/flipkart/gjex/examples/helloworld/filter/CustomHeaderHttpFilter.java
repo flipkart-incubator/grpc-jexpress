@@ -20,14 +20,14 @@ public class CustomHeaderHttpFilter extends HttpFilter {
     @Override
     public void doProcessResponseHeaders(Map<String, String> responseHeaders) {
         super.doProcessResponseHeaders(responseHeaders);
-        responseHeaders.put("x-custom-doProcessResponseHeaders", "custom-header-value");
+        responseHeaders.put("x-custom-header1", "value1");
     }
 
     @Override
     public void doProcessResponse(ServletResponse response) {
         super.doProcessResponse(response);
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        httpServletResponse.addHeader("x-custom-doProcessResponse", "custom-header-value");
+        httpServletResponse.addHeader("x-custom-header2", "value2");
     }
 
     @Override
