@@ -127,7 +127,7 @@ public class GrpcServer extends AbstractService implements Logging {
 
     public void registerServices(List<BindableService> services) {
         services.forEach(service -> this.grpcServerBuilder.addService(ServerInterceptors.intercept(service,
-                this.statusMetricInterceptor, this.tracingInterceptor, this.filterInterceptor)));
+            this.filterInterceptor, this.statusMetricInterceptor, this.tracingInterceptor)));
     }
 
 }

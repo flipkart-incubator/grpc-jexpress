@@ -113,7 +113,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
      * @return The full URL as a string.
      */
     protected static String getFullURL(HttpServletRequest request) {
-        StringBuilder requestURL = new StringBuilder(request.getRequestURL().toString());
+        StringBuilder requestURL = new StringBuilder(request.getRequestURI());
         String queryString = request.getQueryString();
 
         if (queryString == null) {
