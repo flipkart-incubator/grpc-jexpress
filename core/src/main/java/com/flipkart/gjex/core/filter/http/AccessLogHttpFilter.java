@@ -3,6 +3,7 @@ package com.flipkart.gjex.core.filter.http;
 import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 
 import javax.servlet.ServletRequest;
