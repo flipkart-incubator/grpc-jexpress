@@ -24,6 +24,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
+/**
+ * Custom HTTP filter that adds custom headers to the response.
+ */
 @Named("CustomHeaderHttpFilter")
 public class CustomHeaderHttpFilter extends HttpFilter {
 
@@ -32,12 +35,22 @@ public class CustomHeaderHttpFilter extends HttpFilter {
         super.doProcessRequest(servletRequest, requestParams);
     }
 
+    /**
+     * Processes the response headers and adds a custom header.
+     *
+     * @param responseHeaders the response headers
+     */
     @Override
     public void doProcessResponseHeaders(Map<String, String> responseHeaders) {
         super.doProcessResponseHeaders(responseHeaders);
         responseHeaders.put("x-custom-header1", "value1");
     }
 
+    /**
+     * Processes the response and also adds a custom header.
+     *
+     * @param response the servlet response
+     */
     @Override
     public void doProcessResponse(ServletResponse response) {
         super.doProcessResponse(response);
