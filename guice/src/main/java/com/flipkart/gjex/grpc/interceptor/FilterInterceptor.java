@@ -226,7 +226,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             } else {
                 // handle other scenarios use regex
                 String socketAddressString = socketAddress.toString();
-                NetworkUtils.extractIPAddress(socketAddressString);
+                return NetworkUtils.extractIPAddress(socketAddressString);
             }
         }
         return "0.0.0.0";
