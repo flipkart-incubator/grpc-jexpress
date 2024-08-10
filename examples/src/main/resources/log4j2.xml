@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration shutdownHook="disable">
     <Properties>
-        <Property name="log-path">logs</Property>
+        <Property name="log-path">/tmp/logs</Property>
     </Properties>
     <Appenders>
         <Console name="console-log" target="SYSTEM_OUT">
             <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{5} %X - %msg%n"/>
         </Console>
-        <Console name="ACCESS-LOG" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{5} %X - %msg%n"/>
-        </Console>
+        <File name="access-log" fileName="${log-path}/access.log">
+            <PatternLayout pattern="%msg%n"/>
+        </File>
     </Appenders>
     <Loggers>
-        <Logger name="io.netty.channel" level="info" additivity="false">
-            <AppenderRef ref="ACCESS-LOG"/>
+        <Logger name="ACCESS-LOG" level="info" additivity="false">
+            <AppenderRef ref="access-log"/>
         </Logger>
         <Logger name="io.netty.channel" level="error" additivity="false">
             <AppenderRef ref="console-log"/>

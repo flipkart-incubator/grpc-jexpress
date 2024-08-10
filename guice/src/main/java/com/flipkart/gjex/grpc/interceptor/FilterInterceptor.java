@@ -135,6 +135,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         RequestParams requestParams = RequestParams.builder()
                 .clientIp(getClientIp(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)))
                 .resourcePath(call.getMethodDescriptor().getFullMethodName().toLowerCase())
+                .method(call.getMethodDescriptor().getType().name())
                 .metadata(headers)
                 .build();
 
