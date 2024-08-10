@@ -207,7 +207,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
     public List<HttpFilter> getHTTPFilters() {
         Preconditions.checkState(baseInjector != null,
             "Filter(s) are only available after GuiceBundle.run() is called");
-        return this.httpFilterParamsList.stream().map(HttpFilterParams::getFilter).collect(Collectors.toUnmodifiableList());
+        return this.httpFilterParamsList.stream().map(HttpFilterParams::getFilter).collect(Collectors.toList());
     }
 
     @Override
