@@ -28,6 +28,7 @@ import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
 import com.flipkart.gjex.core.config.DefaultConfigurationFactoryFactory;
 import com.flipkart.gjex.core.config.FileConfigurationSourceProvider;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.logging.Logging;
@@ -46,70 +47,81 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * The pre-start application container, containing services required to bootstrap a GJEX application
  *
  * @author regu.b
- *
  */
 @SuppressWarnings("rawtypes")
 public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Logging {
 
-	private final Application<T, U> application;
-	private final AppMetricsRegistry appMetricsRegistry;
-	private final List<Bundle<? super T, ? super U>> bundles;
-	private final ObjectMapper objectMapper;
-	private final String configPath;
-	private final Class<T> configurationClass;
+    private final Application<T, U> application;
+    private final AppMetricsRegistry appMetricsRegistry;
+    private final List<Bundle<? super T, ? super U>> bundles;
+    private final ObjectMapper objectMapper;
+    private final String configPath;
+    private final Class<T> configurationClass;
 
-	private ClassLoader classLoader;
+    private ClassLoader classLoader;
 
-	private ConfigurationFactoryFactory<T, U> configurationFactoryFactory;
-	private ConfigurationSourceProvider configurationSourceProvider;
-	private ValidatorFactory validatorFactory;
+    private ConfigurationFactoryFactory<T, U> configurationFactoryFactory;
+    private ConfigurationSourceProvider configurationSourceProvider;
+    private ValidatorFactory validatorFactory;
 
-	// these values are set in ConfigModule when GuiceBundle.initialize(this) gets called.
-	private T configuration;
-	private U configMap;
+    // these values are set in ConfigModule when GuiceBundle.initialize(this) gets called.
+    private T configuration;
+    private U configMap;
 
-	/** List of initialized Service instances*/
-	private List<Service> services;
+    /**
+     * List of initialized Service instances
+     */
+    private List<Service> services;
 
-	/** List of initialized Filter instances*/
-	private List<GrpcFilter> grpcFilters;
+    /**
+     * List of initialized Filter instances
+     */
+    private List<GrpcFilter> grpcFilters;
+    private List<HttpFilter> httpFilters;
 
-	/** List of initialized ConfigurableTracingSampler instances*/
-	private List<TracingSampler> tracingSamplers;
+    /**
+     * List of initialized ConfigurableTracingSampler instances
+     */
+    private List<TracingSampler> tracingSamplers;
 
-	/** List of initialized ScheduledJob instances*/
-	private List<ScheduledJob> scheduledJobs;
+    /**
+     * List of initialized ScheduledJob instances
+     */
+    private List<ScheduledJob> scheduledJobs;
 
-	/** The HealthCheckRegistry*/
-	private HealthCheckRegistry healthCheckRegistry;
+    /**
+     * The HealthCheckRegistry
+     */
+    private HealthCheckRegistry healthCheckRegistry;
 
-	public Bootstrap(Application<T, U> application, String configPath, Class<T> configurationClass) {
-		this.configurationClass = configurationClass;
-		this.configPath = configPath;
-		this.application = application;
-		this.appMetricsRegistry = new AppMetricsRegistry(new MetricRegistry(), PrometheusRegistry.defaultRegistry);
-		this.bundles = Lists.newArrayList();
-		this.objectMapper = GJEXObjectMapper.newObjectMapper();
-		this.classLoader = Thread.currentThread().getContextClassLoader();
-		this.configurationFactoryFactory = new DefaultConfigurationFactoryFactory<>();
-		this.configurationSourceProvider = new FileConfigurationSourceProvider();
-		this.validatorFactory = Validation.buildDefaultValidatorFactory();
-		this.initializeConfig();
-	}
+    public Bootstrap(Application<T, U> application, String configPath, Class<T> configurationClass) {
+        this.configurationClass = configurationClass;
+        this.configPath = configPath;
+        this.application = application;
+        this.appMetricsRegistry = new AppMetricsRegistry(new MetricRegistry(), PrometheusRegistry.defaultRegistry);
+        this.bundles = Lists.newArrayList();
+        this.objectMapper = GJEXObjectMapper.newObjectMapper();
+        this.classLoader = Thread.currentThread().getContextClassLoader();
+        this.configurationFactoryFactory = new DefaultConfigurationFactoryFactory<>();
+        this.configurationSourceProvider = new FileConfigurationSourceProvider();
+        this.validatorFactory = Validation.buildDefaultValidatorFactory();
+        this.initializeConfig();
+    }
 
-	/**
-	 * Gets the bootstrap's Application
-	 */
-	public Application<T, U> getApplication() {
-		return application;
-	}
+    /**
+     * Gets the bootstrap's Application
+     */
+    public Application<T, U> getApplication() {
+        return application;
+    }
 
-	/**
+    /**
      * Returns the bootstrap's class loader.
      */
     public ClassLoader getClassLoader() {
@@ -129,17 +141,17 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
      * @param bundle a {@link Bundle}
      */
     public void addBundle(Bundle<? super T, ? super U> bundle) {
-		Preconditions.checkState(!bundles.contains(bundle),
-				"bundles can be initialized only once");
+        Preconditions.checkState(!bundles.contains(bundle),
+            "bundles can be initialized only once");
         bundle.initialize(this);
         bundles.add(bundle);
     }
 
-	public String getConfigPath() {
-		return configPath;
-	}
+    public String getConfigPath() {
+        return configPath;
+    }
 
-	/**
+    /**
      * Returns the application's metrics.
      */
     public MetricRegistry getMetricRegistry() {
@@ -147,81 +159,83 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
     }
 
 
-	public AppMetricsRegistry getAppMetricsRegistry() {
-		return appMetricsRegistry;
-	}
+    public AppMetricsRegistry getAppMetricsRegistry() {
+        return appMetricsRegistry;
+    }
 
-	public List<Service> getServices() {
-		return services;
-	}
+    public List<Service> getServices() {
+        return services;
+    }
 
-	public List<GrpcFilter> getFilters() {
-		return grpcFilters;
-	}
+    public List<GrpcFilter> getFilters() {
+        return grpcFilters;
+    }
 
-	public List<TracingSampler> getTracingSamplers() {
-		return tracingSamplers;
-	}
+    public List<TracingSampler> getTracingSamplers() {
+        return tracingSamplers;
+    }
 
-	public ConfigurationFactoryFactory<T, U> getConfigurationFactoryFactory() {
-		return configurationFactoryFactory;
-	}
+    public ConfigurationFactoryFactory<T, U> getConfigurationFactoryFactory() {
+        return configurationFactoryFactory;
+    }
 
-	public void setConfigurationFactoryFactory(ConfigurationFactoryFactory<T, U> configurationFactoryFactory) {
-		this.configurationFactoryFactory = configurationFactoryFactory;
-	}
+    public void setConfigurationFactoryFactory(ConfigurationFactoryFactory<T, U> configurationFactoryFactory) {
+        this.configurationFactoryFactory = configurationFactoryFactory;
+    }
 
-	public ConfigurationSourceProvider getConfigurationSourceProvider() {
-		return configurationSourceProvider;
-	}
+    public ConfigurationSourceProvider getConfigurationSourceProvider() {
+        return configurationSourceProvider;
+    }
 
-	public void setConfigurationSourceProvider(ConfigurationSourceProvider configurationSourceProvider) {
-		this.configurationSourceProvider = configurationSourceProvider;
-	}
+    public void setConfigurationSourceProvider(ConfigurationSourceProvider configurationSourceProvider) {
+        this.configurationSourceProvider = configurationSourceProvider;
+    }
 
-	public ValidatorFactory getValidatorFactory() {
-		return validatorFactory;
-	}
+    public ValidatorFactory getValidatorFactory() {
+        return validatorFactory;
+    }
 
-	public void setValidatorFactory(ValidatorFactory validatorFactory) {
-		this.validatorFactory = validatorFactory;
-	}
+    public void setValidatorFactory(ValidatorFactory validatorFactory) {
+        this.validatorFactory = validatorFactory;
+    }
 
-	public ObjectMapper getObjectMapper() {
-		return objectMapper;
-	}
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
 
-	public Class<T> getConfigurationClass() {
-		return configurationClass;
-	}
+    public Class<T> getConfigurationClass() {
+        return configurationClass;
+    }
 
-	public T getConfiguration() {
-		return configuration;
-	}
+    public T getConfiguration() {
+        return configuration;
+    }
 
-	public void setConfiguration(T configuration) {
-		this.configuration = configuration;
-	}
+    public void setConfiguration(T configuration) {
+        this.configuration = configuration;
+    }
 
-	public U getConfigMap() {
-		return configMap;
-	}
+    public U getConfigMap() {
+        return configMap;
+    }
 
-	public void setConfigMap(U configMap) {
-		this.configMap = configMap;
-	}
+    public void setConfigMap(U configMap) {
+        this.configMap = configMap;
+    }
 
-	/**
+    /**
      * Runs this Bootstrap's bundles in the specified Environment
+     *
      * @param environment the Application Environment
      * @throws Exception in case of errors during run
      */
-	public void run(Environment environment) throws Exception {
-		// Identify all Service implementations, start them and register for Runtime shutdown hook
+    public void run(Environment environment) throws Exception {
+        // Identify all Service implementations, start them and register for Runtime shutdown hook
         services = new ArrayList<>();
-        grpcFilters = new ArrayList<GrpcFilter>();
-        tracingSamplers = new ArrayList<TracingSampler>();
-        scheduledJobs = new ArrayList<ScheduledJob>();
+        grpcFilters = new ArrayList<>();
+        httpFilters = new ArrayList<>();
+        tracingSamplers = new ArrayList<>();
+        scheduledJobs = new ArrayList<>();
         // Set the HealthCheckRegsitry to the one initialized by the Environment
         healthCheckRegistry = environment.getHealthCheckRegistry();
 
@@ -229,71 +243,75 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
             bundle.run(configuration, configMap, environment);
             services.addAll(bundle.getServices());
             grpcFilters.addAll(bundle.getGrpcFilters());
+            httpFilters.addAll(bundle.getHTTPFilters());
             tracingSamplers.addAll(bundle.getTracingSamplers());
             scheduledJobs.addAll(bundle.getScheduledJobs());
             // Register all HealthChecks with the HealthCheckRegistry
             bundle.getHealthChecks().forEach(hc -> this.healthCheckRegistry.register(hc.getClass().getSimpleName(), hc));
         }
-		services.forEach(service -> {
-			try {
-				service.start();
-			} catch (Exception e) {
-				error("Error starting a Service : " + service.getClass().getName(), e);
+        services.forEach(service -> {
+            try {
+                service.start();
+            } catch (Exception e) {
+                error("Error starting a Service : " + service.getClass().getName(), e);
                 throw new RuntimeException(e);
-			}
-		});
-		grpcFilters.forEach(filter -> {
-			try {
-				filter.init();
-			} catch (Exception e) {
-				error("Error initializing a Filter : " + filter.getClass().getName(), e);
+            }
+        });
+
+        Stream.of(grpcFilters, httpFilters).flatMap(List::stream).forEach(filter -> {
+            try {
+                filter.init();
+            } catch (Exception e) {
+                error("Error initializing a Filter : " + filter.getClass().getName(), e);
                 throw new RuntimeException(e);
-			}
-		});
-		registerServicesForShutdown();
+            }
+        });
+
+        registerServicesForShutdown();
     }
 
     public HealthCheckRegistry getHealthCheckRegistry() {
-		return this.healthCheckRegistry;
-	}
+        return this.healthCheckRegistry;
+    }
 
     private void registerServicesForShutdown() throws Exception {
-	    	Runtime.getRuntime().addShutdownHook(new Thread() {
-	    		@Override
-	    		public void run() {
-	    			// Use stdout here since the logger may have been reset by its JVM shutdown hook.
-	    			System.out.println("*** Shutting down GJEX server since JVM is shutting down");
-	    			services.forEach(Service::stop);
-	    			grpcFilters.forEach(GrpcFilter::destroy);
-	    			System.out.println("*** Server shut down");
-	    		}
-	    	});
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                // Use stdout here since the logger may have been reset by its JVM shutdown hook.
+                System.out.println("*** Shutting down GJEX server since JVM is shutting down");
+                services.forEach(Service::stop);
+                grpcFilters.forEach(GrpcFilter::destroy);
+                httpFilters.forEach(HttpFilter::destroy);
+                System.out.println("*** Server shut down");
+            }
+        });
     }
 
     private void initializeConfig() {
-		try {
-			Pair<T, U> pair = parseConfiguration(this.getConfigurationFactoryFactory(), this.getConfigurationSourceProvider(),
-					this.getValidatorFactory().getValidator(), this.getConfigPath(), this.getConfigurationClass(),
-					this.getObjectMapper());
-			this.setConfiguration(pair.getKey()); // NOTE
-			this.setConfigMap(pair.getValue()); // NOTE
-		} catch (ConfigurationException | IOException e) {
-			throw new GJEXError(GJEXError.ErrorType.runtime, "Error occurred while reading/parsing configuration " +
-					"from source " + this.getConfigPath(), e);
-		}
-	}
+        try {
+            Pair<T, U> pair = parseConfiguration(this.getConfigurationFactoryFactory(), this.getConfigurationSourceProvider(),
+                this.getValidatorFactory().getValidator(), this.getConfigPath(), this.getConfigurationClass(),
+                this.getObjectMapper());
+            this.setConfiguration(pair.getKey()); // NOTE
+            this.setConfigMap(pair.getValue()); // NOTE
+        } catch (ConfigurationException | IOException e) {
+            throw new GJEXError(GJEXError.ErrorType.runtime, "Error occurred while reading/parsing configuration " +
+                "from source " + this.getConfigPath(), e);
+        }
+    }
 
-	private Pair<T, U> parseConfiguration(ConfigurationFactoryFactory<T, U> configurationFactoryFactory,
-										  ConfigurationSourceProvider provider,
-										  Validator validator,
-										  String configPath,
-										  Class<T> klass,
-										  ObjectMapper objectMapper) throws IOException, ConfigurationException {
-		final ConfigurationFactory<T, U> configurationFactory = configurationFactoryFactory
-				.create(klass, validator, objectMapper);
-		if (configPath != null) {
-			return configurationFactory.build(provider, configPath);
-		}
-		return configurationFactory.build();
-	}
+    private Pair<T, U> parseConfiguration(ConfigurationFactoryFactory<T, U> configurationFactoryFactory,
+                                          ConfigurationSourceProvider provider,
+                                          Validator validator,
+                                          String configPath,
+                                          Class<T> klass,
+                                          ObjectMapper objectMapper) throws IOException, ConfigurationException {
+        final ConfigurationFactory<T, U> configurationFactory = configurationFactoryFactory
+            .create(klass, validator, objectMapper);
+        if (configPath != null) {
+            return configurationFactory.build(provider, configPath);
+        }
+        return configurationFactory.build();
+    }
 }

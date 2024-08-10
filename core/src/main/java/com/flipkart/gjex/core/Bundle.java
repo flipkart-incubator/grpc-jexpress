@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.job.ScheduledJob;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -56,10 +57,17 @@ public interface Bundle<T extends GJEXConfiguration, U extends Map> {
     List<Service> getServices();
 
     /**
-     * Returns Filter instances loaded by this Bundle
-     * @return List containing Filter instances
+     * Returns GrpcFilter instances loaded by this Bundle
+     * @return List containing GrpcFilter instances
      */
 	List<GrpcFilter> getGrpcFilters();
+
+
+    /**
+     * Returns HTTPFilter instances loaded by this Bundle
+     * @return List containing HttpFilter instances
+     */
+    List<HttpFilter> getHTTPFilters();
 
     /**
      * Returns HealthCheck instances loaded by this Bundle

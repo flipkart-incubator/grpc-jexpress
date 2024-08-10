@@ -29,9 +29,6 @@ import io.grpc.Metadata;
 public abstract class GrpcFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3>
 		extends Filter<Req,Res, Metadata> {
 
-	/** Lifecycle methods for initializing and cleaning up resources used by this Filter*/
-	public void init(){}
-
 	/**
 	 * Function for creating an instance of this {@link Filter}
 	 * Use only this function to get the {@link Filter} instance

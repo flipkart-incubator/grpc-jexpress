@@ -26,7 +26,12 @@ import com.flipkart.gjex.core.logging.Logging;
 public abstract class Filter<Req, Res, M> {
 
     /**
-     * Lifecycle methods for cleaning up resources used by this Filter
+     * Lifecycle method for initializing resources used by this Filter.
+     */
+    public void init() {}
+
+    /**
+     * Lifecycle method for cleaning up resources used by this Filter.
      */
     public void destroy() {}
 
