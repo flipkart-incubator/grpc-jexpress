@@ -6,6 +6,9 @@ import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.lang.reflect.Field;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -24,8 +27,15 @@ public class AccessLogContext {
     Integer responseStatus;
     String method;
     String protocol;
+    Long requestTime;
     Supplier<Map<String,String>> userContext;
 
+    @Builder.Default
+    String referer = "-";
+    @Builder.Default
+    String userAgent = "";
+    @Builder.Default
+    String user = "";
     @Builder.Default
     Map<String,String> headers = new HashMap<>();
 
@@ -45,6 +55,11 @@ public class AccessLogContext {
         }
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             params.put("headers." + entry.getKey(), entry.getValue());
+        }
+
+        if (requestTime != null) {
+            String localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(requestTime), ZoneId.systemDefault()).toString();
+            params.put("request-time", localDate);
         }
         params.put("thread", Thread.currentThread().getName());
         if (userContext != null)
