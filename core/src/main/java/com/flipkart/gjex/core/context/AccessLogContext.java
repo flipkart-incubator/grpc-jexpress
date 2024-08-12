@@ -61,7 +61,7 @@ public class AccessLogContext {
 
         if (requestTime != null) {
             String localDate = OffsetDateTime.ofInstant(Instant.ofEpochMilli(requestTime), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_DATE_TIME);
-            params.put("request-time", localDate);
+            params.put("requestTime", localDate);
         }
         params.put("thread", Thread.currentThread().getName());
         if (userContext != null)
