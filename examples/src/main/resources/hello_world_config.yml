@@ -3,7 +3,7 @@ Grpc:
     server.executorThreads : 4
     filterConfig:
         enableAccessLogs: true
-        accessLogFormat: '{clientIp} - [{request-time}] "{method} {resourcePath} GRPC" {responseStatus} {contentLength} {responseTime} "-" "-"'
+        accessLogFormat: '{clientIp} - [{requestTime}] "{method} {resourcePath} GRPC" {responseStatus} {contentLength} {responseTime} "-" "-"'
 
 Dashboard:
     service.port: 9999
@@ -21,7 +21,7 @@ Api:
     healthcheck.path: "/elb-healthcheck"
     filterConfig:
         enableAccessLogs: true
-        accessLogFormat: '{clientIp} - [{request-time}] "{method} {resourcePath} {protocol}" {responseStatus} {contentLength} {responseTime} "{referer}" "{userAgent}"'
+        accessLogFormat: '{clientIp} - [{requestTime}] "{method} {resourcePath} {protocol}" {responseStatus} {contentLength} {responseTime} "{referer}" "{userAgent}"'
 
 Tracing:
     collector.endpoint: http://localhost:9411/api/v2/spans

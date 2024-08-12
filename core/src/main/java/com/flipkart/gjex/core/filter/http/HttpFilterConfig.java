@@ -34,6 +34,6 @@ public class HttpFilterConfig {
   private boolean enableAccessLogs = true;
 
   @JsonProperty("accessLogFormat")
-  private String accessLogFormat = "{clientIp} - [{request-time}] \"{method} {resourcePath} {protocol}\" {responseStatus} {contentLength} {responseTime} \"{referer}\" \"{userAgent}\"";
+  private String accessLogFormat = "{clientIp} - [{requestTime}] \"{method} {resourcePath} {protocol}\" {responseStatus} {contentLength} {responseTime} \"{referer}\" \"{userAgent}\"";
 
 }
