@@ -21,6 +21,7 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -57,7 +58,9 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
     public AccessLogGrpcFilter() {
-
+        startTime = System.currentTimeMillis();
+        accessLogContextBuilder = AccessLogContext.builder()
+            .requestTime(startTime);
     }
 
     /**
@@ -77,9 +80,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
      */
     @Override
     public void doProcessRequest(R req, RequestParams<Metadata> requestParamsInput) {
-        startTime = System.currentTimeMillis();
-        accessLogContextBuilder = AccessLogContext.builder()
-            .requestTime(startTime)
+        accessLogContextBuilder
             .clientIp(requestParamsInput.getClientIp())
             .resourcePath(requestParamsInput.getResourcePath())
             .method(requestParamsInput.getMethod());
@@ -125,10 +126,16 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
      */
     @Override
     public void doHandleException(Exception e) {
+        if (e instanceof StatusRuntimeException){
+            accessLogContextBuilder
+                .responseStatus(((StatusRuntimeException) e).getStatus().getCode().value());
+        } else {
+            accessLogContextBuilder
+                .responseStatus(Status.Code.INTERNAL.value());
+        }
         accessLogContextBuilder
             .contentLength(0)
             .responseTime(System.currentTimeMillis() - startTime)
-            .responseStatus(Status.Code.INTERNAL.value())
             .build();
         logger.info(accessLogContextBuilder.build().format(format));
     }

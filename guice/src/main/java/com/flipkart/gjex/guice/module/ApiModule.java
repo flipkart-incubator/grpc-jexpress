@@ -83,11 +83,11 @@ public class ApiModule<T> extends AbstractModule implements Logging {
 			 * Client deadline wins over any server specified deadline
 			 */
 			if (api != null) {
-				String methodInvoked = (invocation.getMethod().getDeclaringClass().getSimpleName() + "." + invocation.getMethod().getName()).toLowerCase();
 				// check and warn if Api is used for non BindableService classes
 				if (!BindableService.class.isAssignableFrom(invocation.getMethod().getDeclaringClass())) {
 					warn("Api declarations are interpreted only for sub-types of gRPC BindableService. Api declared for : "
-							+ methodInvoked + " will not be interpreted/honored");
+							+ (invocation.getMethod().getDeclaringClass().getSimpleName() + "."
+                        + invocation.getMethod().getName()).toLowerCase() + " will not be interpreted/honored");
 				}
 				int deadline = 0;
 				if (api.deadlineConfig().length() > 0) { // check if deadline is specified as a config property

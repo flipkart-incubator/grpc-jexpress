@@ -7,9 +7,13 @@
         <Console name="console-log" target="SYSTEM_OUT">
             <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{5} %X - %msg%n"/>
         </Console>
-        <File name="access-log" fileName="${log-path}/access.log">
+        <Console name="access-log" target="SYSTEM_OUT">
             <PatternLayout pattern="%msg%n"/>
-        </File>
+        </Console>
+<!--        In case access-log to be printed to a file-->
+<!--        <File name="access-log" fileName="${log-path}/access.log">-->
+<!--            <PatternLayout pattern="%msg%n"/>-->
+<!--        </File>-->
     </Appenders>
     <Loggers>
         <Logger name="ACCESS-LOG" level="info" additivity="false">
