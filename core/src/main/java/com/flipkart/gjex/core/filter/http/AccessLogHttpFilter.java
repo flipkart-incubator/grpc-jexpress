@@ -108,7 +108,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     public void doHandleException(Exception e) {
         // This shouldn't come here for http filters, that said, ensuring that even if happens we log it.
         accessLogContextBuilder
-            .contentLength(0)
+            .contentLength(-1)
             .responseStatus(500);
     }
 
