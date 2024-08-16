@@ -16,6 +16,7 @@
 package com.flipkart.gjex.grpc.interceptor;
 
 import com.flipkart.gjex.core.context.GJEXContext;
+import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
@@ -201,7 +202,21 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
                     grpcFilters.forEach(filter -> filter.doHandleException(new Exception()));
+                    grpcFilters.forEach(Filter::doEndFilter);
                     super.onCancel();
+                } catch (Exception e) {
+                    handleException(call, grpcFilters, e);
+                } finally {
+                    detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
+                }
+            }
+
+            @Override
+            public void onComplete() {
+                Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
+                try {
+                    grpcFilters.forEach(Filter::doEndFilter);
+                    super.onComplete();
                 } catch (Exception e) {
                     handleException(call, grpcFilters, e);
                 } finally {

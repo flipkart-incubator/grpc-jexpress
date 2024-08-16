@@ -112,10 +112,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     public void doProcessResponse(S response) {
         accessLogContextBuilder
             .contentLength(response.getSerializedSize())
-            .responseTime(System.currentTimeMillis() - startTime)
-            .responseStatus(Status.Code.OK.value())
-            .build();
-        logger.info(accessLogContextBuilder.build().format(format));
+            .responseStatus(Status.Code.OK.value());
     }
 
     /**
@@ -126,6 +123,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
      */
     @Override
     public void doHandleException(Exception e) {
+        accessLogContextBuilder
+            .contentLength(-1);
         if (e instanceof StatusRuntimeException){
             accessLogContextBuilder
                 .responseStatus(((StatusRuntimeException) e).getStatus().getCode().value());
@@ -133,11 +132,6 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
             accessLogContextBuilder
                 .responseStatus(Status.Code.INTERNAL.value());
         }
-        accessLogContextBuilder
-            .contentLength(0)
-            .responseTime(System.currentTimeMillis() - startTime)
-            .build();
-        logger.info(accessLogContextBuilder.build().format(format));
     }
 
     /**
@@ -149,5 +143,12 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     @Override
     public GrpcFilter<R, S> getInstance() {
         return new AccessLogGrpcFilter<>();
+    }
+
+    @Override
+    public void doEndFilter() {
+        logger.info(accessLogContextBuilder
+            .responseTime(System.currentTimeMillis() - startTime)
+            .build().format(format));
     }
 }

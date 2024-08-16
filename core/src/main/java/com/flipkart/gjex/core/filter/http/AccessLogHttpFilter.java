@@ -39,7 +39,9 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     protected static String format;
 
     public AccessLogHttpFilter() {
-
+        startTime = System.currentTimeMillis();
+        accessLogContextBuilder = AccessLogContext.builder()
+            .requestTime(startTime);
     }
 
     public static void setFormat(String format) {
@@ -60,9 +62,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
      */
     @Override
     public void doProcessRequest(ServletRequest req, RequestParams<Map<String,String>> requestParamsInput) {
-        startTime = System.currentTimeMillis();
-        accessLogContextBuilder = AccessLogContext.builder()
-            .requestTime(startTime)
+        accessLogContextBuilder
             .clientIp(requestParamsInput.getClientIp())
             .resourcePath(requestParamsInput.getResourcePath())
             .protocol(req.getProtocol())
@@ -91,7 +91,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
-            // TODO: check case where GET response is successful by content-length is -1.
+            // TODO: check case where GET response is successful but content-length is -1.
             int contentLength =
                 Optional.ofNullable(httpServletResponse.getHeader(HttpHeaders.CONTENT_LENGTH))
                     .map(Integer::parseInt).orElse(0);
@@ -101,9 +101,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
             accessLogContextBuilder.contentLength(0);
         }
         accessLogContextBuilder
-            .responseStatus(httpServletResponse.getStatus())
-            .responseTime(System.currentTimeMillis() - startTime);
-        logger.info(accessLogContextBuilder.build().format(format));
+            .responseStatus(httpServletResponse.getStatus());
     }
 
     @Override
@@ -111,9 +109,14 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
         // This shouldn't come here for http filters, that said, ensuring that even if happens we log it.
         accessLogContextBuilder
             .contentLength(0)
-            .responseStatus(500)
-            .responseTime(System.currentTimeMillis() - startTime);
-        logger.info(accessLogContextBuilder.build().format(format));
+            .responseStatus(500);
+    }
+
+    @Override
+    public void doEndFilter() {
+        logger.info(accessLogContextBuilder
+            .responseTime(System.currentTimeMillis() - startTime)
+            .build().format(format));
     }
 
     private static boolean isSuccess(int code) {
