@@ -201,9 +201,9 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onCancel() {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
+                    super.onCancel();
                     grpcFilters.forEach(filter -> filter.doHandleException(new Exception()));
                     grpcFilters.forEach(Filter::doEndFilter);
-                    super.onCancel();
                 } catch (Exception e) {
                     handleException(call, grpcFilters, e);
                 } finally {
@@ -215,8 +215,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onComplete() {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    grpcFilters.forEach(Filter::doEndFilter);
                     super.onComplete();
+                    grpcFilters.forEach(Filter::doEndFilter);
                 } catch (Exception e) {
                     handleException(call, grpcFilters, e);
                 } finally {
