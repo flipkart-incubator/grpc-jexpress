@@ -111,8 +111,13 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     @Override
     public void doProcessResponse(S response) {
         accessLogContextBuilder
-            .contentLength(response.getSerializedSize())
-            .responseStatus(Status.Code.OK.value());
+            .contentLength(response.getSerializedSize());
+    }
+
+    @Override
+    public void doProcessOnClose(Status status, Metadata trailers) {
+        accessLogContextBuilder
+            .responseStatus(status.getCode().value());
     }
 
     /**

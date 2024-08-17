@@ -147,21 +147,18 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 }
             }
 
-//            @Override
-//            public void close(Status status, Metadata trailers) {
-//                Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
-//                error("@@@@@@@@@@@@@@@@@@ got inside close");
-//                try {
-//                    if (!status.isOk()){
-//                        grpcFilters.forEach(filter -> filter.doHandleException(new StatusRuntimeException(status,trailers)));
-//                    }
-//                    super.close(status, trailers);
-//                } catch (Exception e) {
-//                    handleException(call, grpcFilters, e);
-//                } finally {
-//                    detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
-//                }
-//            }
+            @Override
+            public void close(Status status, Metadata trailers) {
+                Context previous = attachContext(contextWithHeaders); // attaching headers to gRPC context
+                try {
+                    grpcFilters.forEach(filter -> filter.doProcessOnClose(status, trailers));
+                    super.close(status, trailers);
+                } catch (Exception e) {
+                    handleException(call, grpcFilters, e);
+                } finally {
+                    detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
+                }
+            }
         }, headers);
 
         RequestParams requestParams = RequestParams.builder()
