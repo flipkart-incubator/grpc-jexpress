@@ -63,9 +63,4 @@ public abstract class Filter<Req, Res, M> {
      * @param e The exception that occurred.
      */
     public void doHandleException(Exception e) {}
-
-    /**
-     * Method for performing ending functions for a filter.
-     */
-    public void doEndFilter() {}
 }

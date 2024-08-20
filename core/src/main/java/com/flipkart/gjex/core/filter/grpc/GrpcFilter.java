@@ -18,7 +18,6 @@ package com.flipkart.gjex.core.filter.grpc;
 import com.flipkart.gjex.core.filter.Filter;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
-import io.grpc.Status;
 
 /**
  * A Filter interface for processing Request, Request-Headers, Response and Response-Headers around gRPC method invocation
@@ -44,6 +43,4 @@ public abstract class GrpcFilter<Req extends GeneratedMessageV3, Res extends Gen
 	public Metadata.Key[] getForwardHeaderKeys(){
 		return new Metadata.Key[] {};
 	}
-
-    public void doProcessOnClose(Status status, Metadata trailers) {}
 }

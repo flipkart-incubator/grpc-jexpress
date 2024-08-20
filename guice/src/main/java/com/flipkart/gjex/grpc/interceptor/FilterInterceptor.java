@@ -16,7 +16,6 @@
 package com.flipkart.gjex.grpc.interceptor;
 
 import com.flipkart.gjex.core.context.GJEXContext;
-import com.flipkart.gjex.core.filter.Filter;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
@@ -128,7 +127,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     grpcFilters.forEach(filter -> filter.doProcessResponse(response));
                     super.sendMessage(response);
                 } catch (RuntimeException e){
-                    handleException(call, grpcFilters, e);
+                    handleException(call, e);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -141,20 +140,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     grpcFilters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
                     super.sendHeaders(responseHeaders);
                 } catch (Exception e) {
-                    handleException(call, grpcFilters, e);
-                } finally {
-                    detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
-                }
-            }
-
-            @Override
-            public void close(Status status, Metadata trailers) {
-                Context previous = attachContext(contextWithHeaders); // attaching headers to gRPC context
-                try {
-                    grpcFilters.forEach(filter -> filter.doProcessOnClose(status, trailers));
-                    super.close(status, trailers);
-                } catch (Exception e) {
-                    handleException(call, grpcFilters, e);
+                    handleException(call, e);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -175,7 +161,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 try {
                     super.onHalfClose();
                 } catch (Exception e) {
-                    handleException(call, grpcFilters, e);
+                    handleException(call, e);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -188,7 +174,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     grpcFilters.forEach(filter -> filter.doProcessRequest(request, requestParams));
                     super.onMessage(request);
                 } catch (Exception e) {
-                    handleException(call, grpcFilters, e);
+                    handleException(call, e);
                 }  finally  {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -199,10 +185,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
                     super.onCancel();
-                    grpcFilters.forEach(filter -> filter.doHandleException(new Exception()));
-                    grpcFilters.forEach(Filter::doEndFilter);
                 } catch (Exception e) {
-                    handleException(call, grpcFilters, e);
+                    handleException(call, e);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -213,9 +197,8 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
                     super.onComplete();
-                    grpcFilters.forEach(Filter::doEndFilter);
                 } catch (Exception e) {
-                    handleException(call, grpcFilters, e);
+                    handleException(call, e);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
@@ -226,8 +209,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     /**
      * Helper method to handle RuntimeExceptions and convert it into suitable gRPC message. Closes the ServerCall
      */
-    private <Req, Res> void handleException(ServerCall<Req, Res> call,
-            List<GrpcFilter> grpcFilters, Exception e) {
+    private <Req, Res> void handleException(ServerCall<Req, Res> call, Exception e) {
         error("Closing gRPC call due to RuntimeException.", e);
         Status returnStatus = Status.INTERNAL;
         if (e instanceof StatusRuntimeException){
@@ -239,7 +221,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             // Simply log the exception as this is already handling the runtime-exception
             warn("Exception while attempting to close ServerCall stream: " + ie.getMessage());
         }
-        grpcFilters.forEach(filter -> filter.doHandleException(e));
     }
 
     /* Helper method to attach a context */

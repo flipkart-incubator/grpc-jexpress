@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Singleton
 @Named("HttpFilterInterceptor")
 public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
-
     private static class ServletPathFiltersHolder {
         ServletPathSpec spec;
         HttpFilter filter;
@@ -92,14 +91,9 @@ public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
                     .stream().collect(Collectors.toMap(String::toLowerCase, httpServletResponse::getHeader));
                 filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
                 responseHeaders.forEach(responseWrapper::setHeader);
-                filters.forEach(filter -> filter.doProcessResponse(responseWrapper));
-            } catch (Exception e){
-                filters.forEach(filter -> filter.doHandleException(e));
-                error("Exception occurred while processing request.",e);
-                throw e;
             } finally {
                 // Allow the filters to process the response
-                filters.forEach(HttpFilter::doEndFilter);
+                filters.forEach(filter -> filter.doProcessResponse(responseWrapper));
                 response.getOutputStream().write(responseWrapper.getWrapperBytes());
             }
 
