@@ -39,7 +39,8 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     protected static String format;
 
     public AccessLogHttpFilter() {
-
+        accessLogContextBuilder = AccessLogContext.builder();
+        accessLogContextBuilder.requestTime(System.currentTimeMillis());
     }
 
     public static void setFormat(String format) {
@@ -60,9 +61,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
      */
     @Override
     public void doProcessRequest(ServletRequest req, RequestParams<Map<String,String>> requestParamsInput) {
-        startTime = System.currentTimeMillis();
-        accessLogContextBuilder = AccessLogContext.builder()
-            .requestTime(startTime)
+        accessLogContextBuilder
             .clientIp(requestParamsInput.getClientIp())
             .resourcePath(requestParamsInput.getResourcePath())
             .protocol(req.getProtocol())
@@ -91,7 +90,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
-            // TODO: check case where GET response is successful by content-length is -1.
+            // TODO: check case where GET response is successful but content-length is -1.
             int contentLength =
                 Optional.ofNullable(httpServletResponse.getHeader(HttpHeaders.CONTENT_LENGTH))
                     .map(Integer::parseInt).orElse(0);
@@ -110,7 +109,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     public void doHandleException(Exception e) {
         // This shouldn't come here for http filters, that said, ensuring that even if happens we log it.
         accessLogContextBuilder
-            .contentLength(0)
+            .contentLength(-1)
             .responseStatus(500)
             .responseTime(System.currentTimeMillis() - startTime);
         logger.info(accessLogContextBuilder.build().format(format));

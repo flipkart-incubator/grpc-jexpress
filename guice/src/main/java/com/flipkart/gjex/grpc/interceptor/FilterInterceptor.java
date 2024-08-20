@@ -25,19 +25,30 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.util.NetworkUtils;
 import com.flipkart.gjex.core.util.Pair;
 import com.flipkart.gjex.grpc.utils.AnnotationUtils;
-import io.grpc.*;
+import io.grpc.BindableService;
+import io.grpc.Context;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
+import io.grpc.Grpc;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -157,7 +168,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    grpcFilters.forEach(filter -> filter.doProcessRequest(request,requestParams));
+                    grpcFilters.forEach(filter -> filter.doProcessRequest(request, requestParams));
                     super.onMessage(request);
                 }  finally  {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
@@ -185,10 +196,9 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private <Req, Res> void handleException(ServerCall<Req, Res> call, Exception e) {
         error("Closing gRPC call due to RuntimeException.", e);
         Status returnStatus = Status.INTERNAL;
-        if (ConstraintViolationException.class.isAssignableFrom(e.getClass())) {
-            returnStatus = Status.INVALID_ARGUMENT;
+        if (e instanceof StatusRuntimeException){
+            returnStatus = ((StatusRuntimeException) e).getStatus();
         }
-
         try {
             call.close(returnStatus.withDescription(e.getMessage()), new Metadata());
         } catch (IllegalStateException ie) {

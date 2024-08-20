@@ -40,7 +40,10 @@ dependencies {
     implementation "io.dropwizard.metrics5:metrics-healthchecks:5.0.0"
     implementation "io.dropwizard.metrics5:metrics-annotation:5.0.0"
     implementation "com.palominolabs.metrics:metrics-guice:5.0.1"
-    implementation 'ru.vyarus:guice-validator:1.2.0'
+    implementation ('ru.vyarus:guice-validator:1.2.0') {
+        exclude group: 'com.google.inject', module: 'guice'
+    }
+    implementation 'com.google.inject:guice:5.1.0'
     implementation 'org.hibernate:hibernate-validator:5.4.2.Final'
     implementation 'org.glassfish:javax.el:3.0.1-b08'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.0'

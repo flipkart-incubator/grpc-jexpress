@@ -3,13 +3,16 @@ package com.flipkart.gjex.http.interceptor;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
+import com.flipkart.gjex.core.logging.Logging;
 import org.eclipse.jetty.http.pathmap.ServletPathSpec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,10 +24,7 @@ import java.util.stream.Collectors;
 
 @Singleton
 @Named("HttpFilterInterceptor")
-public class HttpFilterInterceptor implements javax.servlet.Filter {
-
-    private static final Logger logger = LoggerFactory.getLogger(HttpFilterInterceptor.class);
-
+public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
     private static class ServletPathFiltersHolder {
         ServletPathSpec spec;
         HttpFilter filter;
@@ -100,10 +100,9 @@ public class HttpFilterInterceptor implements javax.servlet.Filter {
         } else {
             // For Unsupported request types, pass the request and response as is
             chain.doFilter(request, response);
-            logger.warn("Unsupported request type {}, pass the request and response as is.", request.getClass());
+            warn(String.format("Unsupported request type %s, pass the request and response as is",
+                request.getClass()));
         }
-
-
     }
 
     /**
