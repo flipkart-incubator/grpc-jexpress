@@ -49,7 +49,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     protected long startTime;
 
     // AccessLogContext of the request being processed
-    protected AccessLogContext.AccessLogContextBuilder accessLogContextBuilder = AccessLogContext.builder();
+    protected AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
 
     // The format string for the access log message.
     protected static String format;
@@ -58,6 +58,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
 
     public AccessLogGrpcFilter() {
+        accessLogContextBuilder = AccessLogContext.builder();
         accessLogContextBuilder.requestTime(System.currentTimeMillis());
     }
 
@@ -132,7 +133,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
                 .responseStatus(Status.Code.INTERNAL.value());
         }
         accessLogContextBuilder
-            .contentLength(-1)
+            .contentLength(0)
             .responseTime(System.currentTimeMillis() - startTime)
             .build();
         logger.info(accessLogContextBuilder.build().format(format));

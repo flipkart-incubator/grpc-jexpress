@@ -30,8 +30,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     protected long startTime;
 
     // Access log context.
-    protected AccessLogContext.AccessLogContextBuilder accessLogContextBuilder =
-        AccessLogContext.builder();
+    protected AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
 
     // Logger instance for logging access log messages.
     private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
@@ -40,6 +39,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
     protected static String format;
 
     public AccessLogHttpFilter() {
+        accessLogContextBuilder = AccessLogContext.builder();
         accessLogContextBuilder.requestTime(System.currentTimeMillis());
     }
 
