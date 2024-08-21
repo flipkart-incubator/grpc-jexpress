@@ -124,7 +124,9 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void sendMessage(Res response) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    grpcFilters.forEach(filter -> filter.doProcessResponse(response));
+                    for (GrpcFilter f : grpcFilters) {
+                        response = (Res) f.doProcessResponse(response);
+                    }
                     super.sendMessage(response);
                 } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context

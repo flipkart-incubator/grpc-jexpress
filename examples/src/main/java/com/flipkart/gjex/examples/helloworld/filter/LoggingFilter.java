@@ -49,8 +49,9 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     }
 
     @Override
-    public void doProcessResponse(Res response) {
+    public Res doProcessResponse(Res response) {
         info("Logging from filter. Response payload is : " + response.toString());
+        return response;
     }
 
 

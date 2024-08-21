@@ -1,11 +1,14 @@
 package com.flipkart.gjex.examples.helloworld.filter;
 
+import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
+import io.grpc.examples.helloworld.HelloReply;
 
 import javax.inject.Named;
+import java.util.Optional;
 
 @Named("CustomHeaderGRPCFilter")
 public class CustomHeaderGRPCFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> extends GrpcFilter<Req, Res> implements Logging {
@@ -17,14 +20,9 @@ public class CustomHeaderGRPCFilter<Req extends GeneratedMessageV3, Res extends 
     }
 
     @Override
-    public void doProcessResponse(Res response) {
-
-
-//        response = (Res) ((HelloReply) response).toBuilder().setMessage("Custom Header GRPC Filter").build();
-        super.doProcessResponse(response);
-
-        // Add custom header to response
-//        response.toBuilder().setHeader("x-custom-header2", "value2");
+    public Res doProcessResponse(Res response) {
+        response = (Res) ((HelloReply) response).toBuilder().setMessage("Custom Header GRPC Filter").build();
+        return response;
     }
 
     @Override
