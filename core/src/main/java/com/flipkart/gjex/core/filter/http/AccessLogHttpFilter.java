@@ -40,7 +40,8 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
 
     public AccessLogHttpFilter() {
         accessLogContextBuilder = AccessLogContext.builder();
-        accessLogContextBuilder.requestTime(System.currentTimeMillis());
+        startTime = System.currentTimeMillis();
+        accessLogContextBuilder.requestTime(startTime);
     }
 
     public static void setFormat(String format) {
