@@ -121,7 +121,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
         ServerCall.Listener<Req> listener = next.startCall(new SimpleForwardingServerCall<Req, Res>(call) {
             @Override
-            public void sendMessage(final Res response) {
+            public void sendMessage(Res response) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
                     grpcFilters.forEach(filter -> filter.doProcessResponse(response));
