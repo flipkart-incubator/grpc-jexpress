@@ -1,6 +1,8 @@
 Grpc:
   server.port: 50051
   server.executorThreads : 4
+  filterConfig:
+      enableAccessLogs: true
 
 Dashboard:
   service.port: 9999
@@ -14,6 +16,8 @@ Api:
   service.selectors: 10
   service.workers: 30
   scheduledexecutor.threadpool.size: 1
+  filterConfig:
+      enableAccessLogs: true
 
 ScheduledJobs.executorThreads: 5
 
