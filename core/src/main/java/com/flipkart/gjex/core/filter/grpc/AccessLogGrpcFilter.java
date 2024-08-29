@@ -59,7 +59,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
 
     public AccessLogGrpcFilter() {
         accessLogContextBuilder = AccessLogContext.builder();
-        accessLogContextBuilder.requestTime(System.currentTimeMillis());
+        startTime = System.currentTimeMillis();
+        accessLogContextBuilder.requestTime(startTime);
     }
 
     /**
