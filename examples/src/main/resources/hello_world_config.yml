@@ -24,7 +24,7 @@ Api:
         accessLogFormat: '{clientIp} - [{requestTime}] "{method} {resourcePath} {protocol}" {responseStatus} {contentLength} {responseTime} "{referer}" "{userAgent}"'
 
 Tracing:
-    collector.endpoint: http://localhost:9411/api/v2/spans
+    collector.endpoint: http://10.83.43.133/api/v2/spans
 
 ScheduledJobs:
     executorThreads: 5

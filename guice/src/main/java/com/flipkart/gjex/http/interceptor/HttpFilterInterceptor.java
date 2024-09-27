@@ -80,7 +80,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
             requestParamsBuilder.resourcePath(getFullURL(httpServletRequest));
 
             RequestParams<Map<String, String>> requestParams = requestParamsBuilder.build();
-            FilterServletResponseWrapper responseWrapper = new FilterServletResponseWrapper(httpServletResponse);
+            HttpServletResponse responseWrapper = httpServletResponse; //new FilterServletResponseWrapper(httpServletResponse);
 
             try {
                 filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
@@ -94,7 +94,8 @@ public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
             } finally {
                 // Allow the filters to process the response
                 filters.forEach(filter -> filter.doProcessResponse(responseWrapper));
-                response.getOutputStream().write(responseWrapper.getWrapperBytes());
+
+//                response.getOutputStream().write(responseWrapper.getWrapperBytes());
             }
 
         } else {

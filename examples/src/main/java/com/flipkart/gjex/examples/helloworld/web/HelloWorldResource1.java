@@ -15,6 +15,12 @@
  */
 package com.flipkart.gjex.examples.helloworld.web;
 
+import com.flipkart.gjex.core.tracing.Traced;
+import com.flipkart.gjex.examples.helloworld.bean.HelloBean;
+import com.flipkart.gjex.examples.helloworld.service.HelloBeanService;
+import io.grpc.examples.helloworld.GreeterGrpc;
+
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -34,11 +40,23 @@ import javax.ws.rs.core.Response;
 @Named
 public class HelloWorldResource1 {
 
+    /** Injected business logic class where validation is performed */
+    private HelloBeanService helloBeanService = new HelloBeanService();
+
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/hellocontrol1")
 	public Response performHelloControl() {
+
+        // invoke business logic implemented in a separate injected class
+        helloBeanService.sayHelloInBean(new HelloBean("hello",10));
+
 		return Response.status(Response.Status.OK).entity("Hello Control 1 invoked").build();
 	}
+
+
+
+
 
 }

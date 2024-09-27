@@ -52,7 +52,8 @@ public class HelloBeanService implements Logging {
 	@Traced
 	public void tracedMethod1() {
 		info("Invoked trace method1");
-		this.tracedMethod2();
+//        this.tracedMethod2();
+//        this.tracedMethod3();
 	}
 
 	/**
