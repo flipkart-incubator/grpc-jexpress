@@ -117,3 +117,9 @@ applicationDistribution.into('bin') {
     fileMode = 0755
 }
 
+task copyToLib(type: Copy) {
+    into "$buildDir/dependencies"
+    from configurations.runtimeClasspath
+}
+
+compileJava.dependsOn(copyToLib)
