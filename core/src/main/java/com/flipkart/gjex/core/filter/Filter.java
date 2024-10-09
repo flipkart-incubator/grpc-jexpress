@@ -54,8 +54,11 @@ public abstract class Filter<Req, Res, M> {
      * This method should be viewed almost like a proxy for the Response body.
      *
      * @param response the Response body/message
+     * @return
      */
-    public void doProcessResponse(Res response) {}
+    public Res doProcessResponse(Res response) {
+        return response;
+    }
 
     /**
      * Call-back to handle exceptions that occur during the processing of the request or response.

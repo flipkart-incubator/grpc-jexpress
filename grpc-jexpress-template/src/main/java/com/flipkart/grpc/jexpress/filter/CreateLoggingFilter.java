@@ -44,8 +44,9 @@ public class CreateLoggingFilter<CreateRequest extends GeneratedMessageV3,Create
     public void doProcessResponseHeaders(Metadata responseHeaders) {}
 
     @Override
-    public void doProcessResponse(CreateResponse response) {
+    public CreateResponse doProcessResponse(CreateResponse response) {
         info("Response: " + response);
+        return response;
     }
 
 }

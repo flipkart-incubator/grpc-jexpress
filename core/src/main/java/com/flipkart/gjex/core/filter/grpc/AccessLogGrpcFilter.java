@@ -109,13 +109,14 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
      * @param response The outgoing gRPC response message.
      */
     @Override
-    public void doProcessResponse(S response) {
+    public S doProcessResponse(S response) {
         accessLogContextBuilder
             .contentLength(response.getSerializedSize())
             .responseTime(System.currentTimeMillis() - startTime)
             .responseStatus(Status.Code.OK.value())
             .build();
         logger.info(accessLogContextBuilder.build().format(format));
+        return response;
     }
 
     /**

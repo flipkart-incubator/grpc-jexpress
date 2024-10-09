@@ -50,12 +50,14 @@ public class CustomHeaderHttpFilter extends HttpFilter {
      * Processes the response and also adds a custom header.
      *
      * @param response the servlet response
+     * @return
      */
     @Override
-    public void doProcessResponse(ServletResponse response) {
+    public ServletResponse doProcessResponse(ServletResponse response) {
         super.doProcessResponse(response);
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         httpServletResponse.addHeader("x-custom-header2", "value2");
+        return response;
     }
 
     @Override

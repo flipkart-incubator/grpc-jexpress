@@ -26,8 +26,7 @@ import io.grpc.Metadata;
  * @param <Res> Proto V3 message
  * @author ajay.jalgaonkar
  */
-public abstract class GrpcFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3>
-		extends Filter<Req,Res, Metadata> {
+public abstract class GrpcFilter<Req extends GeneratedMessageV3, Res extends GeneratedMessageV3> extends Filter<Req,Res, Metadata> {
 
 	/**
 	 * Function for creating an instance of this {@link Filter}
