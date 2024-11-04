@@ -26,13 +26,22 @@ import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 import com.flipkart.gjex.examples.helloworld.web.HelloWorldResourceConfig;
 import com.flipkart.gjex.examples.helloworld.web.javaxfilter.ExampleJavaxFilter;
+import com.flipkart.gjex.hibernate.UnitOfWork;
+import com.flipkart.gjex.hibernate.UnitOfWorkInterceptor;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.name.Names;
 import io.grpc.BindableService;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.examples.helloworld.GreeterGrpc;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.hibernate.SessionFactory;
+
+import javax.inject.Singleton;
+
+import static com.google.inject.matcher.Matchers.annotatedWith;
+import static com.google.inject.matcher.Matchers.any;
 
 /**
  * Guice module for wiring sample Service to GJEX runtime
@@ -41,7 +50,10 @@ import org.glassfish.jersey.server.ResourceConfig;
  */
 public class HelloWorldModule extends AbstractModule {
 
-	public HelloWorldModule() {}
+    private final SessionFactory sessionFactory;
+	public HelloWorldModule(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
 	@Override
 	protected void configure() {
@@ -57,5 +69,15 @@ public class HelloWorldModule extends AbstractModule {
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
         bind(JavaxFilterParams.class).annotatedWith(Names.named("ExampleJavaxFilter")).toInstance(JavaxFilterParams.builder().filter(new ExampleJavaxFilter()).pathSpec("/*").build());
         bind(HttpFilterParams.class).annotatedWith(Names.named("CustomHeaderHttpFilter")).toInstance(HttpFilterParams.builder().filter(new CustomHeaderHttpFilter()).pathSpec("/*").build());
-	}
+
+        UnitOfWorkInterceptor unitOfWorkInterceptor = new UnitOfWorkInterceptor();
+        requestInjection(unitOfWorkInterceptor);
+        bindInterceptor(any(), annotatedWith(UnitOfWork.class), unitOfWorkInterceptor);
+    }
+
+    @Provides
+    @Singleton
+    public SessionFactory getSessionFactory() {
+    	return sessionFactory;
+    }
 }
