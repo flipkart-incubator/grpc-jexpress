@@ -15,32 +15,58 @@
  */
 package com.flipkart.gjex.core.healthcheck;
 
+import io.dropwizard.metrics5.health.HealthCheck;
+
+import javax.inject.Singleton;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
-
-import io.dropwizard.metrics5.health.HealthCheck;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A sub-type of the io.dropwizard.metrics5.health.HealthCheckRegistry that runs health checks concurrently
  * @author regu.b
  *
  */
+@Singleton
 public class HealthCheckRegistry extends io.dropwizard.metrics5.health.HealthCheckRegistry {
 
 	/** Name for this HealthCheckRegistry*/
 	public static final String HEALTHCHECK_REGISTRY_NAME = "GJEX_HealthCheckRegistry";
 
-	private ExecutorService executorService;
+  // Creating a cached threadpool as the number of HealthCheck instances are anyway unknown and
+  // hence no point in bounding it to a number
+  private final ExecutorService executorService = Executors.newCachedThreadPool(new NamedThreadFactory(
+    "GJEX-healthcheck-"));
 
-    public HealthCheckRegistry(ExecutorService executorService) {
-    		this.executorService = executorService;
-	}
+  /**
+   * Runs HealthChecks concurrently using the ExecutorService
+   */
+  @Override
+  public SortedMap<String, HealthCheck.Result> runHealthChecks() {
+      return this.runHealthChecks(this.executorService);
+  }
 
-    /**
-     * Runs HealthChecks concurrently using the ExecutorService
-     */
-    @Override
-    public SortedMap<String, HealthCheck.Result> runHealthChecks() {
-    		return this.runHealthChecks(this.executorService);
+  private static class NamedThreadFactory implements ThreadFactory {
+
+    private final ThreadGroup group;
+    private final AtomicInteger threadNumber = new AtomicInteger(1);
+    private final String namePrefix;
+
+    NamedThreadFactory(String namePrefix) {
+      SecurityManager s = System.getSecurityManager();
+      group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+      this.namePrefix = namePrefix;
     }
+
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+      t.setDaemon(true);
+      if (t.getPriority() != Thread.NORM_PRIORITY)
+        t.setPriority(Thread.NORM_PRIORITY);
+      return t;
+    }
+  }
 }

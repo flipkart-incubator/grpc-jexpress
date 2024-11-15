@@ -221,7 +221,8 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Named("HealthCheckResourceConfig")
 	@Singleton
 	@Provides
-	ResourceConfig getAPIResourceConfig(HealthCheckResource healthCheckResource) {
+	ResourceConfig getAPIResourceConfig() {
+    HealthCheckResource healthCheckResource = new HealthCheckResource(bootstrap.getHealthCheckRegistry());
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(healthCheckResource);
 		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);
@@ -231,7 +232,9 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Named("DashboardHealthCheckResourceConfig")
 	@Singleton
 	@Provides
-	ResourceConfig getAPIResourceConfig(DashboardHealthCheckResource dashboardHealthCheckResource) {
+	ResourceConfig getDashboardResourceConfig() {
+    DashboardHealthCheckResource dashboardHealthCheckResource =
+      new DashboardHealthCheckResource(bootstrap.getHealthCheckRegistry());
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.register(dashboardHealthCheckResource);
 		resourceConfig.setApplicationName(Constants.GJEX_CORE_APPLICATION);

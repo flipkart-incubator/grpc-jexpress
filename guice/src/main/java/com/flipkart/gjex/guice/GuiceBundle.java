@@ -133,7 +133,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
         // add the Dashboard module
         modules.add(new DashboardModule(bootstrap));
         // add the Grpc Server module
-        modules.add(new ServerModule());
+        modules.add(new ServerModule(bootstrap));
         baseInjector = Guice.createInjector(this.modules);
     }
 

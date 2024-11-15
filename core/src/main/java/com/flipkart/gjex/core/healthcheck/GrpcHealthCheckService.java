@@ -1,6 +1,8 @@
 package com.flipkart.gjex.core.healthcheck;
 
+import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
+import com.flipkart.gjex.core.setup.Bootstrap;
 import io.dropwizard.metrics5.health.HealthCheck;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
@@ -9,8 +11,7 @@ import io.grpc.stub.StreamObserver;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.servlet.ServletContext;
-import javax.ws.rs.core.Context;
+import java.util.Map;
 import java.util.SortedMap;
 
 /**
@@ -20,13 +21,12 @@ import java.util.SortedMap;
 
 @Singleton
 @Named("GrpcHealthCheckService")
-public class GrpcHealthCheckService extends HealthGrpc.HealthImplBase {
+public class GrpcHealthCheckService<T extends GJEXConfiguration, U extends Map> extends HealthGrpc.HealthImplBase {
 
-  @Context
-  private ServletContext servletContext;
+  private final Bootstrap<T,U> bootstrap;
 
-  public GrpcHealthCheckService(){
-
+  public GrpcHealthCheckService(Bootstrap<T, U> bootstrap){
+    this.bootstrap = bootstrap;
   }
 
   @Override
@@ -34,13 +34,11 @@ public class GrpcHealthCheckService extends HealthGrpc.HealthImplBase {
   public void check(HealthCheckRequest request,
                     StreamObserver<HealthCheckResponse> responseObserver) {
     HealthCheckResponse.Builder builder = HealthCheckResponse.newBuilder();
-    HealthCheckRegistry registry = (HealthCheckRegistry) servletContext
-        .getAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME);
-    SortedMap<String, HealthCheck.Result> results = registry.runHealthChecks();
+    SortedMap<String, HealthCheck.Result> results = bootstrap.getHealthCheckRegistry().runHealthChecks();
     if (results.values().stream().anyMatch(result -> !result.isHealthy())){
-      builder.setStatus(HealthCheckResponse.ServingStatus.SERVING);
-    } else {
       builder.setStatus(HealthCheckResponse.ServingStatus.NOT_SERVING);
+    } else {
+      builder.setStatus(HealthCheckResponse.ServingStatus.SERVING);
     }
     responseObserver.onNext(builder.build());
     responseObserver.onCompleted();

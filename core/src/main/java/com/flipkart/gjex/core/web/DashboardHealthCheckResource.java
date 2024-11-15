@@ -43,6 +43,12 @@ public class DashboardHealthCheckResource {
 	@Context
 	private ServletContext servletContext;
 
+  private HealthCheckRegistry healthCheckRegistry;
+
+  public DashboardHealthCheckResource(HealthCheckRegistry healthCheckRegistry){
+    this.healthCheckRegistry = healthCheckRegistry;
+  }
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response performHealthChecks() {
