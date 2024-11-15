@@ -46,10 +46,12 @@ public class DashboardHealthCheckResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response performHealthChecks() {
-		HealthCheckRegistry registry = (HealthCheckRegistry) servletContext
-				.getAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME);
-		SortedMap<String, HealthCheck.Result> results = registry.runHealthChecks();
-		return Response.status(Response.Status.OK).entity(results).build();
+    HealthCheckRegistry registry = (HealthCheckRegistry) servletContext
+      .getAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME);
+    SortedMap<String, HealthCheck.Result> results = registry.runHealthChecks();
+    if (results.values().stream().anyMatch(result -> !result.isHealthy())){
+      return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(results).build();
+    }
+    return Response.status(Response.Status.OK).entity(results).build();
 	}
-
 }
