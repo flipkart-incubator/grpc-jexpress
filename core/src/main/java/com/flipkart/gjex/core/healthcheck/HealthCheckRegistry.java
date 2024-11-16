@@ -17,7 +17,6 @@ package com.flipkart.gjex.core.healthcheck;
 
 import io.dropwizard.metrics5.health.HealthCheck;
 
-import javax.inject.Singleton;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author regu.b
  *
  */
-@Singleton
 public class HealthCheckRegistry extends io.dropwizard.metrics5.health.HealthCheckRegistry {
 
 	/** Name for this HealthCheckRegistry*/
