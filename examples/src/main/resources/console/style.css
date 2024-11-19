@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+*{
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+ font-family: "Poppins", sans-serif;
+}
+
+body{
+font-family: "Poppins", sans-serif;
+}
+
+.side-bar{
+ background: #f5f2f0;
+ width: 290px;
+ height: 100vh;
+ position: fixed;
+ top: 0;
+ left: -100%;
+ overflow-y: auto;
+ transition: 0.6s ease;
+ transition-property: left;
+}
+
+.side-bar.active{
+ left: 0;
+}
+
+.side-bar .menu{
+ width: 100%;
+ margin-top: 80px;
+}
+
+.side-bar .menu .item{
+ position: relative;
+ cursor: pointer;
+}
+
+.side-bar .menu .item a{
+ color: black;
+ font-size: 16px;
+ text-decoration: none;
+ display: block;
+ padding: 5px 30px;
+ line-height: 60px;
+}
+
+.side-bar .menu .item a:hover{
+ background: rgba(0, 0, 0, 0.1);
+ transition: 0.3s ease;
+}
+
+.side-bar .menu .item i{
+ margin-right: 15px;
+}
+
+.side-bar .menu .item a .dropdown{
+ position: absolute;
+ right: 0;
+ margin: 20px;
+ transition: 0.3s ease;
+}
+
+.side-bar .menu .item .sub-menu{
+ background: rgba(0, 0, 0, 0.1);
+ display: none;
+}
+
+.side-bar .menu .item .sub-menu a{
+ padding-left: 80px;
+}
+
+.rotate{
+ transform: rotate(90deg);
+}
+
+.close-btn{
+ position: absolute;
+ color: black;
+ font-size: 20px;
+ right: 0;
+ margin: 25px;
+ cursor: pointer;
+}
+
+.menu-btn{
+ position: absolute;
+ color: #000;
+ font-size: 20px;
+ margin: 25px;
+ cursor: pointer;
+}
+
+.userInput{
+  margin: auto;
+  margin-top: 75px;
+  width: 50%;
+  padding: 10px;
+  display: none;
+}
+
+#mainHeading{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  color: #202020;
+  z-index: -1;
+  text-align: center;
+}
+
+.editor{
+  width:700px;
+  height:400px;
+  border:1px solid grey
+}
+
+.ui-dialog .ui-dialog-buttonpan{
+text-align: center !important
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+    float: none !important;
+}
+
+#createSchemaSuccessResponse{
+  display:none;
+}
+
+#createSchemaErrorResponse{
+  display:none;
+}
+
+#editSchemaSuccessResponse{
+  display: none;
+}
+
+#editSchemaErrorResponse{
+  display: none;
+}
+

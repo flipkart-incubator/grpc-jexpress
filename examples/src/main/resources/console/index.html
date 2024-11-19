@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EntityManager Console</title>
+  <link rel="stylesheet" href="bootstrap-5.0.2-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="tree-view/bootstrap-treeview.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="prism/prism.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="menu-btn">
+  <i class="fas fa-bars"></i>
+</div>
+<div class="side-bar">
+  <div class="close-btn">
+    <i class="fas fa-times"></i>
+  </div>
+  <div class="menu">
+    <div class="item">
+      <a class="sub-btn"><i class="fas fa-table"></i>Schema<i class="fas fa-angle-right dropdown"></i></a>
+      <div class="sub-menu">
+        <a href="#" class="sub-item" id="createSchemaSubMenu">Create</a>
+        <a href="#" class="sub-item" id="viewSchemaSubMenu">View</a>
+        <a href="#" class="sub-item" id="editSchemaSubMenu">Edit</a>
+        <a href="#" class="sub-item" id="compareSchemaSubMenu">Compare</a>
+        <a href="#" class="sub-item" id="dependencyTreeSubMenu">DependencyTree</a>
+        <a href="http://flow.fkinternal.com/#/app/pipeline/build/view/17946?project=entity-manager" target="_blank" class="sub-item">Generate Models</a>
+        <a href="#" class="sub-item" id="documentationSubMenu">Documentation</a>
+      </div>
+    </div>
+    <div class="item">
+      <a class="sub-btn"><i class="fas fa-file"></i>Entity<i class="fas fa-angle-right dropdown"></i></a>
+      <div class="sub-menu">
+        <a href="#" class="sub-item" id="createEntitySubMenu">Create</a>
+        <a href="#" class="sub-item" id="viewEntitySubMenu">View</a>
+      </div>
+    </div>
+    <div class="item"><a href="#"><i class="fas fa-building"></i>Tenant</a></div>
+    <div class="item">
+      <a class="sub-btn"><i class="fas fa-list"></i>Index<i class="fas fa-angle-right dropdown"></i></a>
+      <div class="sub-menu">
+        <a href="#" class="sub-item" id="createIndexSubMenu">Create</a>
+        <a href="#" class="sub-item" id="viewIndexSubMenu">View</a>
+        <a href="#" class="sub-item" id="editIndexSubMenu">Edit</a>
+      </div>
+    </div>
+    <div class="item">
+      <a class="sub-btn"><i class="fas fa-database"></i>DataStore<i class="fas fa-angle-right dropdown"></i></a>
+      <div class="sub-menu">
+        <a href="#" class="sub-item">View</a>
+        <a href="#" class="sub-item">Edit</a>
+      </div>
+    </div>
+    <div class="item"><a href="#"><i class="fas fa-wrench"></i>Administration</a></div>
+    <div class="item"><a href="#"><i class="fas fa-desktop"></i>Dashboard</a></div>
+  </div>
+</div>
+<section class="main">
+  <h1 id="mainHeading">Entity Manager - Platform to manage entities</h1>
+  <div id="createSchema" class="userInput">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id = "createSchemaSuccessResponse">
+      <p id="createSchemaSuccessMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="createSchemaSuccessCloseButton"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id = "createSchemaErrorResponse">
+      <p id="createSchemaErrorMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="createSchemaErrorCloseButton"></button>
+    </div>
+    <h1 class="formHeader">Create Schema</h1>
+    <form>
+      <div class="form-group mt-3">
+        <label for="createSchemaNamespace">Namespace:</label>
+        <input type="text" class="form-control" placeholder="" id="createSchemaNamespace">
+      </div>
+      <div class="form-group mt-3">
+        <label for="createSchemaName">Name:</label>
+        <input type="text" class="form-control" placeholder="" id="createSchemaName">
+      </div>
+      <div class="form-group mt-3">
+        <label for="createSchemaData">Schema:</label>
+        <div id="createSchemaData" class="editor"></div>
+      </div>
+      <div class="form-group mt-3">
+        <label for="createSchemaReference">Schema References:</label>
+        <div id="createSchemaReference" class="editor"></div>
+      </div>
+      <button id ="createSchemaButton" class="btn btn-primary mt-3">Create</button>
+    </form>
+  </div>
+  <div id="viewSchema" class="userInput">
+    <h1 class="formHeader">ViewSchema</h1>
+    <form>
+      <div class="form-group mt-3">
+        <label for="viewNamespace">Namespace:</label>
+        <input type="text" class="form-control" placeholder="" id="viewNamespace">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewName">Name:</label>
+        <input type="text" class="form-control" placeholder="" id="viewName">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewVersion">Version:</label>
+        <input type="text" class="form-control" placeholder="" id="viewVersion">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewSchemaData" id="viewSchemaLabel">Schema:</label>
+        <div id="viewSchemaData" class="editor"></div>
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewSchemaReference">Schema References:</label>
+        <div id="viewSchemaReference" class="editor"></div>
+      </div>
+      <button id = "viewSchemaButton" class="btn btn-primary mt-3">View</button>
+    </form>
+  </div>
+  <div id="editSchema" class="userInput">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id = "editSchemaSuccessResponse">
+      <p id="editSchemaSuccessMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="editSchemaSuccessCloseButton"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id = "editSchemaErrorResponse">
+      <p id="editSchemaErrorMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="editSchemaErrorCloseButton"></button>
+    </div>
+    <h1 class="formHeader">Edit Schema</h1>
+    <form>
+      <div class="form-group mt-3">
+        <label for="editSchemaNamespace">Namespace:</label>
+        <input type="text" class="form-control" placeholder="" id="editSchemaNamespace">
+      </div>
+      <div class="form-group mt-3">
+        <label for="editSchemaName">Name:</label>
+        <input type="text" class="form-control" placeholder="" id="editSchemaName">
+      </div>
+      <button id ="fetchSchemaButton" class="btn btn-primary mt-3">Fetch</button>
+      <div class="form-group mt-3">
+        <label for="editSchemaData">Schema:</label>
+        <div id="editSchemaData" class="editor"></div>
+      </div>
+      <div class="form-group mt-3">
+        <label for="editSchemaReference">Schema References:</label>
+        <div id="editSchemaReference" class="editor"></div>
+      </div>
+      <button id ="editSchemaButton" class="btn btn-primary mt-3">Edit</button>
+    </form>
+  </div>
+  <div id="compareSchema" class="userInput">
+    <h1 class="formHeader">Compare Schema</h1>
+    <form>
+      <div class="form-group mt-3">
+        <label for="compareSchemaNamespace">Namespace:</label>
+        <input type="text" class="form-control" placeholder="" id="compareSchemaNamespace">
+      </div>
+      <div class="form-group mt-3">
+        <label for="compareSchemaName">Name:</label>
+        <input type="text" class="form-control" placeholder="" id="compareSchemaName">
+      </div>
+      <div class="form-group mt-3">
+        <label for="version1">Version1:</label>
+        <input type="text" class="form-control" placeholder="" id="version1">
+      </div>
+      <div class="form-group mt-3">
+        <label for="version2">Version2:</label>
+        <input type="text" class="form-control" placeholder="" id="version2">
+      </div>
+      <button id ="compareSchemaButton" class="btn btn-primary mt-3">Compare</button>
+      <div class="form-group mt-3">
+        <label for="compareSchemaData">Schema:</label>
+        <div id="compareSchemaData" class="editor"></div>
+      </div>
+      <div class="form-group mt-3">
+        <label for="compareSchemaReference">Schema References:</label>
+        <div id="compareSchemaReference" class="editor"></div>
+      </div>
+    </form>
+  </div>
+  <div id="viewDependencyTree" class="userInput">
+    <h1 class="formHeader">Dependency Tree</h1>
+    <form>
+      <div class="form-group mt-3">
+        <label for="viewDependencyTreeNamespace">Namespace:</label>
+        <input type="text" class="form-control" placeholder="" id="viewDependencyTreeNamespace">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewDependencyTreeName">Name:</label>
+        <input type="text" class="form-control" placeholder="" id="viewDependencyTreeName">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewDependencyTreeVersion">Version:</label>
+        <input type="text" class="form-control" placeholder="" id="viewDependencyTreeVersion">
+      </div>
+      <button id ="viewDependencyTreeButton" class="btn btn-primary mt-3">View</button>
+      <br></br>
+      <div class="spinner-border" role="status" id="treeViewSpinner">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <div class="form-group mt-3" id="viewDependencyTreeValue"></div>
+    </form>
+  </div>
+  <div id = "documentation" class="userInput">
+    <h2>Installation - Apache Maven</h2>
+    <p>If you are using maven then add the following dependencies to your pom.xml</p>
+    <h3>SchemaRegistry Client</h3>
+    <!-- Pre tag exactly preserves the spaces, so there will be extra indentation if we format it within this file
+    to avoid that the extra leading spaces have been removed.
+    -->
+    <pre><code class="language-XML">
+&lt;dependency&gt;
+  &lt;groupId>com.flipkart.entitymanager&lt;/groupId&gt;
+  &lt;artifactId>entity-manager-schema-registry-shade-client&lt;/artifactId&gt;
+  &lt;version>1.10-RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+    </code></pre>
+    <p>This jar will provide you with serializers and desrializers to serialize the entities</p>
+    <h3>Generated Protobuf Models</h3>
+    <p>Add the dependency to include the generated protobuf models</p>
+    <pre><code class="language-XML">
+&lt;dependency&gt;
+  &lt;groupId>{namespace}&lt;/groupId&gt;
+  &lt;artifactId>{name}&lt;/artifactId&gt;
+  &lt;version>{version}&lt;/version&gt;
+&lt;/dependency&gt;
+    </code></pre>
+    <p>Replace {namespace},{name},{version} with the namespace,name and version you have defined for your schema respectively</p>
+    <p>Example Dependency:</p>
+    <pre><code class="language-XML">
+&lt;dependency&gt;
+  &lt;groupId>com.flipkart.oms&lt;/groupId&gt;
+  &lt;artifactId>OrderRoot&lt;/artifactId&gt;
+  &lt;version>1.7&lt;/version&gt;
+&lt;/dependency&gt;
+    </code></pre>
+    <h3>Java Integration</h3>
+    <p><strong>1.Initialize the Protobuf Serde</strong></p>
+    <pre><code class="language-java">
+ProtobufSerde&lt;OrderRoot&gt; orderRootProtobufSerde = new ProtobufSerde&lt;&gt;(OrderRoot.class);
+    </code></pre>
+    <p>You need only one instance of ProtobufSerde in your entire application. Do not create multiple instances of it since
+    it caches the parsed schema which will help in faster serialization and deserialization operations
+    </p>
+    <p><strong>2.Serialize an Object to byte[]</strong></p>
+    <pre><code class="language-java">
+//Build your object
+OrderRoot.Builder orderRootBuilder = OrderRoot.newBuilder();
+orderRootBuilder.setOrderId("OD1");
+orderRootBuilder.setStatus("CO_APPROVED");
+OrderRoot orderRoot = orderRootBuilder.build();
+//serialize the object
+byte[] orderBytes = orderRootProtobufSerde.serialize(orderRoot);
+    </code></pre>
+    <p><strong>3.Deserialize a byte[] to Object</strong></p>
+    <pre><code class="language-java">
+//orderBytes is a byte[]
+OrderRoot orderRoot = orderRootProtobufSerde.deserialize(orderBytes);
+    </code></pre>
+  </div>
+  <div id="createEntity" class="userInput">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id = "createEntitySuccessResponse">
+      <p id="createEntitySuccessMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="createEntitySuccessCloseButton"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id = "createEntityErrorResponse">
+      <p id="createEntityErrorMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="createEntityErrorCloseButton"></button>
+    </div>
+    <h1 class="formHeader">Create Entity</h1>
+    <form>
+      <div class="form-group mt-3">
+        <div id="createEntityData" class="editor"></div>
+      </div>
+      <button id ="createEntityButton" class="btn btn-primary mt-3">Create</button>
+    </form>
+  </div>
+  <div id="viewEntity" class="userInput">
+    <h1 class="formHeader">ViewEntity</h1>
+    <form>
+      <div class="form-group mt-3">
+        <label for="viewEntityNamespace">Namespace:</label>
+        <input type="text" class="form-control" placeholder="" id="viewEntityNamespace">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewEntityName">Name:</label>
+        <input type="text" class="form-control" placeholder="" id="viewEntityName">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewEntityData" id="viewEntityLabel">EntityData:</label>
+        <div id="viewEntityData" class="editor"></div>
+      </div>
+      <button id = "viewEntityButton" class="btn btn-primary mt-3">View</button>
+    </form>
+  </div>
+  <div id="createIndex" class="userInput">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id = "createIndexSuccessResponse">
+      <p id="createIndexSuccessMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="createIndexSuccessCloseButton"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id = "createIndexErrorResponse">
+      <p id="createIndexErrorMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="createIndexErrorCloseButton"></button>
+    </div>
+    <h1 class="formHeader">Create Index</h1>
+    <form>
+      <div class="form-group mt-3">
+        <div id="createIndexData" class="editor"></div>
+      </div>
+      <button id ="createIndexButton" class="btn btn-primary mt-3">Create</button>
+    </form>
+  </div>
+  <div id="viewIndex" class="userInput">
+    <h1 class="formHeader">ViewIndex</h1>
+    <form>
+      <div class="form-group mt-3">
+        <label for="viewIndexEntityNamespace">EntityNamespace:</label>
+        <input type="text" class="form-control" placeholder="" id="viewIndexEntityNamespace">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewIndexEntityName">EntityName:</label>
+        <input type="text" class="form-control" placeholder="" id="viewIndexEntityName">
+      </div>
+      <div class="form-group mt-3">
+        <label for="viewIndexData" id="viewIndexLabel">IndexData:</label>
+        <div id="viewIndexData" class="editor"></div>
+      </div>
+      <button id = "viewIndexButton" class="btn btn-primary mt-3">View</button>
+    </form>
+  </div>
+  <div id="editIndex" class="userInput">
+    <h1 class="formHeader">Edit Index</h1>
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id = "editIndexSuccessResponse">
+      <p id="editIndexSuccessMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="editIndexSuccessCloseButton"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id = "editIndexErrorResponse">
+      <p id="editIndexErrorMessage"></p>
+      <button type="button" class="btn-close" aria-label="Close" id="editIndexErrorCloseButton"></button>
+    </div>
+    <div class="form-group mt-3">
+      <label for="editIndexId">IndexId:</label>
+      <input type="text" class="form-control" placeholder="" id="editIndexId">
+    </div>
+    <button id ="fetchIndexButton" class="btn btn-primary mt-3">Fetch</button>
+    <form>
+      <div class="form-group mt-3">
+        <div id="editIndexData" class="editor"></div>
+      </div>
+      <button id ="editIndexButton" class="btn btn-primary mt-3">Edit</button>
+    </form>
+  </div>
+
+
+</section>
+<script src="jquery-3.5.1/jquery.min.js"></script>
+<script src="bootstrap-5.0.2-dist/js/bootstrap.min.js"></script>
+<script src="tree-view/bootstrap-treeview.min.js"></script>
+<script src="prism/prism.js"></script>
+<script src="min/vs/loader.js"></script>
+<script type="text/javascript" src="main.js?v=3"></script>
+</body>
+</html>

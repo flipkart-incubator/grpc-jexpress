@@ -26,6 +26,7 @@ import com.flipkart.gjex.examples.helloworld.service.GreeterService;
 import com.flipkart.gjex.examples.helloworld.tracing.AllWhitelistTracingSampler;
 import com.flipkart.gjex.examples.helloworld.web.HelloWorldResourceConfig;
 import com.flipkart.gjex.examples.helloworld.web.javaxfilter.ExampleJavaxFilter;
+import com.flipkart.gjex.guice.module.StaticAssetsRegistrar;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import io.grpc.BindableService;
@@ -57,5 +58,6 @@ public class HelloWorldModule extends AbstractModule {
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
         bind(JavaxFilterParams.class).annotatedWith(Names.named("ExampleJavaxFilter")).toInstance(JavaxFilterParams.builder().filter(new ExampleJavaxFilter()).pathSpec("/*").build());
         bind(HttpFilterParams.class).annotatedWith(Names.named("CustomHeaderHttpFilter")).toInstance(HttpFilterParams.builder().filter(new CustomHeaderHttpFilter()).pathSpec("/*").build());
+        bind(StaticAssetsRegistrar.class).asEagerSingleton();
 	}
 }
