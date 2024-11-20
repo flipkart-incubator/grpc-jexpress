@@ -232,7 +232,7 @@ public class DashboardModule<T extends GJEXConfiguration, U extends Map> extends
 	@Named("DashboardHealthCheckResourceConfig")
 	@Singleton
 	@Provides
-	ResourceConfig getDashboardResourceConfig() {
+	ResourceConfig getDashboardHealthCheckResourceConfig() {
     DashboardHealthCheckResource dashboardHealthCheckResource =
       new DashboardHealthCheckResource(bootstrap.getHealthCheckRegistry());
 		ResourceConfig resourceConfig = new ResourceConfig();
