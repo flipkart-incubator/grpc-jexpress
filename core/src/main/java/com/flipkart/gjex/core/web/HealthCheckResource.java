@@ -18,6 +18,7 @@ package com.flipkart.gjex.core.web;
 import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import io.dropwizard.metrics5.health.HealthCheck;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
@@ -43,16 +44,19 @@ public class HealthCheckResource {
 	@Context
 	private ServletContext servletContext;
 
+  private HealthCheckRegistry healthCheckRegistry;
+
+  public HealthCheckResource(HealthCheckRegistry healthCheckRegistry) {
+    this.healthCheckRegistry = healthCheckRegistry;
+  }
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response performHealthChecks() {
-		HealthCheckRegistry registry = (HealthCheckRegistry) servletContext
-				.getAttribute(HealthCheckRegistry.HEALTHCHECK_REGISTRY_NAME);
-		SortedMap<String, HealthCheck.Result> results = registry.runHealthChecks();
+		SortedMap<String, HealthCheck.Result> results = healthCheckRegistry.runHealthChecks();
         if (results.values().stream().anyMatch(result -> !result.isHealthy())){
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(results).build();
         }
         return Response.status(Response.Status.OK).entity(results).build();
 	}
-
 }
