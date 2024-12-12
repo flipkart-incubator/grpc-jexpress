@@ -39,7 +39,7 @@ dependencies {
     implementation "io.grpc:grpc-stub:${grpcVersion}"
     implementation "io.dropwizard.metrics:metrics-healthchecks:4.2.0"
     implementation "io.dropwizard.metrics:metrics-annotation:4.2.0"
-    implementation "com.palominolabs.metrics:metrics-guice:5.0.1"
+    implementation "com.palominolabs.metrics:metrics-guice:3.2.2"
     implementation ('ru.vyarus:guice-validator:1.2.0') {
         exclude group: 'com.google.inject', module: 'guice'
     }

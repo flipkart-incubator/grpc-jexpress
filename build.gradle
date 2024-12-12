@@ -87,7 +87,7 @@ subprojects {
                 jersey_freemarker       : 'org.glassfish.jersey.ext:jersey-mvc-freemarker:2.6',
                 servlet                 : 'javax.servlet:javax.servlet-api:3.1.0',
                 jackson                 : "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${jacksonVersion}",
-                jetty_metrics           : 'io.dropwizard.metrics:metrics-jetty9:4.2.0',
+                jetty_metrics           : 'io.dropwizard.metrics:metrics-jetty9:4.2.29',
                 guice_validator         : 'ru.vyarus:guice-validator:1.2.0',
                 hibernate_validator     : 'org.hibernate:hibernate-validator:5.4.1.Final',
                 javax_el                : 'org.glassfish:javax.el:3.0.1-b08',
