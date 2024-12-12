@@ -16,7 +16,7 @@
 package com.flipkart.gjex.core.web;
 
 import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
-import io.dropwizard.metrics5.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 
 import javax.inject.Named;
 import javax.inject.Singleton;

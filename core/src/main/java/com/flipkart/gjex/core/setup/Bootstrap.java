@@ -37,7 +37,7 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.core.util.Pair;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import io.dropwizard.metrics5.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 
 import javax.validation.Validation;
