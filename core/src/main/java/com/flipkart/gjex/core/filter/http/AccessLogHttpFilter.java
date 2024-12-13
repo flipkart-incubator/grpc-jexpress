@@ -85,9 +85,10 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
      * Logs the client IP, requested URI, response status, content length, and the time taken to process the request.
      *
      * @param response The outgoing servlet response.
+     * @return
      */
     @Override
-    public void doProcessResponse(ServletResponse response) {
+    public ServletResponse doProcessResponse(ServletResponse response) {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         if (isSuccess(httpServletResponse.getStatus())) {
             // 2xx response
@@ -104,6 +105,7 @@ public class AccessLogHttpFilter extends HttpFilter implements Logging {
             .responseStatus(httpServletResponse.getStatus())
             .responseTime(System.currentTimeMillis() - startTime);
         logger.info(accessLogContextBuilder.build().format(format));
+        return response;
     }
 
     @Override
