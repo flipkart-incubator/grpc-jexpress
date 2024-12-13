@@ -1,13 +1,13 @@
 package com.flipkart.gjex.core.setup;
 
-import io.dropwizard.metrics5.MetricFilter;
-import io.dropwizard.metrics5.MetricRegistry;
-import io.dropwizard.metrics5.jmx.JmxReporter;
-import io.dropwizard.metrics5.jvm.BufferPoolMetricSet;
-import io.dropwizard.metrics5.jvm.GarbageCollectorMetricSet;
-import io.dropwizard.metrics5.jvm.MemoryUsageGaugeSet;
-import io.dropwizard.metrics5.jvm.ThreadStatesGaugeSet;
-import io.prometheus.metrics.instrumentation.dropwizard5.DropwizardExports;
+import com.codahale.metrics.MetricFilter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jmx.JmxReporter;
+import com.codahale.metrics.jvm.BufferPoolMetricSet;
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import io.prometheus.metrics.instrumentation.dropwizard.DropwizardExports;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 
 import java.lang.management.ManagementFactory;
