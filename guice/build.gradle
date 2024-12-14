@@ -61,9 +61,9 @@ dependencies {
     implementation libraries.hystrix_metrics_stream
     implementation libraries.rxjava2
 
-    implementation 'org.eclipse.jetty:jetty-server:10.0.24'
-    implementation 'org.eclipse.jetty:jetty-servlet:10.0.24'
-    implementation 'org.eclipse.jetty:jetty-webapp:10.0.24'
+    implementation 'org.eclipse.jetty:jetty-server:9.4.56.v20240826'
+    implementation 'org.eclipse.jetty:jetty-servlet:9.4.56.v20240826'
+    implementation 'org.eclipse.jetty:jetty-webapp:9.4.56.v20240826'
     implementation 'io.opentracing.brave:brave-opentracing:0.31.3'
     implementation 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.7'
 
