@@ -32,7 +32,7 @@ import com.flipkart.gjex.core.web.TracingResource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
-import com.codahale.metrics.jetty9.InstrumentedHandler;
+import io.dropwizard.metrics.jetty10.InstrumentedHandler;
 import io.prometheus.metrics.exporter.servlet.javax.PrometheusMetricsServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
