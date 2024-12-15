@@ -32,9 +32,10 @@ public class HelloWorldResourceConfig extends ResourceConfig {
 
 	@Inject
 	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1,
-			HelloWorldResource2 helloWorldresource2) {
+			HelloWorldResource2 helloWorldresource2, ExampleHibernateResource hibernateResource) {
 		register(helloWorldresource1);
 		register(helloWorldresource2);
+        register(hibernateResource);
 	}
 
 }
