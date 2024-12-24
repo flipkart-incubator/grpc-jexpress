@@ -16,12 +16,20 @@
 package com.flipkart.gjex.examples.helloworld;
 
 import com.flipkart.gjex.core.Application;
+import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilter;
+import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
+import com.flipkart.gjex.db.PooledDataSourceFactory;
 import com.flipkart.gjex.examples.helloworld.config.HelloWorldConfiguration;
 import com.flipkart.gjex.examples.helloworld.guice.HelloWorldModule;
 import com.flipkart.gjex.guice.GuiceBundle;
+import com.flipkart.gjex.hibernate.ScanningHibernateBundle;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,9 +47,40 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration, 
 
     @Override
     public void initialize(Bootstrap<HelloWorldConfiguration, Map> bootstrap) {
+
+        ScanningHibernateBundle<HelloWorldConfiguration, Map> hibernateBundle =
+            new ScanningHibernateBundle<HelloWorldConfiguration, Map>("entity") {
+                @Override
+                public PooledDataSourceFactory getDataSourceFactory(GJEXConfiguration var1) {
+                    HelloWorldConfiguration configuration = (HelloWorldConfiguration) var1;
+                    return configuration.getDataSourceFactory();
+                }
+
+                @Override
+                public List<GrpcFilter> getGrpcFilters() {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public List<HttpFilter> getHTTPFilters() {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public List getHealthChecks() {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public List<ScheduledJob> getScheduledJobs() {
+                    return Collections.emptyList();
+                }
+            };
+
+        bootstrap.addBundle(hibernateBundle);
         GuiceBundle<HelloWorldConfiguration, Map> guiceBundle = new GuiceBundle.Builder<HelloWorldConfiguration, Map>()
                 .setConfigClass(HelloWorldConfiguration.class)
-                .addModules(new HelloWorldModule())
+                .addModules(new HelloWorldModule(hibernateBundle.getSessionFactory()))
                 .build();
         bootstrap.addBundle(guiceBundle);
     }
