@@ -1,5 +1,6 @@
 package com.flipkart.gjex.hibernate;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
@@ -8,15 +9,14 @@ import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.db.DatabaseConfiguration;
-import com.flipkart.gjex.db.PooledDataSourceFactory;
 import com.google.common.collect.ImmutableList;
-import io.dropwizard.metrics5.health.HealthCheck;
+import io.dropwizard.db.PooledDataSourceFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.SessionFactory;
 
 import java.util.*;
 
-public abstract class HibernateBundle<T extends GJEXConfiguration, U extends Map> implements Bundle<T, U>, DatabaseConfiguration {
+public abstract class HibernateBundle<T extends GJEXConfiguration>  extends  io.dropwizard.hibernate.HibernateBundle<T> { // implements Bundle<T, HashMap<?,?>>, DatabaseConfiguration {
     public static final String DEFAULT_NAME = "hibernate";
     private final List<Class<?>> entities;
     private final SessionFactoryFactory sessionFactoryFactory;
@@ -37,6 +37,7 @@ public abstract class HibernateBundle<T extends GJEXConfiguration, U extends Map
         this.entities = entities;
         this.sessionFactoryFactory = sessionFactoryFactory;
     }
+
 
     public final void initialize(Bootstrap<?, ?> bootstrap) {
         bootstrap.getObjectMapper().registerModule(this.createHibernate5Module());
@@ -59,7 +60,7 @@ public abstract class HibernateBundle<T extends GJEXConfiguration, U extends Map
 
 
     @Override
-    public void run(T t, U u, Environment environment) {
+    public void run(T t, HashMap<?,?> u, Environment environment) {
 
     }
 
