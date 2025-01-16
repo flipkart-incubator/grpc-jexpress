@@ -95,10 +95,7 @@ public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
                 // Allow the filters to process the response
                 try{
                     filters.forEach(filter -> filter.doProcessResponse(responseWrapper));
-                    try (var outputStream = response.getOutputStream()) {
-                        outputStream.write(responseWrapper.getWrapperBytes());
-                        outputStream.flush();
-                    }
+                    response.getOutputStream().write(responseWrapper.getWrapperBytes());
                 } catch (Exception e){
                     error("Error while doProcessResponse", e);
                 }
