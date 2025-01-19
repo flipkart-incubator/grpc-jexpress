@@ -37,3 +37,17 @@ apiProperties:
 
 taskProperties:
     hello.timeout: 200
+
+database:
+    driverClass: com.mysql.jdbc.Driver
+    user: new_user
+    password: new_password
+    url: jdbc:mysql://127.0.0.1:3306/overlord?autoReconnect=true&useSSL=false
+    properties:
+        charSet: UTF-8
+        hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+        hibernate.show_sql: true
+        hibernate.current_session_context_class: managed
+    checkConnectionWhileIdle: true
+    checkConnectionOnReturn: true
+    checkConnectionOnBorrow: true

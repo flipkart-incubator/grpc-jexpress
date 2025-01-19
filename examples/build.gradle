@@ -28,11 +28,13 @@ dependencies {
     implementation project(':core')
     implementation project(':runtime')
     implementation project(':guice')
+    implementation project(':contrib:hibernate')
 
     // In actual
-    // implementation "com.flipkart.grpc-jexpress:core:${jexpressVersion}"
-    // implementation "com.flipkart.grpc-jexpress:runtime:${jexpressVersion}"
-    // implementation "com.flipkart.grpc-jexpress:guice:${jexpressVersion}"
+//    implementation "com.flipkart.grpc-jexpress:core:${jexpressVersion}"
+//    implementation "com.flipkart.grpc-jexpress:runtime:${jexpressVersion}"
+//    implementation "com.flipkart.grpc-jexpress:guice:${jexpressVersion}"
+//    implementation "com.flipkart.grpc-jexpress:hibernate:${jexpressVersion}"
 
     implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
@@ -52,6 +54,7 @@ dependencies {
     implementation 'org.glassfish.jersey.containers:jersey-container-servlet:2.6'
     implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.7'
     implementation 'javax.servlet:javax.servlet-api:3.1.0'
+    implementation 'org.hibernate:hibernate-core:5.6.15.Final'
 }
 
 protobuf {
