@@ -15,7 +15,7 @@
  */
 package com.flipkart.gjex.core.healthcheck;
 
-import io.dropwizard.metrics5.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 
 import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
@@ -24,11 +24,11 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A sub-type of the io.dropwizard.metrics5.health.HealthCheckRegistry that runs health checks concurrently
+ * A sub-type of the com.codahale.metrics.health.HealthCheckRegistry that runs health checks concurrently
  * @author regu.b
  *
  */
-public class HealthCheckRegistry extends io.dropwizard.metrics5.health.HealthCheckRegistry {
+public class HealthCheckRegistry extends com.codahale.metrics.health.HealthCheckRegistry {
 
 	/** Name for this HealthCheckRegistry*/
 	public static final String HEALTHCHECK_REGISTRY_NAME = "GJEX_HealthCheckRegistry";
@@ -48,15 +48,15 @@ public class HealthCheckRegistry extends io.dropwizard.metrics5.health.HealthChe
 
   private static class NamedThreadFactory implements ThreadFactory {
 
-    private final ThreadGroup group;
-    private final AtomicInteger threadNumber = new AtomicInteger(1);
-    private final String namePrefix;
+      private final ThreadGroup group;
+      private final AtomicInteger threadNumber = new AtomicInteger(1);
+      private final String namePrefix;
 
-    NamedThreadFactory(String namePrefix) {
-      SecurityManager s = System.getSecurityManager();
-      group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-      this.namePrefix = namePrefix;
-    }
+      NamedThreadFactory(String namePrefix) {
+          SecurityManager s = System.getSecurityManager();
+          group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+          this.namePrefix = namePrefix;
+      }
 
     @Override
     public Thread newThread(Runnable r) {

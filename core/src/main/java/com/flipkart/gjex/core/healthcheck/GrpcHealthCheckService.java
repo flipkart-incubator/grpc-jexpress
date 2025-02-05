@@ -1,9 +1,9 @@
 package com.flipkart.gjex.core.healthcheck;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.setup.Bootstrap;
-import io.dropwizard.metrics5.health.HealthCheck;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.health.v1.HealthGrpc;

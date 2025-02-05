@@ -1,7 +1,7 @@
 package com.flipkart.gjex.core.healthcheck;
 
 import com.flipkart.gjex.core.logging.Logging;
-import io.dropwizard.metrics5.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 
 import javax.inject.Singleton;
 import java.util.concurrent.atomic.AtomicBoolean;

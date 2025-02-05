@@ -24,7 +24,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
-import io.dropwizard.metrics5.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 import io.grpc.BindableService;
 import io.grpc.Context;
 import org.aopalliance.intercept.MethodInterceptor;

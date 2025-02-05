@@ -20,7 +20,7 @@ import javax.inject.Named;
 
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.examples.helloworld.filter.AuthFilter;
-import io.dropwizard.metrics5.annotation.Timed;
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.gjex.core.filter.grpc.ApplicationHeaders;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
 import com.flipkart.gjex.core.logging.Logging;
