@@ -18,6 +18,7 @@ package com.flipkart.gjex.grpc.interceptor;
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcAuthNModule;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
@@ -79,6 +80,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 annotatedMethods.forEach(pair -> {
                     List<GrpcFilter> filtersForMethod = new ArrayList<>();
                     configureAccessLog(grpcFilterConfig, filtersForMethod);
+                    addAllAuthFilters(filtersForMethod, classToInstanceMap);
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
@@ -217,6 +219,20 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         if (currentContext != null) {
             currentContext.detach(previousContext);
         }
+    }
+
+    private void addAllAuthFilters(List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) {
+        List<Class<? extends GrpcFilter>> authFilters = GrpcAuthNModule.authnFilters;
+        if (authFilters != null && !authFilters.isEmpty()) {
+            authFilters.forEach(authFilter -> {
+                if (!classToInstanceMap.containsKey(authFilter)) {
+                    throw new RuntimeException("Filter instance not bound for Filter class :" + authFilter.getName());
+                }
+
+                filtersForMethod.add(classToInstanceMap.get(authFilter));
+            });
+        }
+
     }
 
     private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,

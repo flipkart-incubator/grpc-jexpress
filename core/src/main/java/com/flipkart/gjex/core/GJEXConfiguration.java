@@ -20,6 +20,7 @@ import com.flipkart.gjex.core.config.ApiService;
 import com.flipkart.gjex.core.config.DashboardService;
 import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.config.Tracing;
+import com.flipkart.gjex.core.filter.grpc.AuthConfig;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -43,6 +44,11 @@ public class GJEXConfiguration {
     @NotNull
     @JsonProperty("Dashboard")
     private DashboardService dashboardService;
+
+    @Valid
+    @NotNull
+    @JsonProperty("AuthConfig")
+    private AuthConfig authConfig;
 
     @Valid
     @NotNull

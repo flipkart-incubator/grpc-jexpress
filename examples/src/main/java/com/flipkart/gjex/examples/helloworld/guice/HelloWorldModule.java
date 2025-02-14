@@ -15,6 +15,8 @@
  */
 package com.flipkart.gjex.examples.helloworld.guice;
 
+import com.flipkart.gjex.core.filter.grpc.AuthConfig;
+import com.flipkart.gjex.core.filter.grpc.GrpcAuthNModule;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.filter.http.JavaxFilterParams;
@@ -41,7 +43,11 @@ import org.glassfish.jersey.server.ResourceConfig;
  */
 public class HelloWorldModule extends AbstractModule {
 
-	public HelloWorldModule() {}
+    private final AuthConfig authConfig;
+
+	public HelloWorldModule(AuthConfig authConfig) {
+        this.authConfig = authConfig;
+    }
 
 	@Override
 	protected void configure() {
@@ -53,6 +59,11 @@ public class HelloWorldModule extends AbstractModule {
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(GrpcFilter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
 		bind(GrpcFilter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
+
+        if (authConfig != null && authConfig.isAuthEnabled()) {
+            install(new GrpcAuthNModule(authConfig));
+        }
+
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
         bind(JavaxFilterParams.class).annotatedWith(Names.named("ExampleJavaxFilter")).toInstance(JavaxFilterParams.builder().filter(new ExampleJavaxFilter()).pathSpec("/*").build());

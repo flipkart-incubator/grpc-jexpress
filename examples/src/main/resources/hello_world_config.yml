@@ -23,6 +23,18 @@ Api:
         enableAccessLogs: true
         accessLogFormat: '{clientIp} - [{requestTime}] "{method} {resourcePath} {protocol}" {responseStatus} {contentLength} {responseTime} "{referer}" "{userAgent}"'
 
+AuthConfig:
+    authEnabled: true
+    clientId: entity-manager-test
+    clientSecret: 2cS8JXAAB2b9YGvhekak9bCn/PLoOP+M5d4UcQ/UtsKSUjv5
+    authnUrl: https://service.authn-prod.fkcloud.in/
+    whiteListedClientIds:
+        - omsprod
+        - go-dumx
+#    authIgnoreUrls: "^((?!/entity/audit|/entity/read|/entity/bulkRead|/entity/upsert|/entity/indexRead).)*$"
+    enableIstio: false
+
+
 Tracing:
     collector.endpoint: http://localhost:9411/api/v2/spans
 
