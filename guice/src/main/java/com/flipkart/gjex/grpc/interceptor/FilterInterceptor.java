@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
+import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
@@ -70,7 +71,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
-                                GrpcFilterConfig grpcFilterConfig) {
+                                GrpcConfig grpcConfig) {
         Map<Class<?>, GrpcFilter> classToInstanceMap = grpcFilters.stream()
                 .collect(Collectors.toMap(Object::getClass, Function.identity()));
         services.forEach(service -> {
@@ -78,7 +79,11 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
                     List<GrpcFilter> filtersForMethod = new ArrayList<>();
-                    configureAccessLog(grpcFilterConfig, filtersForMethod);
+                    try {
+                        addAllStaticFilters(grpcConfig, filtersForMethod, classToInstanceMap);
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException("Class not found :" + e.getMessage(), e);
+                    }
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
@@ -196,11 +201,15 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private <Req, Res> void handleException(ServerCall<Req, Res> call, Exception e) {
         error("Closing gRPC call due to RuntimeException.", e);
         Status returnStatus = Status.INTERNAL;
+
+        Metadata metadata = new Metadata();
         if (e instanceof StatusRuntimeException){
-            returnStatus = ((StatusRuntimeException) e).getStatus();
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException) e;
+            returnStatus = statusRuntimeException.getStatus();
+            metadata = statusRuntimeException.getTrailers();
         }
         try {
-            call.close(returnStatus.withDescription(e.getMessage()), new Metadata());
+            call.close(returnStatus.withDescription(e.getMessage()), metadata);
         } catch (IllegalStateException ie) {
             // Simply log the exception as this is already handling the runtime-exception
             warn("Exception while attempting to close ServerCall stream: " + ie.getMessage());
@@ -227,6 +236,26 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 AccessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
             }
             filtersForMethod.add(accessLogGrpcFilter);
+        }
+    }
+
+    private void addAllStaticFilters(GrpcConfig grpcConfig, List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) throws ClassNotFoundException {
+        List<String> filterClasses = grpcConfig.getFilterClasses();
+        if (filterClasses != null && !filterClasses.isEmpty()) {
+            for (String filterClass : filterClasses) {
+                try {
+                    Class<?> clazz = Class.forName(filterClass);
+                    if (clazz == AccessLogGrpcFilter.class) {
+                        configureAccessLog(grpcConfig.getGrpcFilterConfig(), filtersForMethod);
+                    } else {
+                        if (classToInstanceMap.containsKey(clazz)) {
+                            filtersForMethod.add(classToInstanceMap.get(clazz));
+                        }
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new ClassNotFoundException(filterClass, e);
+                }
+            }
         }
     }
 

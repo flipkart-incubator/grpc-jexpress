@@ -153,7 +153,7 @@ public class GuiceBundle<T extends GJEXConfiguration, U extends Map> implements 
 
         // Add all Grpc Filters to the Grpc Server
         grpcFilters = getInstances(baseInjector, GrpcFilter.class);
-        grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc().getGrpcFilterConfig());
+        grpcServer.registerFilters(grpcFilters, bindableServices, configuration.getGrpc());
 
         // Add all Grpc Filters to the Grpc Server
         tracingSamplers = getInstances(baseInjector, TracingSampler.class);
