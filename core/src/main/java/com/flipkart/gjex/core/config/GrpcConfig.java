@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class GrpcConfig {
 
@@ -33,4 +35,7 @@ public class GrpcConfig {
 
     @JsonProperty("filterConfig")
     private GrpcFilterConfig grpcFilterConfig;
+
+    @JsonProperty("filters")
+    private List<String> filterClasses;
 }
