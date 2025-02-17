@@ -41,7 +41,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration, 
     public void initialize(Bootstrap<HelloWorldConfiguration, Map> bootstrap) {
         GuiceBundle<HelloWorldConfiguration, Map> guiceBundle = new GuiceBundle.Builder<HelloWorldConfiguration, Map>()
                 .setConfigClass(HelloWorldConfiguration.class)
-                .addModules(new HelloWorldModule(bootstrap.getConfiguration().getAuthConfig()))
+                .addModules(new HelloWorldModule())
                 .build();
         bootstrap.addBundle(guiceBundle);
     }

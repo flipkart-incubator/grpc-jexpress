@@ -15,10 +15,10 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
+import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
-import com.flipkart.gjex.core.filter.grpc.GrpcAuthNModule;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
@@ -71,7 +71,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
-                                GrpcFilterConfig grpcFilterConfig) {
+                                GrpcConfig grpcConfig) {
         Map<Class<?>, GrpcFilter> classToInstanceMap = grpcFilters.stream()
                 .collect(Collectors.toMap(Object::getClass, Function.identity()));
         services.forEach(service -> {
@@ -79,8 +79,11 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
                     List<GrpcFilter> filtersForMethod = new ArrayList<>();
-                    configureAccessLog(grpcFilterConfig, filtersForMethod);
-                    addAllAuthFilters(filtersForMethod, classToInstanceMap);
+                    try {
+                        addAllStaticFilters(grpcConfig, filtersForMethod, classToInstanceMap);
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException("Class not found :" + e.getMessage(), e);
+                    }
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
@@ -225,20 +228,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    private void addAllAuthFilters(List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) {
-        List<Class<? extends GrpcFilter>> authFilters = GrpcAuthNModule.authnFilters;
-        if (authFilters != null && !authFilters.isEmpty()) {
-            authFilters.forEach(authFilter -> {
-                if (!classToInstanceMap.containsKey(authFilter)) {
-                    throw new RuntimeException("Filter instance not bound for Filter class :" + authFilter.getName());
-                }
-
-                filtersForMethod.add(classToInstanceMap.get(authFilter));
-            });
-        }
-
-    }
-
     private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,
                                     @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
         if (grpcFilterConfig.isEnableAccessLogs()){
@@ -247,6 +236,26 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 AccessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
             }
             filtersForMethod.add(accessLogGrpcFilter);
+        }
+    }
+
+    private void addAllStaticFilters(GrpcConfig grpcConfig, List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) throws ClassNotFoundException {
+        List<String> filterClasses = grpcConfig.getFilterClasses();
+        if (filterClasses != null && !filterClasses.isEmpty()) {
+            for (String filterClass : filterClasses) {
+                try {
+                    Class<?> clazz = Class.forName(filterClass);
+                    if (clazz == AccessLogGrpcFilter.class) {
+                        configureAccessLog(grpcConfig.getGrpcFilterConfig(), filtersForMethod);
+                    } else {
+                        if (classToInstanceMap.containsKey(clazz)) {
+                            filtersForMethod.add(classToInstanceMap.get(clazz));
+                        }
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new ClassNotFoundException(filterClass, e);
+                }
+            }
         }
     }
 
