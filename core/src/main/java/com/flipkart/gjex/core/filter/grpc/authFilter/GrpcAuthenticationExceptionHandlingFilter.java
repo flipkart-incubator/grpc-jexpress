@@ -6,6 +6,8 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.kloud.authn.AuthenticationException;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,7 @@ public class GrpcAuthenticationExceptionHandlingFilter<Req extends GeneratedMess
         if (StringUtils.isBlank(errorMessage)) {
             errorMessage = "Authentication failed";
         }
-        throw new AuthenticationException(errorMessage);
+        throw new StatusRuntimeException(Status.PERMISSION_DENIED.withDescription(errorMessage));
     }
 
     private static Throwable findRootCause(Throwable throwable) {

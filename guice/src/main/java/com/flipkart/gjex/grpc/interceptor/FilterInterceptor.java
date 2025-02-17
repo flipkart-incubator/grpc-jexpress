@@ -198,11 +198,15 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private <Req, Res> void handleException(ServerCall<Req, Res> call, Exception e) {
         error("Closing gRPC call due to RuntimeException.", e);
         Status returnStatus = Status.INTERNAL;
+
+        Metadata metadata = new Metadata();
         if (e instanceof StatusRuntimeException){
-            returnStatus = ((StatusRuntimeException) e).getStatus();
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException) e;
+            returnStatus = statusRuntimeException.getStatus();
+            metadata = statusRuntimeException.getTrailers();
         }
         try {
-            call.close(returnStatus.withDescription(e.getMessage()), new Metadata());
+            call.close(returnStatus.withDescription(e.getMessage()), metadata);
         } catch (IllegalStateException ie) {
             // Simply log the exception as this is already handling the runtime-exception
             warn("Exception while attempting to close ServerCall stream: " + ie.getMessage());

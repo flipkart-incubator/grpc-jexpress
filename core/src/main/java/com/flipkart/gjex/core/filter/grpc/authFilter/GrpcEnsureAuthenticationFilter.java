@@ -7,6 +7,9 @@ import com.flipkart.kloud.authn.AuthenticationException;
 import com.flipkart.kloud.filter.SecurityContextHolder;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,17 +42,29 @@ public class GrpcEnsureAuthenticationFilter<Req extends GeneratedMessageV3, Res 
                 return;
             } else {
                 if (this.loginUrl == null) {
-                    throw new AuthenticationException("This call needs to be authenticated");
+                    doHandleException(new StatusRuntimeException(Status.UNAUTHENTICATED.withDescription("This call needs to be authenticated")));
                 }
 
                 if (this.saveRequest) {
                     headers.put(Metadata.Key.of("ORIGINAL_URL", Metadata.ASCII_STRING_MARSHALLER), pathInfo);
                 }
 
-                headers.put(Metadata.Key.of("REDIRECT_URL", Metadata.ASCII_STRING_MARSHALLER), pathInfo + loginUrl);
-                throw new AuthenticationException("Please authenticate. Login URL: " + loginUrl);
+                doHandleException(new StatusRuntimeException(Status.UNAUTHENTICATED));
             }
         }
+    }
+
+    @Override
+    public void doHandleException(Exception e) {
+        Metadata metadata = new Metadata();
+        metadata.put(Metadata.Key.of("REDIRECT_URL", Metadata.ASCII_STRING_MARSHALLER), "Login url:: " + loginUrl);
+
+        String errorMessage = e.getMessage();
+        if (StringUtils.isBlank(errorMessage)) {
+            errorMessage = "Call not authenticated";
+        }
+
+        throw new StatusRuntimeException(Status.UNAUTHENTICATED.withDescription(errorMessage), metadata);
     }
 
 

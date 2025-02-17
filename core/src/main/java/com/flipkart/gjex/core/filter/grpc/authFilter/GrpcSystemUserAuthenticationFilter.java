@@ -14,6 +14,9 @@ import com.flipkart.kloud.filter.SecurityContext;
 import com.flipkart.kloud.filter.SecurityContextHolder;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,9 +76,7 @@ public class GrpcSystemUserAuthenticationFilter<Req extends GeneratedMessageV3, 
                     validateToken(token);
                     logger.info("Call validated");
                 } catch (AuthenticationException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new AuthenticationException(e);
+                    doHandleException(e);
                 }
             }
         }
@@ -105,7 +106,17 @@ public class GrpcSystemUserAuthenticationFilter<Req extends GeneratedMessageV3, 
      * @param e The exception that occurred.
      */
     @Override
-    public void doHandleException(Exception e) {}
+    public void doHandleException(Exception e) {
+        Metadata metadata = new Metadata();
+        metadata.put(Metadata.Key.of("ErrorMessage", Metadata.ASCII_STRING_MARSHALLER), e.getMessage());
+
+        String errorMessage = e.getMessage();
+        if (StringUtils.isBlank(errorMessage)) {
+            errorMessage = "Authentication failed";
+        }
+
+        throw new StatusRuntimeException(Status.PERMISSION_DENIED.withDescription(errorMessage), metadata);
+    }
 
 
     private void validateToken(String token) throws AuthenticationException {
@@ -121,8 +132,7 @@ public class GrpcSystemUserAuthenticationFilter<Req extends GeneratedMessageV3, 
                 }
                 return;
             } catch (Exception e) {
-                logger.warn(e.getMessage());
-                exception.append(" ---- ").append(e.getMessage());
+                exception.append(e.getMessage());
             }
         }
         throw new AuthenticationException(exception.toString());
