@@ -241,7 +241,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             for (String filterClass : filterClasses) {
                 try {
                     Class<?> clazz = Class.forName(filterClass);
-                    if (clazz == AccessLogGrpcFilter.class) {
+                    if (clazz == AccessLogGrpcFilter.class || clazz.getSuperclass() == AccessLogGrpcFilter.class) {
                         configureAccessLog(grpcConfig.getGrpcFilterConfig(), filtersForMethod);
                     } else {
                         if (classToInstanceMap.containsKey(clazz)) {
