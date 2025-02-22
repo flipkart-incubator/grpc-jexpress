@@ -88,7 +88,10 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
                         }
-                        filtersForMethod.add(classToInstanceMap.get(filterClass));
+                        GrpcFilter grpcFilter = classToInstanceMap.get(filterClass).configure(grpcConfig);
+                        if (grpcFilter != null) {
+                            filtersForMethod.add(grpcFilter);
+                        }
                     });
                     // Key is of the form <Service Name>+ "/" +<Method Name>
                     // reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
@@ -224,28 +227,16 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,
-                                    @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
-        if (grpcFilterConfig.isEnableAccessLogs()){
-            AccessLogGrpcFilter accessLogGrpcFilter = new AccessLogGrpcFilter();
-            if (StringUtils.isNotBlank(grpcFilterConfig.getAccessLogFormat())){
-                AccessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
-            }
-            filtersForMethod.add(accessLogGrpcFilter);
-        }
-    }
-
     private void addAllStaticFilters(GrpcConfig grpcConfig, List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) throws ClassNotFoundException {
         List<String> filterClasses = grpcConfig.getFilterClasses();
         if (filterClasses != null && !filterClasses.isEmpty()) {
             for (String filterClass : filterClasses) {
                 try {
                     Class<?> clazz = Class.forName(filterClass);
-                    if (clazz == AccessLogGrpcFilter.class || clazz.getSuperclass() == AccessLogGrpcFilter.class) {
-                        configureAccessLog(grpcConfig.getGrpcFilterConfig(), filtersForMethod);
-                    } else {
-                        if (classToInstanceMap.containsKey(clazz)) {
-                            filtersForMethod.add(classToInstanceMap.get(clazz));
+                    if (classToInstanceMap.containsKey(clazz)) {
+                        GrpcFilter filter = classToInstanceMap.get(clazz).configure(grpcConfig);
+                        if (filter != null) {
+                            filtersForMethod.add(filter);
                         }
                     }
                 } catch (ClassNotFoundException e) {

@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
+import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.logging.Logging;
@@ -36,6 +37,11 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     @Override
     public GrpcFilter<Req, Res> getInstance(){
         return new LoggingFilter<>();
+    }
+
+    @Override
+    public GrpcFilter configure(GrpcConfig grpcConfig) {
+        return this;
     }
 
     @Override

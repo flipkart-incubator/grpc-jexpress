@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.examples.helloworld.filter;
 
+import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.logging.Logging;
@@ -59,6 +60,11 @@ public class AuthFilter extends GrpcFilter<HelloRequest, HelloReply> implements 
 	public Metadata.Key[] getForwardHeaderKeys() {
 		return new  Metadata.Key[] {AUTH_KEY};
 	}
+
+    @Override
+    public GrpcFilter configure(GrpcConfig grpcConfig) {
+        return this;
+    }
 
 	@SuppressWarnings("unchecked")
 	private void checkAuth(Metadata requestHeaders) throws StatusRuntimeException {

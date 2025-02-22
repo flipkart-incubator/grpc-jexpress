@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.core.filter.grpc;
 
+import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
@@ -25,6 +26,8 @@ import io.grpc.StatusRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
+import javax.inject.Named;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,6 +45,7 @@ import java.util.stream.Collectors;
  * @param <S> The response type extending {@link GeneratedMessageV3}, representing the gRPC response message.
  * @author ajay.jalgaonkar
  */
+@Named("AccessLogGrpcFilter")
 public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
     extends GrpcFilter<R, S> implements Logging {
 
@@ -138,6 +142,21 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
             .responseTime(System.currentTimeMillis() - startTime)
             .build();
         logger.info(accessLogContextBuilder.build().format(format));
+    }
+
+
+    @Override
+    public GrpcFilter configure(GrpcConfig grpcConfig) {
+        GrpcFilterConfig grpcFilterConfig = grpcConfig.getGrpcFilterConfig();
+        if (grpcFilterConfig.isEnableAccessLogs()){
+            AccessLogGrpcFilter accessLogGrpcFilter = new AccessLogGrpcFilter();
+            if (org.apache.commons.lang.StringUtils.isNotBlank(grpcFilterConfig.getAccessLogFormat())){
+                AccessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
+            }
+            return accessLogGrpcFilter;
+        }
+
+        return null;
     }
 
     /**
