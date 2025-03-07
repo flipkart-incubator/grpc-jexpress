@@ -35,7 +35,4 @@ public class GrpcConfig {
 
     @JsonProperty("filterConfig")
     private GrpcFilterConfig grpcFilterConfig;
-
-    @JsonProperty("filters")
-    private List<String> filterClasses;
 }

@@ -1,11 +1,11 @@
 Grpc:
     server.port: 50051
     server.executorThreads : 4
-    filters:
-        - com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter
     filterConfig:
         enableAccessLogs: true
         accessLogFormat: '{clientIp} - [{requestTime}] "{method} {resourcePath} GRPC" {responseStatus} {contentLength} {responseTime} "-" "-"'
+        filters:
+            - com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter
 
 Dashboard:
     service.port: 9999

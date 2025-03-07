@@ -15,7 +15,6 @@
  */
 package com.flipkart.gjex.core.filter.grpc;
 
-import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.context.AccessLogContext;
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.logging.Logging;
@@ -146,8 +145,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
 
 
     @Override
-    public GrpcFilter configure(GrpcConfig grpcConfig) {
-        GrpcFilterConfig grpcFilterConfig = grpcConfig.getGrpcFilterConfig();
+    public GrpcFilter configure(GrpcFilterConfig grpcFilterConfig) {
         if (grpcFilterConfig.isEnableAccessLogs()){
             AccessLogGrpcFilter accessLogGrpcFilter = new AccessLogGrpcFilter();
             if (org.apache.commons.lang.StringUtils.isNotBlank(grpcFilterConfig.getAccessLogFormat())){

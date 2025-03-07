@@ -15,7 +15,6 @@
  */
 package com.flipkart.gjex.core.filter.grpc;
 
-import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.filter.Filter;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
@@ -47,5 +46,5 @@ public abstract class GrpcFilter<Req extends GeneratedMessageV3, Res extends Gen
 		return new Metadata.Key[] {};
 	}
 
-    public abstract GrpcFilter configure(GrpcConfig grpcConfig);
+    public abstract GrpcFilter configure(GrpcFilterConfig grpcFilterConfig);
 }

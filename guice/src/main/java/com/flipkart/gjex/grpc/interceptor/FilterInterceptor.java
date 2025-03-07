@@ -15,10 +15,8 @@
  */
 package com.flipkart.gjex.grpc.interceptor;
 
-import com.flipkart.gjex.core.config.GrpcConfig;
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
@@ -38,7 +36,6 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -71,7 +68,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
-                                GrpcConfig grpcConfig) {
+                                GrpcFilterConfig grpcFilterConfig) {
         Map<Class<?>, GrpcFilter> classToInstanceMap = grpcFilters.stream()
                 .collect(Collectors.toMap(Object::getClass, Function.identity()));
         services.forEach(service -> {
@@ -80,7 +77,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                 annotatedMethods.forEach(pair -> {
                     List<GrpcFilter> filtersForMethod = new ArrayList<>();
                     try {
-                        addAllStaticFilters(grpcConfig, filtersForMethod, classToInstanceMap);
+                        addAllStaticFilters(grpcFilterConfig, filtersForMethod, classToInstanceMap);
                     } catch (ClassNotFoundException e) {
                         throw new RuntimeException("Class not found :" + e.getMessage(), e);
                     }
@@ -88,7 +85,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
                         }
-                        GrpcFilter grpcFilter = classToInstanceMap.get(filterClass).configure(grpcConfig);
+                        GrpcFilter grpcFilter = classToInstanceMap.get(filterClass).configure(grpcFilterConfig);
                         if (grpcFilter != null) {
                             filtersForMethod.add(grpcFilter);
                         }
@@ -227,14 +224,14 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    private void addAllStaticFilters(GrpcConfig grpcConfig, List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) throws ClassNotFoundException {
-        List<String> filterClasses = grpcConfig.getFilterClasses();
+    private void addAllStaticFilters(GrpcFilterConfig grpcFilterConfig, List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) throws ClassNotFoundException {
+        List<String> filterClasses = grpcFilterConfig.getFilterClasses();
         if (filterClasses != null && !filterClasses.isEmpty()) {
             for (String filterClass : filterClasses) {
                 try {
                     Class<?> clazz = Class.forName(filterClass);
                     if (classToInstanceMap.containsKey(clazz)) {
-                        GrpcFilter filter = classToInstanceMap.get(clazz).configure(grpcConfig);
+                        GrpcFilter filter = classToInstanceMap.get(clazz).configure(grpcFilterConfig);
                         if (filter != null) {
                             filtersForMethod.add(filter);
                         }
