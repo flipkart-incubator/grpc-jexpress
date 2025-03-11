@@ -3,6 +3,9 @@ package com.flipkart.gjex.hibernate;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.http.HttpFilter;
+import com.flipkart.gjex.core.job.ScheduledJob;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
@@ -17,6 +20,7 @@ import org.hibernate.SessionFactory;
 import java.util.*;
 
 public abstract class HibernateBundle<T extends GJEXConfiguration, U extends Map> implements Bundle<T, U>, DatabaseConfiguration {
+
     public static final String DEFAULT_NAME = "hibernate";
     private final List<Class<?>> entities;
     private final SessionFactoryFactory sessionFactoryFactory;
@@ -54,21 +58,13 @@ public abstract class HibernateBundle<T extends GJEXConfiguration, U extends Map
     }
 
     protected String name() {
-        return "hibernate";
+        return DEFAULT_NAME;
     }
 
 
     @Override
     public void run(T t, U u, Environment environment) {
 
-    }
-
-    public boolean isLazyLoadingEnabled() {
-        return this.lazyLoadingEnabled;
-    }
-
-    public void setLazyLoadingEnabled(boolean lazyLoadingEnabled) {
-        this.lazyLoadingEnabled = lazyLoadingEnabled;
     }
 
     public SessionFactory getSessionFactory() {
@@ -96,6 +92,21 @@ public abstract class HibernateBundle<T extends GJEXConfiguration, U extends Map
 
     @Override
     public List<ResourceConfig> getResourceConfigs() {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public List<GrpcFilter> getGrpcFilters() {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public List<HttpFilter> getHTTPFilters() {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public List<ScheduledJob> getScheduledJobs() {
         return Collections.EMPTY_LIST;
     }
 }

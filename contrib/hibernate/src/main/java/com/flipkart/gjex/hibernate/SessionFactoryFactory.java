@@ -1,8 +1,8 @@
 package com.flipkart.gjex.hibernate;
 
-import io.dropwizard.metrics5.MetricRegistry;
-import com.flipkart.gjex.db.ManagedDataSource;
 import com.flipkart.gjex.db.PooledDataSourceFactory;
+import io.dropwizard.db.ManagedDataSource;
+import io.dropwizard.metrics5.MetricRegistry;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -15,15 +15,13 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.util.*;
 
-public class SessionFactoryFactory {
+public class SessionFactoryFactory extends io.dropwizard.hibernate.SessionFactoryFactory {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionFactoryFactory.class);
     private static final String DEFAULT_NAME = "hibernate";
 
-    public SessionFactoryFactory() {
-    }
-
     public SessionFactory build(HibernateBundle<?, ?> bundle, MetricRegistry metricRegistry, PooledDataSourceFactory dbConfig, List<Class<?>> entities) {
-        return this.build(bundle, metricRegistry, dbConfig, entities, "hibernate");
+        return this.build(bundle, metricRegistry, dbConfig, entities, DEFAULT_NAME);
     }
 
     public SessionFactory build(HibernateBundle<?, ?> bundle, MetricRegistry metricRegistry, PooledDataSourceFactory dbConfig, List<Class<?>> entities, String name) {
@@ -33,8 +31,7 @@ public class SessionFactoryFactory {
 
     public SessionFactory build(HibernateBundle<?, ?> bundle, MetricRegistry metricRegistry, PooledDataSourceFactory dbConfig, ManagedDataSource dataSource, List<Class<?>> entities) {
         ConnectionProvider provider = this.buildConnectionProvider(dataSource, dbConfig.getProperties());
-        SessionFactory factory = this.buildSessionFactory(bundle, dbConfig, provider, dbConfig.getProperties(), entities);
-        return factory;
+        return this.buildSessionFactory(bundle, dbConfig, provider, dbConfig.getProperties(), entities);
     }
 
     private ConnectionProvider buildConnectionProvider(DataSource dataSource, Map<String, String> properties) {
@@ -55,10 +52,10 @@ public class SessionFactoryFactory {
         configuration.setProperty("hibernate.order_inserts", "true");
         configuration.setProperty("hibernate.id.new_generator_mappings", "true");
         configuration.setProperty("jadira.usertype.autoRegisterUserTypes", "true");
-        Iterator var7 = properties.entrySet().iterator();
+        Iterator iterator = properties.entrySet().iterator();
 
-        while (var7.hasNext()) {
-            Map.Entry<String, String> property = (Map.Entry) var7.next();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> property = (Map.Entry) iterator.next();
             configuration.setProperty((String) property.getKey(), (String) property.getValue());
         }
 
@@ -69,15 +66,12 @@ public class SessionFactoryFactory {
         return configuration.buildSessionFactory(registry);
     }
 
-    protected void configure(Configuration configuration, ServiceRegistry registry) {
-    }
-
     private void addAnnotatedClasses(Configuration configuration, Iterable<Class<?>> entities) {
         SortedSet<String> entityClasses = new TreeSet();
-        Iterator var4 = entities.iterator();
+        Iterator iterator = entities.iterator();
 
-        while (var4.hasNext()) {
-            Class<?> klass = (Class) var4.next();
+        while (iterator.hasNext()) {
+            Class<?> klass = (Class) iterator.next();
             configuration.addAnnotatedClass(klass);
             entityClasses.add(klass.getCanonicalName());
         }

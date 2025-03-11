@@ -36,7 +36,6 @@ publishing {
 }
 
 dependencies {
-
     implementation project(':core')
     implementation libraries.lombok
     implementation libraries.dw_metrics
@@ -44,23 +43,34 @@ dependencies {
     implementation libraries.guice
     implementation libraries.guava
     implementation libraries.hibernate_validator
+    implementation 'org.glassfish.jersey.core:jersey-server:2.6'
+    implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:2.6'
     implementation 'io.grpc:grpc-core:1.60.0'
     implementation 'io.grpc:grpc-stub:1.60.0'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
     implementation 'org.hibernate:hibernate-core:5.6.15.Final'
-    implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
+    implementation 'org.hibernate:hibernate-validator:6.2.0.Final'
     implementation 'javax.validation:validation-api:2.0.1.Final'
+
     implementation 'org.apache.tomcat:tomcat-jdbc:9.0.80'
-    implementation 'mysql:mysql-connector-java:5.1.44'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation('io.dropwizard:dropwizard-hibernate:2.1.5')
+    implementation('io.dropwizard:dropwizard-jersey:2.1.5')
     implementation 'io.dropwizard.metrics5:metrics-core:5.0.0'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.15.2'
-    implementation 'org.glassfish.jersey.core:jersey-server:2.36'
-    implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:3.1.2'
     implementation 'aopalliance:aopalliance:1.0'
     implementation 'javax.inject:javax.inject:1'
+    implementation 'org.glassfish:javax.el:3.0.1-b08'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    configurations.all {
+        resolutionStrategy.force(
+            "org.glassfish.jersey.core:jersey-server:2.6",
+            "org.glassfish.jersey.core:jersey-common:2.6",
+            "org.glassfish.jersey.containers:jersey-container-servlet:2.6",
+            "org.glassfish.jersey.containers:jersey-container-servlet-core:2.6"
+        )
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
