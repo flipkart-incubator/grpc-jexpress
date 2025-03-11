@@ -27,7 +27,6 @@ import com.flipkart.gjex.grpc.service.GrpcServer;
 import com.flipkart.gjex.grpc.service.ScheduledJobManager;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import io.grpc.BindableService;
 import io.grpc.health.v1.HealthGrpc;
 
 /**

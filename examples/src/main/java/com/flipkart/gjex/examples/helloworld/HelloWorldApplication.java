@@ -16,11 +16,15 @@
 package com.flipkart.gjex.examples.helloworld;
 
 import com.flipkart.gjex.core.Application;
+import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
+import com.flipkart.gjex.db.PooledDataSourceFactory;
 import com.flipkart.gjex.examples.helloworld.config.HelloWorldConfiguration;
+import com.flipkart.gjex.examples.helloworld.entity.DummyEntity;
 import com.flipkart.gjex.examples.helloworld.guice.HelloWorldModule;
 import com.flipkart.gjex.guice.GuiceBundle;
+import com.flipkart.gjex.hibernate.HibernateBundle;
 
 import java.util.Map;
 
@@ -39,10 +43,21 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration, 
 
     @Override
     public void initialize(Bootstrap<HelloWorldConfiguration, Map> bootstrap) {
+
+        HibernateBundle<HelloWorldConfiguration, Map> hibernateBundle =
+            new HibernateBundle<>(DummyEntity.class) {
+                @Override
+                public PooledDataSourceFactory getDataSourceFactory(GJEXConfiguration gjexConfiguration) {
+                    HelloWorldConfiguration configuration = (HelloWorldConfiguration) gjexConfiguration;
+                    return configuration.getDataSourceFactory();
+                }
+            };
+
+        bootstrap.addBundle(hibernateBundle);
         GuiceBundle<HelloWorldConfiguration, Map> guiceBundle = new GuiceBundle.Builder<HelloWorldConfiguration, Map>()
-                .setConfigClass(HelloWorldConfiguration.class)
-                .addModules(new HelloWorldModule())
-                .build();
+            .setConfigClass(HelloWorldConfiguration.class)
+            .addModules(new HelloWorldModule(hibernateBundle.getSessionFactory()))
+            .build();
         bootstrap.addBundle(guiceBundle);
     }
 
