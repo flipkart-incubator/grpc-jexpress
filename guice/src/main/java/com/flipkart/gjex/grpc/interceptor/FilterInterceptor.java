@@ -36,6 +36,7 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -44,6 +45,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -226,7 +228,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
 
     private void addAllStaticFilters(GrpcFilterConfig grpcFilterConfig, List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) throws ClassNotFoundException {
         List<String> filterClasses = grpcFilterConfig.getFilterClasses();
-        if (filterClasses != null && !filterClasses.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(filterClasses)) {
             for (String filterClass : filterClasses) {
                 try {
                     Class<?> clazz = Class.forName(filterClass);
