@@ -15,6 +15,8 @@
  */
 package com.flipkart.gjex.core.filter;
 
+import io.grpc.StatusException;
+
 /**
  * A Filter interface for processing Request, Request-Headers, Response and Response-Headers
  * around gRPC and HTTP method invocation
@@ -40,7 +42,7 @@ public abstract class Filter<Req, Res, M> {
      * @param req           the Request body/message
      * @param requestParams prams
      */
-    public void doProcessRequest(Req req, RequestParams<M> requestParams) {}
+    public void doProcessRequest(Req req, RequestParams<M> requestParams) throws StatusException {}
 
     /**
      * Call-back to decorate or inspect the Response headers. Implementations may use this method to set additional headers in the response.

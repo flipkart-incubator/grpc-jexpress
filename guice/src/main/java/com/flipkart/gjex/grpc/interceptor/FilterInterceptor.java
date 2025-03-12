@@ -35,6 +35,7 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -175,9 +176,17 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    grpcFilters.forEach(filter -> filter.doProcessRequest(request, requestParams));
+
+                    for (GrpcFilter filter : grpcFilters) {
+                        filter.doProcessRequest(request, requestParams);
+                    }
+
+//                    grpcFilters.forEach(filter -> filter.doProcessRequest(request, requestParams));
                     super.onMessage(request);
-                }  finally  {
+                } catch (StatusException ex) {
+                    handleException(call, ex);
+                    grpcFilters.forEach(filter -> filter.doHandleException(ex));
+                } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
             }
@@ -203,11 +212,20 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private <Req, Res> void handleException(ServerCall<Req, Res> call, Exception e) {
         error("Closing gRPC call due to RuntimeException.", e);
         Status returnStatus = Status.INTERNAL;
+        Metadata metadata = new Metadata();
+
         if (e instanceof StatusRuntimeException){
-            returnStatus = ((StatusRuntimeException) e).getStatus();
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException) e;
+            returnStatus = statusRuntimeException.getStatus();
+            metadata = statusRuntimeException.getTrailers();
+        } else if (e instanceof StatusException){
+            StatusException statusException = (StatusException) e;
+            returnStatus = statusException.getStatus();
+            metadata = statusException.getTrailers();
         }
+
         try {
-            call.close(returnStatus.withDescription(e.getMessage()), new Metadata());
+            call.close(returnStatus.withDescription(e.getMessage()), metadata);
         } catch (IllegalStateException ie) {
             // Simply log the exception as this is already handling the runtime-exception
             warn("Exception while attempting to close ServerCall stream: " + ie.getMessage());
