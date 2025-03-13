@@ -217,11 +217,15 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         if (e instanceof StatusRuntimeException){
             StatusRuntimeException statusRuntimeException = (StatusRuntimeException) e;
             returnStatus = statusRuntimeException.getStatus();
-            metadata = statusRuntimeException.getTrailers();
+            if (statusRuntimeException.getTrailers() != null) {
+                metadata = statusRuntimeException.getTrailers();
+            }
         } else if (e instanceof StatusException){
             StatusException statusException = (StatusException) e;
             returnStatus = statusException.getStatus();
-            metadata = statusException.getTrailers();
+            if (statusException.getTrailers() != null) {
+                metadata = statusException.getTrailers();
+            }
         }
 
         try {
