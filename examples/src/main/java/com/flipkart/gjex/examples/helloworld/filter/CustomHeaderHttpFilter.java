@@ -17,6 +17,7 @@ package com.flipkart.gjex.examples.helloworld.filter;
 
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
+import io.grpc.StatusException;
 
 import javax.inject.Named;
 import javax.servlet.ServletRequest;
@@ -31,7 +32,7 @@ import java.util.Map;
 public class CustomHeaderHttpFilter extends HttpFilter {
 
     @Override
-    public void doProcessRequest(ServletRequest servletRequest, RequestParams<Map<String, String>> requestParams) {
+    public void doProcessRequest(ServletRequest servletRequest, RequestParams<Map<String, String>> requestParams) throws StatusException {
         super.doProcessRequest(servletRequest, requestParams);
     }
 
