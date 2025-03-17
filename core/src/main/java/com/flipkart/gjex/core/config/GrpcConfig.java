@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import lombok.Data;
 
-
 @Data
 public class GrpcConfig {
 

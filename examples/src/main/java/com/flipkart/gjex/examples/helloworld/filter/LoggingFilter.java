@@ -40,11 +40,6 @@ public class LoggingFilter<Req extends GeneratedMessageV3, Res extends Generated
     }
 
     @Override
-    public GrpcFilter configure(GrpcFilterConfig grpcFilterConfig) {
-        return this;
-    }
-
-    @Override
     public void doProcessRequest(Req req, RequestParams<Metadata> requestParams) {
         info("Logging from filter. Request payload is : " + req.toString());
     }

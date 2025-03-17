@@ -61,11 +61,6 @@ public class AuthFilter extends GrpcFilter<HelloRequest, HelloReply> implements 
 		return new  Metadata.Key[] {AUTH_KEY};
 	}
 
-    @Override
-    public GrpcFilter configure(GrpcFilterConfig grpcFilterConfig) {
-        return this;
-    }
-
 	@SuppressWarnings("unchecked")
 	private void checkAuth(Metadata requestHeaders) throws StatusRuntimeException {
 		if (this.isAuth() && requestHeaders.get(AUTH_KEY) == null) {
