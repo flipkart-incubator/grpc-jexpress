@@ -19,8 +19,6 @@ import com.flipkart.gjex.core.filter.Filter;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 
-import java.util.List;
-
 /**
  * A Filter interface for processing Request, Request-Headers, Response and Response-Headers around gRPC method invocation
  *

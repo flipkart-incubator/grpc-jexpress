@@ -180,8 +180,6 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     for (GrpcFilter filter : grpcFilters) {
                         filter.doProcessRequest(request, requestParams);
                     }
-
-//                    grpcFilters.forEach(filter -> filter.doProcessRequest(request, requestParams));
                     super.onMessage(request);
                 } catch (StatusException ex) {
                     handleException(call, ex);

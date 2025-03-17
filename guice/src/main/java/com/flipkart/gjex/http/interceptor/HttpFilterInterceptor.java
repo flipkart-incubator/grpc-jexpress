@@ -88,7 +88,6 @@ public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
                 for (HttpFilter filter: filters) {
                     filter.doProcessRequest(request, requestParams);
                 }
-//                filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
                 chain.doFilter(request, responseWrapper);
 
                 // Allow the filters to process the response headers
