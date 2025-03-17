@@ -72,17 +72,21 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
                                 GrpcFilterConfig grpcFilterConfig) {
-        Map<Class<?>, GrpcFilter> classToInstanceMap = grpcFilters.stream()
-                .collect(Collectors.toMap(Object::getClass, Function.identity()));
+        Map<Class<?>, GrpcFilter<?,?>> classToInstanceMap = grpcFilters.stream()
+                .collect(Collectors.<GrpcFilter, Class<?>, GrpcFilter<?, ?>>toMap(
+                    GrpcFilter::getClass,
+                    filter -> filter,
+                    (existing, replacement) -> existing
+                ));
         services.forEach(service -> {
             List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
                     List<GrpcFilter> filtersForMethod = new ArrayList<>();
                     try {
-                        addAllStaticFilters(grpcFilterConfig, filtersForMethod, classToInstanceMap);
+                        filtersForMethod.addAll(addAllStaticFilters(grpcFilterConfig, classToInstanceMap));
                     } catch (ClassNotFoundException e) {
-                        throw new RuntimeException("Class not found :" + e.getMessage(), e);
+                        throw new RuntimeException("Failed to load filter class: " + e.getMessage(), e);
                     }
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
@@ -246,23 +250,25 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    private void addAllStaticFilters(GrpcFilterConfig grpcFilterConfig, List<GrpcFilter> filtersForMethod, Map<Class<?>, GrpcFilter> classToInstanceMap) throws ClassNotFoundException {
+    private List<GrpcFilter<?,?>> addAllStaticFilters(GrpcFilterConfig grpcFilterConfig,  Map<Class<?>, GrpcFilter<?,?>> classToInstanceMap) throws ClassNotFoundException {
         List<String> filterClasses = grpcFilterConfig.getFilterClasses();
-        if (CollectionUtils.isNotEmpty(filterClasses)) {
-            for (String filterClass : filterClasses) {
-                try {
-                    Class<?> clazz = Class.forName(filterClass);
-                    if (classToInstanceMap.containsKey(clazz)) {
-                        GrpcFilter filter = classToInstanceMap.get(clazz).configure(grpcFilterConfig);
-                        if (filter != null && filtersForMethod.stream().noneMatch(existing -> existing.getClass().equals(filter.getClass()))) {
-                            filtersForMethod.add(filter);
-                        }
-                    }
-                } catch (ClassNotFoundException e) {
-                    throw new ClassNotFoundException(filterClass, e);
+        List<GrpcFilter<?,?>> filtersForMethod = new ArrayList<>();
+
+        if (CollectionUtils.isEmpty(filterClasses)) {
+            return filtersForMethod;
+        }
+
+        for (String filterClass : filterClasses) {
+            Class<?> clazz = Class.forName(filterClass); // This will throw ClassNotFoundException if needed
+            if (classToInstanceMap.containsKey(clazz)) {
+                GrpcFilter<?,?> filter = classToInstanceMap.get(clazz).configure(grpcFilterConfig);
+                if (filter != null && filtersForMethod.stream().noneMatch(existing -> existing.getClass().equals(filter.getClass()))) {
+                    filtersForMethod.add(filter);
                 }
             }
         }
+
+        return filtersForMethod;
     }
 
     protected static String getClientIp(SocketAddress socketAddress) {
