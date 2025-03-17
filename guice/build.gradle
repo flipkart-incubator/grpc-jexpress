@@ -61,7 +61,7 @@ dependencies {
     implementation libraries.hystrix_metrics_stream
     implementation libraries.rxjava2
 
-    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
+    implementation 'org.apache.commons:commons-collections4:4.0'
 
     implementation 'org.eclipse.jetty:jetty-server:9.4.56.v20240826'
     implementation 'org.eclipse.jetty:jetty-servlet:9.4.56.v20240826'
