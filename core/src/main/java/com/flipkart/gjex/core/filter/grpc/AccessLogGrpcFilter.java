@@ -148,7 +148,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     public GrpcFilter configure(GrpcFilterConfig grpcFilterConfig) {
         if (grpcFilterConfig.isEnableAccessLogs()){
             AccessLogGrpcFilter accessLogGrpcFilter = new AccessLogGrpcFilter();
-            if (org.apache.commons.lang.StringUtils.isNotEmpty(grpcFilterConfig.getAccessLogFormat())){
+            if (StringUtils.isNotEmpty(grpcFilterConfig.getAccessLogFormat())){
                 AccessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
             }
             return accessLogGrpcFilter;
