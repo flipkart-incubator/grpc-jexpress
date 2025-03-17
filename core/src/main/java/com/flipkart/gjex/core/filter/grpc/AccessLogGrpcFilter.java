@@ -145,7 +145,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
 
 
     @Override
-    public GrpcFilter configure(GrpcFilterConfig grpcFilterConfig) {
+    public GrpcFilter<R, S> configure(GrpcFilterConfig grpcFilterConfig) {
         if (grpcFilterConfig.isEnableAccessLogs()){
             AccessLogGrpcFilter accessLogGrpcFilter = new AccessLogGrpcFilter();
             if (StringUtils.isNotEmpty(grpcFilterConfig.getAccessLogFormat())){
