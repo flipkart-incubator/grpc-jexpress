@@ -254,7 +254,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                     Class<?> clazz = Class.forName(filterClass);
                     if (classToInstanceMap.containsKey(clazz)) {
                         GrpcFilter filter = classToInstanceMap.get(clazz).configure(grpcFilterConfig);
-                        if (filter != null) {
+                        if (filter != null && filtersForMethod.stream().noneMatch(existing -> existing.getClass().equals(filter.getClass()))) {
                             filtersForMethod.add(filter);
                         }
                     }
