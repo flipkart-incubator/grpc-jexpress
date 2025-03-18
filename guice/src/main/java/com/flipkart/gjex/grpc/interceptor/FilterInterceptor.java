@@ -46,11 +46,9 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -251,7 +249,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     }
 
     private List<GrpcFilter<?,?>> addAllStaticFilters(GrpcFilterConfig grpcFilterConfig,  Map<Class<?>, GrpcFilter<?,?>> classToInstanceMap) throws ClassNotFoundException {
-        List<String> filterClasses = grpcFilterConfig.getFilterClasses();
+        List<String> filterClasses = grpcFilterConfig.getGlobalFilterClasses();
         List<GrpcFilter<?,?>> filtersForMethod = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(filterClasses)) {

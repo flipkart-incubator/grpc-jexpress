@@ -38,6 +38,6 @@ public class GrpcFilterConfig {
     @JsonProperty("accessLogFormat")
     private String accessLogFormat = "{clientIp} - [{requestTime}] \"{method} {resourcePath}\" {responseStatus} {contentLength} {responseTime}";
 
-    @JsonProperty("filters")
-    private List<String> filterClasses;
+    @JsonProperty("globalFilters")
+    private List<String> globalFilterClasses;
 }
