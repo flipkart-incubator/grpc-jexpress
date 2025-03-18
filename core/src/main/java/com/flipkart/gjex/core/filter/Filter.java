@@ -42,6 +42,7 @@ public abstract class Filter<Req, Res, M> {
      * @param req           the Request body/message
      * @param requestParams prams
      * @throws StatusException if the filter rejects the request based on gRPC status codes
+     * TODO: change grpc.StatusException to something internal
      */
     public void doProcessRequest(Req req, RequestParams<M> requestParams) throws StatusException {}
 
