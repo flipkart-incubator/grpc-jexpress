@@ -17,7 +17,6 @@ package com.flipkart.gjex.grpc.interceptor;
 
 import com.flipkart.gjex.core.context.GJEXContext;
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.filter.grpc.MethodFilters;
@@ -36,8 +35,9 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -49,7 +49,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -71,19 +70,30 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     @SuppressWarnings("rawtypes")
     public void registerFilters(List<GrpcFilter> grpcFilters, List<BindableService> services,
                                 GrpcFilterConfig grpcFilterConfig) {
-        Map<Class<?>, GrpcFilter> classToInstanceMap = grpcFilters.stream()
-                .collect(Collectors.toMap(Object::getClass, Function.identity()));
+        Map<Class<?>, GrpcFilter<?,?>> classToInstanceMap = grpcFilters.stream()
+                .collect(Collectors.<GrpcFilter, Class<?>, GrpcFilter<?, ?>>toMap(
+                    GrpcFilter::getClass,
+                    filter -> filter,
+                    (existing, replacement) -> existing
+                ));
         services.forEach(service -> {
             List<Pair<?, Method>> annotatedMethods = AnnotationUtils.getAnnotatedMethods(service.getClass(), MethodFilters.class);
             if (annotatedMethods != null) {
                 annotatedMethods.forEach(pair -> {
                     List<GrpcFilter> filtersForMethod = new ArrayList<>();
-                    configureAccessLog(grpcFilterConfig, filtersForMethod);
+                    try {
+                        filtersForMethod.addAll(addAllStaticFilters(grpcFilterConfig, classToInstanceMap));
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException("Failed to load filter class: " + e.getMessage(), e);
+                    }
                     Arrays.asList(pair.getValue().getAnnotation(MethodFilters.class).value()).forEach(filterClass -> {
                         if (!classToInstanceMap.containsKey(filterClass)) {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
                         }
-                        filtersForMethod.add(classToInstanceMap.get(filterClass));
+                        GrpcFilter grpcFilter = classToInstanceMap.get(filterClass).configure(grpcFilterConfig);
+                        if (grpcFilter != null) {
+                            filtersForMethod.add(grpcFilter);
+                        }
                     });
                     // Key is of the form <Service Name>+ "/" +<Method Name>
                     // reflecting the structure followed in the gRPC HandlerRegistry using MethodDescriptor#getFullMethodName()
@@ -168,9 +178,15 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
             public void onMessage(Req request) {
                 Context previous = attachContext(contextWithHeaders);   // attaching headers to gRPC context
                 try {
-                    grpcFilters.forEach(filter -> filter.doProcessRequest(request, requestParams));
+
+                    for (GrpcFilter filter : grpcFilters) {
+                        filter.doProcessRequest(request, requestParams);
+                    }
                     super.onMessage(request);
-                }  finally  {
+                } catch (StatusException ex) {
+                    handleException(call, ex);
+                    grpcFilters.forEach(filter -> filter.doHandleException(ex));
+                } finally {
                     detachContext(contextWithHeaders, previous);    // detach headers from gRPC context
                 }
             }
@@ -196,11 +212,24 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
     private <Req, Res> void handleException(ServerCall<Req, Res> call, Exception e) {
         error("Closing gRPC call due to RuntimeException.", e);
         Status returnStatus = Status.INTERNAL;
+        Metadata metadata = new Metadata();
+
         if (e instanceof StatusRuntimeException){
-            returnStatus = ((StatusRuntimeException) e).getStatus();
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException) e;
+            returnStatus = statusRuntimeException.getStatus();
+            if (statusRuntimeException.getTrailers() != null) {
+                metadata = statusRuntimeException.getTrailers();
+            }
+        } else if (e instanceof StatusException){
+            StatusException statusException = (StatusException) e;
+            returnStatus = statusException.getStatus();
+            if (statusException.getTrailers() != null) {
+                metadata = statusException.getTrailers();
+            }
         }
+
         try {
-            call.close(returnStatus.withDescription(e.getMessage()), new Metadata());
+            call.close(returnStatus.withDescription(e.getMessage()), metadata);
         } catch (IllegalStateException ie) {
             // Simply log the exception as this is already handling the runtime-exception
             warn("Exception while attempting to close ServerCall stream: " + ie.getMessage());
@@ -219,15 +248,25 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
         }
     }
 
-    private void configureAccessLog(GrpcFilterConfig grpcFilterConfig,
-                                    @SuppressWarnings("rawtypes") List<GrpcFilter> filtersForMethod){
-        if (grpcFilterConfig.isEnableAccessLogs()){
-            AccessLogGrpcFilter accessLogGrpcFilter = new AccessLogGrpcFilter();
-            if (StringUtils.isNotBlank(grpcFilterConfig.getAccessLogFormat())){
-                AccessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
-            }
-            filtersForMethod.add(accessLogGrpcFilter);
+    private List<GrpcFilter<?,?>> addAllStaticFilters(GrpcFilterConfig grpcFilterConfig,  Map<Class<?>, GrpcFilter<?,?>> classToInstanceMap) throws ClassNotFoundException {
+        List<String> filterClasses = grpcFilterConfig.getGlobalFilterClasses();
+        List<GrpcFilter<?,?>> filtersForMethod = new ArrayList<>();
+
+        if (CollectionUtils.isEmpty(filterClasses)) {
+            return filtersForMethod;
         }
+
+        for (String filterClass : filterClasses) {
+            Class<?> clazz = Class.forName(filterClass); // This will throw ClassNotFoundException if needed
+            if (classToInstanceMap.containsKey(clazz)) {
+                GrpcFilter<?,?> filter = classToInstanceMap.get(clazz).configure(grpcFilterConfig);
+                if (filter != null && filtersForMethod.stream().noneMatch(existing -> existing.getClass().equals(filter.getClass()))) {
+                    filtersForMethod.add(filter);
+                }
+            }
+        }
+
+        return filtersForMethod;
     }
 
     protected static String getClientIp(SocketAddress socketAddress) {

@@ -43,4 +43,16 @@ public abstract class GrpcFilter<Req extends GeneratedMessageV3, Res extends Gen
 	public Metadata.Key[] getForwardHeaderKeys(){
 		return new Metadata.Key[] {};
 	}
+    /**
+     * Configures this filter using the provided {@link GrpcFilterConfig}.
+     * This method allows filters to be configured with custom settings defined in the configuration.
+     * The default implementation returns the filter instance itself without any modifications.
+     * Subclasses can override this method to implement custom configuration logic.
+     *
+     * @param grpcFilterConfig The configuration object containing filter settings
+     * @return A configured instance of {@link GrpcFilter}, or null if the filter should be disabled
+     */
+    public GrpcFilter<Req, Res> configure(GrpcFilterConfig grpcFilterConfig){
+		return this;
+	};
 }

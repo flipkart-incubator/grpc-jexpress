@@ -32,7 +32,7 @@ public class CustomHeaderHttpFilter extends HttpFilter {
 
     @Override
     public void doProcessRequest(ServletRequest servletRequest, RequestParams<Map<String, String>> requestParams) {
-        super.doProcessRequest(servletRequest, requestParams);
+        // do nothing
     }
 
     /**
