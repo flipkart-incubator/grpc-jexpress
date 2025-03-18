@@ -44,7 +44,7 @@ public abstract class Filter<Req, Res, M> {
      * @throws StatusException if the filter rejects the request based on gRPC status codes
      * TODO: change grpc.StatusException to something internal
      */
-    public void doProcessRequest(Req req, RequestParams<M> requestParams) throws StatusException {}
+    public void doProcessRequest(Req req, RequestParams<M> requestParams) throws Exception {}
 
     /**
      * Call-back to decorate or inspect the Response headers. Implementations may use this method to set additional headers in the response.
