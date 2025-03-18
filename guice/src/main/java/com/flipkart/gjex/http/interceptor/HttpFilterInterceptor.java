@@ -1,7 +1,6 @@
 package com.flipkart.gjex.http.interceptor;
 
 import com.flipkart.gjex.core.filter.RequestParams;
-import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.logging.Logging;
