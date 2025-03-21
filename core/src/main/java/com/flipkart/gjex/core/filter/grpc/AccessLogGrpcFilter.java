@@ -21,6 +21,7 @@ import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
 import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -131,6 +132,9 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
         if (e instanceof StatusRuntimeException){
             accessLogContextBuilder
                 .responseStatus(((StatusRuntimeException) e).getStatus().getCode().value());
+        } else if (e instanceof StatusException) {
+            accessLogContextBuilder
+                .responseStatus(((StatusException) e).getStatus().getCode().value());
         } else {
             accessLogContextBuilder
                 .responseStatus(Status.Code.INTERNAL.value());
