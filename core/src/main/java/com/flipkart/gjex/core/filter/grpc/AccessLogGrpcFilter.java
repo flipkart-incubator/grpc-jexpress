@@ -163,6 +163,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
      */
     @Override
     public GrpcFilter<R, S> getInstance() {
-        return new AccessLogGrpcFilter<>();
+        AccessLogGrpcFilter<R, S> filter = new AccessLogGrpcFilter<>();
+        filter.setFormat(format);
+        return filter;
     }
 }
