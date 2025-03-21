@@ -91,7 +91,7 @@ public class FilterInterceptor implements ServerInterceptor, Logging {
                             throw new RuntimeException("Filter instance not bound for Filter class :" + filterClass.getName());
                         }
                         GrpcFilter grpcFilter = classToInstanceMap.get(filterClass).configure(grpcFilterConfig);
-                        if (grpcFilter != null) {
+                        if (grpcFilter != null && filtersForMethod.stream().noneMatch(existing -> existing.getClass().equals(grpcFilter.getClass()))) {
                             filtersForMethod.add(grpcFilter);
                         }
                     });
