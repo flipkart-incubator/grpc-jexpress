@@ -2,7 +2,7 @@ package com.flipkart.gjex.hibernate;
 
 import com.flipkart.gjex.db.PooledDataSourceFactory;
 import io.dropwizard.db.ManagedDataSource;
-import io.dropwizard.metrics5.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -68,10 +68,8 @@ public class SessionFactoryFactory extends io.dropwizard.hibernate.SessionFactor
 
     private void addAnnotatedClasses(Configuration configuration, Iterable<Class<?>> entities) {
         SortedSet<String> entityClasses = new TreeSet();
-        Iterator iterator = entities.iterator();
 
-        while (iterator.hasNext()) {
-            Class<?> klass = (Class) iterator.next();
+        for(Class<?> klass : entities) {
             configuration.addAnnotatedClass(klass);
             entityClasses.add(klass.getCanonicalName());
         }

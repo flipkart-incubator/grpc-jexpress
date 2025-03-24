@@ -1,5 +1,6 @@
 package com.flipkart.gjex.hibernate;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
@@ -13,7 +14,6 @@ import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.db.DatabaseConfiguration;
 import com.flipkart.gjex.db.PooledDataSourceFactory;
 import com.google.common.collect.ImmutableList;
-import io.dropwizard.metrics5.health.HealthCheck;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.SessionFactory;
 

@@ -5,6 +5,8 @@ plugins {
     id 'com.google.protobuf' version '0.8.15'
     // Generate IntelliJ IDEA's .idea & .iml project files
     id 'idea'
+    // Lombok
+    id "io.freefair.lombok" version "8.6"
 }
 
 group = 'com.flipkart.grpc-jexpress.example'

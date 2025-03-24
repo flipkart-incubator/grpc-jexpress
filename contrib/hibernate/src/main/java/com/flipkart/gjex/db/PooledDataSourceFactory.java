@@ -1,7 +1,7 @@
 package com.flipkart.gjex.db;
 
 import io.dropwizard.db.ManagedDataSource;
-import io.dropwizard.metrics5.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import io.dropwizard.util.Duration;
 
 import javax.annotation.Nullable;

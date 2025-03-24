@@ -43,9 +43,9 @@ taskProperties:
 
 database:
     driverClass: com.mysql.jdbc.Driver
-    user: new_user
-    password: new_password
-    url: jdbc:mysql://127.0.0.1:3306/overlord?autoReconnect=true&useSSL=false
+    user: root
+    password: password
+    url: jdbc:mysql://127.0.0.1:3306/overlord?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
     properties:
         charSet: UTF-8
         hibernate.dialect: org.hibernate.dialect.MySQL5Dialect

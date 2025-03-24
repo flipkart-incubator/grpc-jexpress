@@ -54,15 +54,16 @@ dependencies {
     implementation 'org.hibernate:hibernate-validator:6.2.0.Final'
     implementation 'javax.validation:validation-api:2.0.1.Final'
 
+    implementation 'io.dropwizard.metrics:metrics-core:4.2.0'
     implementation 'org.apache.tomcat:tomcat-jdbc:9.0.80'
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation('io.dropwizard:dropwizard-hibernate:2.1.5')
     implementation('io.dropwizard:dropwizard-jersey:2.1.5')
-    implementation 'io.dropwizard.metrics5:metrics-core:5.0.0'
     implementation 'aopalliance:aopalliance:1.0'
     implementation 'javax.inject:javax.inject:1'
     implementation 'org.glassfish:javax.el:3.0.1-b08'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
     configurations.all {
         resolutionStrategy.force(
             "org.glassfish.jersey.core:jersey-server:2.6",

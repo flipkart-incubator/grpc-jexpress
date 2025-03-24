@@ -1,10 +1,11 @@
 package com.flipkart.gjex.db;
 
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.db.ManagedDataSource;
 import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.metrics5.MetricRegistry;
+import io.dropwizard.db.ManagedDataSource;
+import io.dropwizard.db.ManagedPooledDataSource;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
 import io.dropwizard.validation.ValidationMethod;
@@ -13,7 +14,6 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 import javax.annotation.Nullable;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.util.*;
