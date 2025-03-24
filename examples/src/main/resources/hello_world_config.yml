@@ -42,7 +42,7 @@ taskProperties:
     hello.timeout: 200
 
 database:
-    driverClass: com.mysql.jdbc.Driver
+    driverClass: com.mysql.cj.jdbc.Driver
     user: root
     password: password
     url: jdbc:mysql://127.0.0.1:3306/overlord?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
