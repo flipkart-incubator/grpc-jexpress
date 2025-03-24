@@ -46,7 +46,7 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.palominolabs.metrics.guice.MetricsInstrumentationModule;
-import io.dropwizard.metrics5.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 import io.grpc.BindableService;
 import io.grpc.health.v1.HealthGrpc;
 import org.glassfish.jersey.server.ResourceConfig;

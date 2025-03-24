@@ -10,6 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      # Add step to read version and check if SNAPSHOT
+      - name: Check version for workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION=$(grep "def gJEXVersion = " build.gradle | cut -d"'" -f2)
+          if [[ ! $VERSION =~ .*SNAPSHOT$ ]]; then
+            echo "Error: Manual workflow runs are only allowed for SNAPSHOT versions"
+            echo "Current version: $VERSION"
+            exit 1
+          fi
+          echo "Version $VERSION is a SNAPSHOT version, proceeding with publish"
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:

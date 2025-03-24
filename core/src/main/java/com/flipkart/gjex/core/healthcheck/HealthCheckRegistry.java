@@ -18,14 +18,14 @@ package com.flipkart.gjex.core.healthcheck;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
 
-import io.dropwizard.metrics5.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 
 /**
- * A sub-type of the io.dropwizard.metrics5.health.HealthCheckRegistry that runs health checks concurrently
+ * A sub-type of the com.codahale.metrics.health.HealthCheckRegistry that runs health checks concurrently
  * @author regu.b
  *
  */
-public class HealthCheckRegistry extends io.dropwizard.metrics5.health.HealthCheckRegistry {
+public class HealthCheckRegistry extends com.codahale.metrics.health.HealthCheckRegistry {
 
 	/** Name for this HealthCheckRegistry*/
 	public static final String HEALTHCHECK_REGISTRY_NAME = "GJEX_HealthCheckRegistry";

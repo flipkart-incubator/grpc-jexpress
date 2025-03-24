@@ -25,6 +25,7 @@ import io.grpc.StatusRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
+import javax.inject.Named;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
  * @param <S> The response type extending {@link GeneratedMessageV3}, representing the gRPC response message.
  * @author ajay.jalgaonkar
  */
+@Named("AccessLogGrpcFilter")
 public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends GeneratedMessageV3>
     extends GrpcFilter<R, S> implements Logging {
 
@@ -52,7 +54,7 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
     protected AccessLogContext.AccessLogContextBuilder accessLogContextBuilder;
 
     // The format string for the access log message.
-    protected static String format;
+    protected String format;
 
     // Logger instance for logging access log messages.
     private static final Logger logger = Logging.loggerWithName("ACCESS-LOG");
@@ -68,8 +70,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
      *
      * @param format The format string to be used for logging.
      */
-    public static void setFormat(String format) {
-        AccessLogGrpcFilter.format = format;
+    public void setFormat(String format) {
+        this.format = format;
     }
 
     /**
@@ -140,6 +142,19 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
         logger.info(accessLogContextBuilder.build().format(format));
     }
 
+
+    @Override
+    public GrpcFilter<R, S> configure(GrpcFilterConfig grpcFilterConfig) {
+        if (grpcFilterConfig.isEnableAccessLogs()){
+            AccessLogGrpcFilter<R, S> accessLogGrpcFilter = new AccessLogGrpcFilter<>();
+            if (StringUtils.isNotEmpty(grpcFilterConfig.getAccessLogFormat())){
+                accessLogGrpcFilter.setFormat(grpcFilterConfig.getAccessLogFormat());
+            }
+            return accessLogGrpcFilter;
+        }
+        return null;
+    }
+
     /**
      * Provides an instance of this filter. This method facilitates the creation of new instances of the
      * AccessLogGrpcFilter for each gRPC call, ensuring thread safety and isolation of request data.
@@ -148,6 +163,8 @@ public class AccessLogGrpcFilter<R extends GeneratedMessageV3, S extends Generat
      */
     @Override
     public GrpcFilter<R, S> getInstance() {
-        return new AccessLogGrpcFilter<>();
+        AccessLogGrpcFilter<R, S> filter = new AccessLogGrpcFilter<>();
+        filter.setFormat(format);
+        return filter;
     }
 }

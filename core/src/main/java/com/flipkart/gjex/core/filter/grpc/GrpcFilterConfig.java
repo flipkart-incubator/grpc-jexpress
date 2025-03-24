@@ -20,6 +20,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * A gRPC Filter Config for processing filters
  *
@@ -35,4 +37,7 @@ public class GrpcFilterConfig {
 
     @JsonProperty("accessLogFormat")
     private String accessLogFormat = "{clientIp} - [{requestTime}] \"{method} {resourcePath}\" {responseStatus} {contentLength} {responseTime}";
+
+    @JsonProperty("globalFilters")
+    private List<String> globalFilterClasses;
 }

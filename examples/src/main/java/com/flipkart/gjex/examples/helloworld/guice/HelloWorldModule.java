@@ -15,6 +15,7 @@
  */
 package com.flipkart.gjex.examples.helloworld.guice;
 
+import com.flipkart.gjex.core.filter.grpc.AccessLogGrpcFilter;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.filter.http.JavaxFilterParams;
@@ -57,9 +58,11 @@ public class HelloWorldModule extends AbstractModule {
 				.build();
 //		install(new ClientModule<GreeterGrpc.GreeterBlockingStub>(GreeterGrpc.GreeterBlockingStub.class,new ChannelConfig("localhost",9999)));
 		bind(GreeterGrpc.GreeterBlockingStub.class).toInstance(GreeterGrpc.newBlockingStub(channel));
+		// Use Names.named("actual-string-value") for binding filters. ClassName.class.getSimpleName() may not be the same as the string value, however can be used for binding filters
 		bind(BindableService.class).annotatedWith(Names.named("GreeterService")).to(GreeterService.class);
 		bind(GrpcFilter.class).annotatedWith(Names.named("LoggingFilter")).to(LoggingFilter.class);
 		bind(GrpcFilter.class).annotatedWith(Names.named("AuthFilter")).to(AuthFilter.class);
+		bind(GrpcFilter.class).annotatedWith(Names.named("AccessLogGrpcFilter")).to(AccessLogGrpcFilter.class);
 		bind(TracingSampler.class).to(AllWhitelistTracingSampler.class);
 		bind(ResourceConfig.class).annotatedWith(Names.named("HelloWorldResourceConfig")).to(HelloWorldResourceConfig.class);
         bind(JavaxFilterParams.class).annotatedWith(Names.named("ExampleJavaxFilter")).toInstance(JavaxFilterParams.builder().filter(new ExampleJavaxFilter()).pathSpec("/*").build());

@@ -4,6 +4,7 @@ import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilterParams;
 import com.flipkart.gjex.core.logging.Logging;
+import io.grpc.StatusException;
 import org.eclipse.jetty.http.pathmap.ServletPathSpec;
 
 import javax.inject.Named;
@@ -83,7 +84,9 @@ public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
             FilterServletResponseWrapper responseWrapper = new FilterServletResponseWrapper(httpServletResponse);
 
             try {
-                filters.forEach(filter -> filter.doProcessRequest(request, requestParams));
+                for (HttpFilter filter: filters) {
+                    filter.doProcessRequest(request, requestParams);
+                }
                 chain.doFilter(request, responseWrapper);
 
                 // Allow the filters to process the response headers
@@ -91,10 +94,16 @@ public class HttpFilterInterceptor implements javax.servlet.Filter, Logging {
                     .stream().collect(Collectors.toMap(String::toLowerCase, httpServletResponse::getHeader));
                 filters.forEach(filter -> filter.doProcessResponseHeaders(responseHeaders));
                 responseHeaders.forEach(responseWrapper::setHeader);
+            } catch (StatusException ex) {
+                filters.forEach(filter -> filter.doHandleException(ex));
             } finally {
                 // Allow the filters to process the response
-                filters.forEach(filter -> filter.doProcessResponse(responseWrapper));
-                response.getOutputStream().write(responseWrapper.getWrapperBytes());
+                try{
+                    filters.forEach(filter -> filter.doProcessResponse(responseWrapper));
+                    response.getOutputStream().write(responseWrapper.getWrapperBytes());
+                } catch (Exception e){
+                    error("Error while doProcessResponse", e);
+                }
             }
 
         } else {

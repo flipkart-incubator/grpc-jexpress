@@ -17,6 +17,7 @@ package com.flipkart.gjex.examples.helloworld.filter;
 
 import com.flipkart.gjex.core.filter.RequestParams;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
+import com.flipkart.gjex.core.filter.grpc.GrpcFilterConfig;
 import com.flipkart.gjex.core.logging.Logging;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Metadata;
