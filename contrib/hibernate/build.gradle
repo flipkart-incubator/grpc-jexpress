@@ -43,24 +43,18 @@ dependencies {
     implementation libraries.guice
     implementation libraries.guava
     implementation libraries.hibernate_validator
-    implementation 'org.glassfish.jersey.core:jersey-server:2.6'
-    implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:2.6'
-    implementation 'io.grpc:grpc-core:1.60.0'
-    implementation 'io.grpc:grpc-stub:1.60.0'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-    implementation 'org.hibernate:hibernate-core:5.6.15.Final'
-    implementation 'org.hibernate:hibernate-validator:6.2.0.Final'
-    implementation 'javax.validation:validation-api:2.0.1.Final'
-
-    implementation 'io.dropwizard.metrics:metrics-core:4.2.0'
-    implementation 'org.apache.tomcat:tomcat-jdbc:9.0.80'
-    implementation 'mysql:mysql-connector-java:8.0.33'
+    
+    // Dropwizard Hibernate (includes Hibernate core and other dependencies)
     implementation('io.dropwizard:dropwizard-hibernate:2.1.5')
     implementation('io.dropwizard:dropwizard-jersey:2.1.5')
-    implementation 'aopalliance:aopalliance:1.0'
-    implementation 'javax.inject:javax.inject:1'
+    implementation('io.dropwizard:dropwizard-db:2.1.5')
+    
+    // Database dependencies
+    implementation 'org.apache.tomcat:tomcat-jdbc:9.0.80'
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    
+    // Validation dependencies
+    implementation 'javax.validation:validation-api:2.0.1.Final'
     implementation 'org.glassfish:javax.el:3.0.1-b08'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 
