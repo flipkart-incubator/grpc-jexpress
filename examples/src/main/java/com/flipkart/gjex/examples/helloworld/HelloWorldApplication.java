@@ -16,11 +16,15 @@
 package com.flipkart.gjex.examples.helloworld;
 
 import com.flipkart.gjex.core.Application;
+import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.examples.helloworld.config.HelloWorldConfiguration;
+import com.flipkart.gjex.examples.helloworld.entity.DummyEntity;
 import com.flipkart.gjex.examples.helloworld.guice.HelloWorldModule;
 import com.flipkart.gjex.guice.GuiceBundle;
+import com.flipkart.gjex.hibernate.HibernateBundle;
+import io.dropwizard.db.PooledDataSourceFactory;
 
 import java.util.Map;
 
@@ -32,6 +36,8 @@ import java.util.Map;
 @SuppressWarnings("rawtypes")
 public class HelloWorldApplication extends Application<HelloWorldConfiguration, Map> {
 
+    private HibernateBundle<HelloWorldConfiguration, Map> hibernateBundle;
+
     @Override
     public String getName() {
         return "GJEX HelloWorld Application";
@@ -39,16 +45,31 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration, 
 
     @Override
     public void initialize(Bootstrap<HelloWorldConfiguration, Map> bootstrap) {
+
+        hibernateBundle =
+            new HibernateBundle<HelloWorldConfiguration, Map>(DummyEntity.class) {
+                @Override
+                public PooledDataSourceFactory getDataSourceFactory(GJEXConfiguration gjexConfiguration) {
+                    HelloWorldConfiguration configuration = (HelloWorldConfiguration) gjexConfiguration;
+                    return configuration.getDataSourceFactory();
+                }
+
+                @Override
+                protected String name() {
+                    return "hibernate";
+                }
+            };
+
+        bootstrap.addBundle(hibernateBundle);
         GuiceBundle<HelloWorldConfiguration, Map> guiceBundle = new GuiceBundle.Builder<HelloWorldConfiguration, Map>()
-                .setConfigClass(HelloWorldConfiguration.class)
-                .addModules(new HelloWorldModule())
-                .build();
+            .setConfigClass(HelloWorldConfiguration.class)
+            .addModules(new HelloWorldModule(hibernateBundle.getSessionFactory()))
+            .build();
         bootstrap.addBundle(guiceBundle);
     }
 
     @Override
     public void run(HelloWorldConfiguration configuration, Map configMap, Environment environment) throws Exception {
-
     }
 
     public static void main(String[] args) throws Exception {

@@ -19,7 +19,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import io.dropwizard.hibernate.UnitOfWorkApplicationListener;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.hibernate.SessionFactory;
 
 /**
  * ResourceConfig example for registering all custom web resources for a GJEX application.
@@ -32,9 +34,12 @@ public class HelloWorldResourceConfig extends ResourceConfig {
 
 	@Inject
 	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1,
-			HelloWorldResource2 helloWorldresource2) {
+			HelloWorldResource2 helloWorldresource2, ExampleHibernateResource hibernateResource,
+            SessionFactory sessionFactory) {
 		register(helloWorldresource1);
 		register(helloWorldresource2);
+        register(hibernateResource);
+        register(new UnitOfWorkApplicationListener("hibernate", sessionFactory));
 	}
 
 }

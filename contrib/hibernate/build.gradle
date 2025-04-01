@@ -1,20 +1,75 @@
-apply plugin: 'java'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id "io.freefair.lombok" version "8.6"
+}
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'hibernate'
+            from components.java
+            pom {
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://clojars.org/repo"
+            credentials {
+                username = rootProject.ext.clojarsusername
+                password = rootProject.ext.clojarspassword
+            }
+        }
+    }
+}
+
 dependencies {
-    compile "com.flipkart.grpc-jexpress:core:1.+"
-    compile "com.flipkart.grpc-jexpress:runtime:1.+"
-    compile "com.flipkart.grpc-jexpress:guice:1.+"
+    implementation project(':core')
+    implementation libraries.guice
+    implementation libraries.guava
+
+    // Dropwizard Hibernate (includes Hibernate core and other dependencies)
+    implementation 'io.dropwizard:dropwizard-hibernate:2.1.5'
+    implementation 'io.dropwizard:dropwizard-jersey:2.1.5'
+    implementation 'io.dropwizard:dropwizard-db:2.1.5'
+    implementation libraries.hibernate_validator
+
+    // Database dependencies
+    implementation 'org.apache.tomcat:tomcat-jdbc:9.0.80'
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    
+    // Validation dependencies
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'org.glassfish:javax.el:3.0.1-b08'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
+    configurations.all {
+        resolutionStrategy.force(
+            "org.glassfish.jersey.core:jersey-server:2.6",
+            "org.glassfish.jersey.core:jersey-common:2.6",
+            "org.glassfish.jersey.containers:jersey-container-servlet:2.6",
+            "org.glassfish.jersey.containers:jersey-container-servlet-core:2.6"
+        )
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
+
 artifacts {
     archives sourcesJar
 }

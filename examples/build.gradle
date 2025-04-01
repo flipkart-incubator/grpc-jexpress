@@ -5,6 +5,8 @@ plugins {
     id 'com.google.protobuf' version '0.8.15'
     // Generate IntelliJ IDEA's .idea & .iml project files
     id 'idea'
+    // Lombok
+    id "io.freefair.lombok" version "8.6"
 }
 
 group = 'com.flipkart.grpc-jexpress.example'
@@ -24,15 +26,17 @@ def protobufVersion = '3.25.2'
 def protocVersion = protobufVersion
 
 dependencies {
-    //For Development
+    // For Development
     implementation project(':core')
     implementation project(':runtime')
     implementation project(':guice')
+    implementation project(':contrib:hibernate')
 
     // In actual
     // implementation "com.flipkart.grpc-jexpress:core:${jexpressVersion}"
     // implementation "com.flipkart.grpc-jexpress:runtime:${jexpressVersion}"
     // implementation "com.flipkart.grpc-jexpress:guice:${jexpressVersion}"
+    // implementation "com.flipkart.grpc-jexpress:hibernate:${jexpressVersion}"
 
     implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
@@ -44,14 +48,34 @@ dependencies {
         exclude group: 'com.google.inject', module: 'guice'
     }
     implementation 'com.google.inject:guice:5.1.0'
-    implementation 'org.hibernate:hibernate-validator:5.4.2.Final'
+
+    implementation 'org.hibernate:hibernate-core:5.6.15.Final'
+    implementation 'org.hibernate:hibernate-validator:6.2.0.Final'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+
     implementation 'org.glassfish:javax.el:3.0.1-b08'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
     implementation 'org.projectlombok:lombok:1.18.30'
     implementation 'org.glassfish.jersey.containers:jersey-container-servlet:2.6'
     implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.7'
-    implementation 'javax.servlet:javax.servlet-api:3.1.0'
+    implementation('io.dropwizard:dropwizard-hibernate:2.1.5') {
+        exclude group: 'org.glassfish.jersey.core', module: 'jersey-server'
+        exclude group: 'io.dropwizard', module:'dropwizard-jersey'
+    }
+    implementation('io.dropwizard:dropwizard-jersey:2.1.5') {
+        exclude group: 'org.glassfish.jersey.core', module: 'jersey-server'
+    }
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
+    configurations.all {
+        resolutionStrategy.force(
+            "org.glassfish.jersey.core:jersey-server:2.6",
+            "org.glassfish.jersey.core:jersey-common:2.6",
+            "org.glassfish.jersey.containers:jersey-container-servlet:2.6",
+            "org.glassfish.jersey.containers:jersey-container-servlet-core:2.6"
+        )
+    }
 }
 
 protobuf {
