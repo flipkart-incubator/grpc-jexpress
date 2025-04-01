@@ -45,9 +45,9 @@ dependencies {
     implementation libraries.hibernate_validator
     
     // Dropwizard Hibernate (includes Hibernate core and other dependencies)
-    implementation('io.dropwizard:dropwizard-hibernate:2.1.5')
-    implementation('io.dropwizard:dropwizard-jersey:2.1.5')
-    implementation('io.dropwizard:dropwizard-db:2.1.5')
+    implementation 'io.dropwizard:dropwizard-hibernate:2.1.5'
+    implementation 'io.dropwizard:dropwizard-jersey:2.1.5'
+    implementation 'io.dropwizard:dropwizard-db:2.1.5'
     
     // Database dependencies
     implementation 'org.apache.tomcat:tomcat-jdbc:9.0.80'
