@@ -77,36 +77,36 @@ public abstract class HibernateBundle<T extends GJEXConfiguration, U extends Map
 
     @Override
     public List<Service> getServices() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public List<HealthCheck> getHealthChecks() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public List<TracingSampler> getTracingSamplers() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public List<ResourceConfig> getResourceConfigs() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public List<GrpcFilter> getGrpcFilters() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public List<HttpFilter> getHTTPFilters() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public List<ScheduledJob> getScheduledJobs() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }

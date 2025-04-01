@@ -64,7 +64,7 @@ public class SessionFactoryFactory extends io.dropwizard.hibernate.SessionFactor
     }
 
     private void addAnnotatedClasses(Configuration configuration, Iterable<Class<?>> entities) {
-        SortedSet<String> entityClasses = new TreeSet();
+        SortedSet<String> entityClasses = new TreeSet<>();
 
         for(Class<?> klass : entities) {
             configuration.addAnnotatedClass(klass);
