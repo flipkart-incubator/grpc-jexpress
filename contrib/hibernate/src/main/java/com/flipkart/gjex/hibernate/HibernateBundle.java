@@ -12,8 +12,8 @@ import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
 import com.flipkart.gjex.core.tracing.TracingSampler;
 import com.flipkart.gjex.db.DatabaseConfiguration;
-import com.flipkart.gjex.db.PooledDataSourceFactory;
 import com.google.common.collect.ImmutableList;
+import io.dropwizard.db.PooledDataSourceFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.SessionFactory;
 

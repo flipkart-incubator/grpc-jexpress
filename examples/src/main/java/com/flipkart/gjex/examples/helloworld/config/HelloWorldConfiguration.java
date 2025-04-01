@@ -5,7 +5,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.gjex.core.GJEXConfiguration;
-import com.flipkart.gjex.db.CustomDataSourceFactory;
+import io.dropwizard.db.DataSourceFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -25,5 +25,5 @@ public class HelloWorldConfiguration extends GJEXConfiguration {
 
     @Valid
     @JsonProperty("database")
-    private CustomDataSourceFactory dataSourceFactory;
+    private DataSourceFactory dataSourceFactory;
 }

@@ -71,7 +71,6 @@ public class HelloWorldModule extends AbstractModule {
     }
 
     @Provides
-    @Singleton
     public SessionFactory getSessionFactory() {
     	return sessionFactory;
     }

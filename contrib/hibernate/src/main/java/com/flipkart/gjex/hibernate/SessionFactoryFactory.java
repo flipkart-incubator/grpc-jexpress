@@ -1,8 +1,8 @@
 package com.flipkart.gjex.hibernate;
 
-import com.flipkart.gjex.db.PooledDataSourceFactory;
 import io.dropwizard.db.ManagedDataSource;
 import com.codahale.metrics.MetricRegistry;
+import io.dropwizard.db.PooledDataSourceFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -73,7 +73,6 @@ public class SessionFactoryFactory extends io.dropwizard.hibernate.SessionFactor
             configuration.addAnnotatedClass(klass);
             entityClasses.add(klass.getCanonicalName());
         }
-
         LOGGER.info("Entity classes: {}", entityClasses);
     }
 }
