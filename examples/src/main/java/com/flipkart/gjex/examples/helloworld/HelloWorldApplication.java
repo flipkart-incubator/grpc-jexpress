@@ -47,7 +47,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration, 
     public void initialize(Bootstrap<HelloWorldConfiguration, Map> bootstrap) {
 
         hibernateBundle =
-            new HibernateBundle<>(DummyEntity.class) {
+            new HibernateBundle<HelloWorldConfiguration, Map>(DummyEntity.class) {
                 @Override
                 public PooledDataSourceFactory getDataSourceFactory(GJEXConfiguration gjexConfiguration) {
                     HelloWorldConfiguration configuration = (HelloWorldConfiguration) gjexConfiguration;
