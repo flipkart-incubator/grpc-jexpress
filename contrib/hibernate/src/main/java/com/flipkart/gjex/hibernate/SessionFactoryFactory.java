@@ -52,11 +52,8 @@ public class SessionFactoryFactory extends io.dropwizard.hibernate.SessionFactor
         configuration.setProperty("hibernate.order_inserts", "true");
         configuration.setProperty("hibernate.id.new_generator_mappings", "true");
         configuration.setProperty("jadira.usertype.autoRegisterUserTypes", "true");
-        Iterator iterator = properties.entrySet().iterator();
-
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> property = (Map.Entry) iterator.next();
-            configuration.setProperty((String) property.getKey(), (String) property.getValue());
+        for (Map.Entry<String, String> property : properties.entrySet()) {
+            configuration.setProperty(property.getKey(), property.getValue());
         }
 
         this.addAnnotatedClasses(configuration, entities);
