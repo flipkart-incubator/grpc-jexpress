@@ -51,6 +51,7 @@ database:
         hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
         hibernate.show_sql: true
         hibernate.current_session_context_class: managed
+        hibernate.hbm2ddl.auto: update
     checkConnectionWhileIdle: true
     checkConnectionOnReturn: true
     checkConnectionOnBorrow: true
