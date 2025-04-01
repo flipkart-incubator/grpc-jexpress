@@ -37,18 +37,15 @@ publishing {
 
 dependencies {
     implementation project(':core')
-    implementation libraries.lombok
-    implementation libraries.dw_metrics
-    implementation libraries.dw_metrics_healthchecks
     implementation libraries.guice
     implementation libraries.guava
-    implementation libraries.hibernate_validator
-    
+
     // Dropwizard Hibernate (includes Hibernate core and other dependencies)
     implementation 'io.dropwizard:dropwizard-hibernate:2.1.5'
     implementation 'io.dropwizard:dropwizard-jersey:2.1.5'
     implementation 'io.dropwizard:dropwizard-db:2.1.5'
-    
+    implementation libraries.hibernate_validator
+
     // Database dependencies
     implementation 'org.apache.tomcat:tomcat-jdbc:9.0.80'
     implementation 'mysql:mysql-connector-java:8.0.33'
