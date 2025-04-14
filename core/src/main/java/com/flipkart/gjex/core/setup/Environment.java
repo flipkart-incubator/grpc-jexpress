@@ -18,10 +18,6 @@ package com.flipkart.gjex.core.setup;
 import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import com.codahale.metrics.MetricRegistry;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Represents a GJEX application environment
  *
@@ -34,12 +30,10 @@ public class Environment {
     private final MetricRegistry metricRegistry;
     private final HealthCheckRegistry healthCheckRegistry;
 
-    public Environment(String name, MetricRegistry metricRegistry) {
-    		this.name = name;
-    		this.metricRegistry = metricRegistry;
-
-    		// Creating a cached threadpool as the number of HealthCheck instances are anyway unknown and hence no point in bounding it to a number
-    		this.healthCheckRegistry = new HealthCheckRegistry(Executors.newCachedThreadPool(new NamedThreadFactory("GJEX-healthcheck-")));
+    public Environment(String name, MetricRegistry metricRegistry, HealthCheckRegistry healthCheckRegistry) {
+      this.name = name;
+      this.metricRegistry = metricRegistry;
+      this.healthCheckRegistry = healthCheckRegistry;
     }
 
 	public String getName() {
@@ -53,26 +47,4 @@ public class Environment {
 	public HealthCheckRegistry getHealthCheckRegistry() {
 		return healthCheckRegistry;
 	}
-
-	private static class NamedThreadFactory implements ThreadFactory {
-
-        private final ThreadGroup group;
-        private final AtomicInteger threadNumber = new AtomicInteger(1);
-        private final String namePrefix;
-
-        NamedThreadFactory(String namePrefix) {
-            SecurityManager s = System.getSecurityManager();
-            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-            this.namePrefix = namePrefix;
-        }
-
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
-            t.setDaemon(true);
-            if (t.getPriority() != Thread.NORM_PRIORITY)
-                t.setPriority(Thread.NORM_PRIORITY);
-            return t;
-        }
-    }
 }
