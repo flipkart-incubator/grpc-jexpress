@@ -45,7 +45,7 @@ database:
     driverClass: com.mysql.cj.jdbc.Driver
     user: root
     password: password
-    url: jdbc:mysql://127.0.0.1:3306/overlord?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
     properties:
         charSet: UTF-8
         hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
