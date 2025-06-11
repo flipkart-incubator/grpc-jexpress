@@ -60,10 +60,10 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration, 
                 }
             };
 
-        bootstrap.addBundle(hibernateBundle);
+//        bootstrap.addBundle(hibernateBundle);
         GuiceBundle<HelloWorldConfiguration, Map> guiceBundle = new GuiceBundle.Builder<HelloWorldConfiguration, Map>()
             .setConfigClass(HelloWorldConfiguration.class)
-            .addModules(new HelloWorldModule(hibernateBundle.getSessionFactory()))
+            .addModules(new HelloWorldModule())
             .build();
         bootstrap.addBundle(guiceBundle);
     }

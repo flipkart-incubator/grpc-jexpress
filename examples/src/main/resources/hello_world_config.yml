@@ -41,17 +41,17 @@ apiProperties:
 taskProperties:
     hello.timeout: 200
 
-database:
-    driverClass: com.mysql.cj.jdbc.Driver
-    user: root
-    password: password
-    url: jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-    properties:
-        charSet: UTF-8
-        hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
-        hibernate.show_sql: true
-        hibernate.current_session_context_class: managed
-        hibernate.hbm2ddl.auto: update
-    checkConnectionWhileIdle: true
-    checkConnectionOnReturn: true
-    checkConnectionOnBorrow: true
+#database:
+#    driverClass: com.mysql.cj.jdbc.Driver
+#    user: root
+#    password: password
+#    url: jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+#    properties:
+#        charSet: UTF-8
+#        hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+#        hibernate.show_sql: true
+#        hibernate.current_session_context_class: managed
+#        hibernate.hbm2ddl.auto: update
+#    checkConnectionWhileIdle: true
+#    checkConnectionOnReturn: true
+#    checkConnectionOnBorrow: true

@@ -46,9 +46,9 @@ import javax.inject.Singleton;
  */
 public class HelloWorldModule extends AbstractModule {
 
-    private final SessionFactory sessionFactory;
-	public HelloWorldModule(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+//    private final SessionFactory sessionFactory;
+	public HelloWorldModule() {
+//        this.sessionFactory = sessionFactory;
     }
 
 	@Override
@@ -70,8 +70,8 @@ public class HelloWorldModule extends AbstractModule {
 
     }
 
-    @Provides
-    public SessionFactory getSessionFactory() {
-    	return sessionFactory;
-    }
+//    @Provides
+//    public SessionFactory getSessionFactory() {
+//    	return sessionFactory;
+//    }
 }

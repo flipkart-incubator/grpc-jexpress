@@ -34,12 +34,11 @@ public class HelloWorldResourceConfig extends ResourceConfig {
 
 	@Inject
 	public HelloWorldResourceConfig (HelloWorldResource1 helloWorldresource1,
-			HelloWorldResource2 helloWorldresource2, ExampleHibernateResource hibernateResource,
-            SessionFactory sessionFactory) {
+			HelloWorldResource2 helloWorldresource2) {
 		register(helloWorldresource1);
 		register(helloWorldresource2);
-        register(hibernateResource);
-        register(new UnitOfWorkApplicationListener("hibernate", sessionFactory));
+//        register(hibernateResource);
+//        register(new UnitOfWorkApplicationListener("hibernate", sessionFactory));
 	}
 
 }
