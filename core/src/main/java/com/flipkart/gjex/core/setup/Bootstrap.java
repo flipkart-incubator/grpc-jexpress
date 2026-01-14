@@ -21,12 +21,7 @@ import com.flipkart.gjex.core.Bundle;
 import com.flipkart.gjex.core.GJEXConfiguration;
 import com.flipkart.gjex.core.GJEXError;
 import com.flipkart.gjex.core.GJEXObjectMapper;
-import com.flipkart.gjex.core.config.ConfigurationException;
-import com.flipkart.gjex.core.config.ConfigurationFactory;
-import com.flipkart.gjex.core.config.ConfigurationFactoryFactory;
-import com.flipkart.gjex.core.config.ConfigurationSourceProvider;
-import com.flipkart.gjex.core.config.DefaultConfigurationFactoryFactory;
-import com.flipkart.gjex.core.config.FileConfigurationSourceProvider;
+import com.flipkart.gjex.core.config.*;
 import com.flipkart.gjex.core.filter.grpc.GrpcFilter;
 import com.flipkart.gjex.core.filter.http.HttpFilter;
 import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
@@ -109,7 +104,7 @@ public class Bootstrap<T extends GJEXConfiguration, U extends Map> implements Lo
         this.objectMapper = GJEXObjectMapper.newObjectMapper();
         this.classLoader = Thread.currentThread().getContextClassLoader();
         this.configurationFactoryFactory = new DefaultConfigurationFactoryFactory<>();
-        this.configurationSourceProvider = new FileConfigurationSourceProvider();
+        this.configurationSourceProvider = new EnvironmentSubstitutingSourceProvider(new FileConfigurationSourceProvider());
         this.validatorFactory = Validation.buildDefaultValidatorFactory();
         this.initializeConfig();
     }
