@@ -22,7 +22,6 @@ public class EnvironmentSubstitutingSourceProvider implements ConfigurationSourc
 
   @Override
   public InputStream open(String path) throws IOException {
-    System.out.println("In EnvironmentSubstitutingSourceProvider");
     try (InputStream input = delegate.open(path)) {
       String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
       String substituted = substitutor.replace(content);
