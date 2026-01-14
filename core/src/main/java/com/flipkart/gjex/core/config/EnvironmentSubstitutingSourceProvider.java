@@ -1,5 +1,6 @@
 package com.flipkart.gjex.core.config;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
 import java.io.ByteArrayInputStream;
@@ -22,8 +23,8 @@ public class EnvironmentSubstitutingSourceProvider implements ConfigurationSourc
 
   @Override
   public InputStream open(String path) throws IOException {
-    try (InputStream input = delegate.open(path)) {
-      String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+    try (InputStream input = delegate.open(path)){
+      String content = IOUtils.toString(input, StandardCharsets.UTF_8);
       String substituted = substitutor.replace(content);
       return new ByteArrayInputStream(substituted.getBytes(StandardCharsets.UTF_8));
     }
