@@ -17,8 +17,6 @@ public class EnvironmentSubstitutingSourceProvider implements ConfigurationSourc
 
   public EnvironmentSubstitutingSourceProvider(ConfigurationSourceProvider delegate) {
     this.delegate = delegate;
-    System.out.println(System.getenv());
-
     this.substitutor = new StrSubstitutor(System.getenv());
   }
 
@@ -27,10 +25,7 @@ public class EnvironmentSubstitutingSourceProvider implements ConfigurationSourc
     System.out.println("In EnvironmentSubstitutingSourceProvider");
     try (InputStream input = delegate.open(path)) {
       String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-      System.out.println(content);
       String substituted = substitutor.replace(content);
-
-      System.out.println(substituted);
       return new ByteArrayInputStream(substituted.getBytes(StandardCharsets.UTF_8));
     }
   }
