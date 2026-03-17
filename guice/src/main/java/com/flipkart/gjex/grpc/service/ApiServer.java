@@ -24,6 +24,7 @@ import com.flipkart.gjex.core.service.AbstractService;
 import com.flipkart.gjex.core.service.Service;
 import com.flipkart.gjex.http.interceptor.HttpFilterInterceptor;
 import com.flipkart.gjex.web.ResourceRegistrar;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -75,7 +76,11 @@ public class ApiServer extends AbstractService implements Logging {
         httpFilterInterceptor.registerFilters(httpFilterParamsList);
         context.addFilter(new FilterHolder(httpFilterInterceptor), "/*", EnumSet.of(DispatcherType.REQUEST));
         for (JavaxFilterParams javaxFilterParams : javaxFilterParamsList) {
-            context.addFilter(new FilterHolder(javaxFilterParams.getFilter()), javaxFilterParams.getPathSpec(), EnumSet.of(DispatcherType.REQUEST));
+            FilterHolder filterHolder = new FilterHolder(javaxFilterParams.getFilter());
+            if (MapUtils.isNotEmpty(javaxFilterParams.getInitParams())) {
+                filterHolder.setInitParameters(javaxFilterParams.getInitParams());
+            }
+            context.addFilter(filterHolder, javaxFilterParams.getPathSpec(), EnumSet.of(DispatcherType.REQUEST));
         }
     }
 

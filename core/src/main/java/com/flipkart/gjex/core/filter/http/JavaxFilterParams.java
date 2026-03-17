@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.servlet.Filter;
+import java.util.Map;
 
 /**
  * This should be used for registering {@link Filter} present in libraries
@@ -22,4 +23,6 @@ public class JavaxFilterParams {
 
     // The URL pattern(s) the filter applies to.
     private final String pathSpec;
+
+    private final Map<String,String> initParams;
 }
