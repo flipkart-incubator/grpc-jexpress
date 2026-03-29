@@ -16,6 +16,7 @@
 package com.flipkart.gjex.core;
 
 import com.flipkart.gjex.core.config.ArgumentParserWrapper;
+import com.flipkart.gjex.core.healthcheck.HealthCheckRegistry;
 import com.flipkart.gjex.core.logging.Logging;
 import com.flipkart.gjex.core.setup.Bootstrap;
 import com.flipkart.gjex.core.setup.Environment;
@@ -104,7 +105,7 @@ public abstract class Application<T extends GJEXConfiguration, U extends Map> im
         initialize(bootstrap);
 
         /* Create Environment */
-        Environment environment = new Environment(getName(), bootstrap.getMetricRegistry());
+        Environment environment = new Environment(getName(), bootstrap.getMetricRegistry(), new HealthCheckRegistry());
 
 		/* Run bundles etc */
 		bootstrap.run(environment);
